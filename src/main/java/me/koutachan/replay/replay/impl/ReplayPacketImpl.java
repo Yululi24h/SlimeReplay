@@ -10,15 +10,17 @@ import com.github.retrooper.packetevents.netty.buffer.ByteBufInputStream;
 import com.github.retrooper.packetevents.netty.buffer.ByteBufOutputStream;
 import com.github.retrooper.packetevents.protocol.ConnectionState;
 import com.github.retrooper.packetevents.protocol.PacketSide;
+import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
+import com.github.retrooper.packetevents.protocol.packettype.PacketTypeConstant;
 import com.github.retrooper.packetevents.protocol.player.User;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerChunkData;
 import me.koutachan.replay.replay.ReplayPacket;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
 
 public class ReplayPacketImpl extends ReplayPacket {
     private PacketWrapper<?> packet;
@@ -101,6 +103,14 @@ public class ReplayPacketImpl extends ReplayPacket {
         public FakePacketReceiveEvent(int packetID, ServerVersion serverVersion, Object byteBuf) throws PacketProcessException {
             super(packetID, null, serverVersion, null, new User(null, ConnectionState.PLAY, null, null), null, byteBuf);
         }
+    }
+
+    public PacketTypeCommon getType() {
+        return packet.getPacketTypeData().getPacketType();
+    }
+
+    public WrapperPlayServerChunkData asChunkData() {
+        return (WrapperPlayServerChunkData) packet;
     }
 
     @Override
