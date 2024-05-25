@@ -1,0 +1,7 @@
+name: SlimeReplay
+version: '${version}'
+main: me.koutachan.replay.SlimeReplay
+api-version: 1.13
+description: A lightweight replay plugin compatible with versions 1.8 to 1.20.4.
+commands:
+  packet-test:
