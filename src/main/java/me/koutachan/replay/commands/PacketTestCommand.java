@@ -1,12 +1,13 @@
 package me.koutachan.replay.commands;
 
-import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerKeepAlive;
-import me.koutachan.replay.replay.ReplayPacket;
-import me.koutachan.replay.replay.impl.ReplayPacketImpl;
+import me.koutachan.replay.replay.packet.impl.ReplayPacketImpl;
+import me.koutachan.replay.replay.user.ReplayUser;
+import me.koutachan.replay.replay.user.ReplayUserContainer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.io.*;
 
@@ -24,6 +25,15 @@ public class PacketTestCommand implements CommandExecutor {
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        sender.sendMessage("Recording...! processing...");
+        ReplayUser replayUser = ReplayUserContainer.getUser(((Player) sender).getUniqueId());
+        if (replayUser != null) {
+            replayUser.getEntities().remove();
+            sender.sendMessage("Completed! ");
+            replayUser.getEntities().spawn();
+            sender.sendMessage("Completed!.. ");
+            replayUser.startRecord(new File("C:\\Users\\rin11\\Desktop\\monopoly - コピー (2)\\test.slime"));
         }
 
         return true;

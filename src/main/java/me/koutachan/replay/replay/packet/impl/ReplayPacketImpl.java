@@ -1,4 +1,4 @@
-package me.koutachan.replay.replay.impl;
+package me.koutachan.replay.replay.packet.impl;
 
 import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
@@ -12,18 +12,21 @@ import com.github.retrooper.packetevents.protocol.ConnectionState;
 import com.github.retrooper.packetevents.protocol.PacketSide;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
-import com.github.retrooper.packetevents.protocol.packettype.PacketTypeConstant;
 import com.github.retrooper.packetevents.protocol.player.User;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerChunkData;
-import me.koutachan.replay.replay.ReplayPacket;
+import me.koutachan.replay.replay.packet.ReplayPacket;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
 
 public class ReplayPacketImpl extends ReplayPacket {
+    public static ServerVersion VERSION = PacketEvents.getAPI().getServerManager().getVersion();
+
     private PacketWrapper<?> packet;
+    private boolean generated;
 
     public ReplayPacketImpl(PacketWrapper<?> packet) {
         this.packet = packet;
@@ -36,7 +39,22 @@ public class ReplayPacketImpl extends ReplayPacket {
     @Override
     public void read(DataInputStream stream) throws IOException {
         super.read(stream);
-        packet = createFakeWrapper(stream);
+        this.generated = true;
+        packet = setVersion(createFakeWrapper(stream));
+    }
+
+    private PacketWrapper<?> setVersion(PacketWrapper<?> packet) {
+        try {
+            Field serverVersion = PacketWrapper.class.getDeclaredField("serverVersion");
+            boolean accessible = serverVersion.isAccessible();
+            if (!accessible)
+                serverVersion.setAccessible(true);
+            serverVersion.set(packet, VERSION);
+            serverVersion.setAccessible(accessible);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return packet;
     }
 
     @Override
@@ -71,8 +89,14 @@ public class ReplayPacketImpl extends ReplayPacket {
             Class<?> clazz = Class.forName(stream.readUTF());
             Object byteBuf = readByteBuf(stream);
             if (serverSide) {
+                PacketTypeCommon packetType = PacketType.Play.Server.getById(protocolVersion.toClientVersion(), nativePacketId);
+                if (packetType != null) // Fix Packet Id
+                    nativePacketId = packetType.getId(VERSION.toClientVersion());
                 return (PacketWrapper<?>) clazz.getConstructor(PacketSendEvent.class).newInstance(new FakePacketSendEvent(nativePacketId, protocolVersion, byteBuf));
             } else {
+                PacketTypeCommon packetType = PacketType.Play.Client.getById(protocolVersion.toClientVersion(), nativePacketId);
+                if (packetType != null) // Fix Packet Id
+                    nativePacketId = packetType.getId(VERSION.toClientVersion());
                 return (PacketWrapper<?>) clazz.getConstructor(PacketReceiveEvent.class).newInstance(new FakePacketReceiveEvent(nativePacketId, protocolVersion, byteBuf));
             }
         } catch (Exception ex) {
@@ -92,14 +116,14 @@ public class ReplayPacketImpl extends ReplayPacket {
     }
 
     public static class FakePacketSendEvent extends PacketSendEvent {
-        // Not smart hacking/
+        // Not smart hacking
         public FakePacketSendEvent(int packetID, ServerVersion serverVersion, Object byteBuf) throws PacketProcessException {
             super(packetID, null, serverVersion, null, new User(null, ConnectionState.PLAY, null, null), null, byteBuf);
         }
     }
 
     public static class FakePacketReceiveEvent extends PacketReceiveEvent {
-        // Not smart hacking/
+        // Not smart hacking
         public FakePacketReceiveEvent(int packetID, ServerVersion serverVersion, Object byteBuf) throws PacketProcessException {
             super(packetID, null, serverVersion, null, new User(null, ConnectionState.PLAY, null, null), null, byteBuf);
         }
@@ -107,6 +131,11 @@ public class ReplayPacketImpl extends ReplayPacket {
 
     public PacketTypeCommon getType() {
         return packet.getPacketTypeData().getPacketType();
+    }
+
+    @Override
+    public boolean isGenerated() {
+        return generated;
     }
 
     public WrapperPlayServerChunkData asChunkData() {

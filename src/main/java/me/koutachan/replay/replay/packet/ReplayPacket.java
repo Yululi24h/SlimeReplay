@@ -1,4 +1,4 @@
-package me.koutachan.replay.replay;
+package me.koutachan.replay.replay.packet;
 
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 
@@ -19,6 +19,8 @@ public abstract class ReplayPacket implements Serializable {
     }
 
     public abstract PacketWrapper<?> toPacket();
+
+    public abstract boolean isGenerated();
 
     public boolean isSupported() {
         return true;
