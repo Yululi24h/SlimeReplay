@@ -2,8 +2,10 @@ package me.koutachan.replay.packetevents;
 
 import com.github.retrooper.packetevents.event.*;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientTeleportConfirm;
 import com.github.retrooper.packetevents.wrapper.play.server.*;
 import me.koutachan.replay.replay.packet.ReplayPacket;
+import me.koutachan.replay.replay.packet.ServerChunkData;
 import me.koutachan.replay.replay.packet.impl.ReplayPacketImpl;
 import me.koutachan.replay.replay.user.ReplayUser;
 import me.koutachan.replay.replay.user.ReplayUserContainer;
@@ -34,7 +36,13 @@ public class PacketListener extends PacketListenerAbstract {
         if (user != null) {
             ReplayPacket packet = null;
             switch ((PacketType.Play.Client) event.getPacketType()) {
-
+                case TELEPORT_CONFIRM: {
+                    packet = new ReplayPacketImpl(new WrapperPlayClientTeleportConfirm(event));
+                    break;
+                }
+            }
+            if (user.getReplayRunner() != null) {
+                user.getReplayRunner().onReceivedPacket(user, event);
             }
         }
     }
@@ -55,7 +63,7 @@ public class PacketListener extends PacketListenerAbstract {
                     break;
                 }
                 case CHUNK_DATA: {
-                    packet = new ReplayPacketImpl(new WrapperPlayServerChunkData(event));
+                    packet = new ReplayPacketImpl(new ServerChunkData(event));
                     break;
                 }
                 case MAP_CHUNK_BULK: {
@@ -126,9 +134,16 @@ public class PacketListener extends PacketListenerAbstract {
                     packet = new ReplayPacketImpl(new WrapperPlayServerDestroyEntities(event));
                     break;
                 }
+                case SYSTEM_CHAT_MESSAGE: {
+                    packet = new ReplayPacketImpl(new WrapperPlayServerSystemChatMessage(event));
+                    break;
+                }
             }
             if (packet != null) {
                 user.onPacket(packet);
+            }
+            if (user.getReplayRunner() != null) {
+                user.getReplayRunner().onSendPacket(user, event);
             }
         }
     }

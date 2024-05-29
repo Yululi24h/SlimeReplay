@@ -8,6 +8,7 @@ import me.koutachan.replay.replay.user.map.ChunkMap;
 import me.koutachan.replay.replay.user.map.EntitiesData;
 import me.koutachan.replay.replay.user.map.WorldData;
 import me.koutachan.replay.replay.user.record.RecordRunner;
+import me.koutachan.replay.replay.user.replay.ReplayRunner;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
@@ -19,15 +20,17 @@ public class ReplayUser {
 
     private final WorldData world;
     private final EntitiesData entities;
-    private final ChunkMap chunk = new ChunkMap();
+    private final ChunkMap chunk ;
 
     private RecordRunner recordRunner;
+    private ReplayRunner replayRunner;
 
     public ReplayUser(User user, Object player) {
         this.user = user;
         this.player = (Player) player;
         this.world = new WorldData(this);
         this.entities = new EntitiesData(this);
+        this.chunk = new ChunkMap(this);
     }
 
     public User getUser() {
@@ -63,18 +66,31 @@ public class ReplayUser {
     }
 
     public void sendSilent(ReplayPacket packet) {
-        if (!packet.isGenerated()) {
-            user.sendPacketSilently(packet.toPacket());
-        }
+        user.sendPacketSilently(packet.toPacket());
     }
 
     public boolean isRecording() {
         return recordRunner != null && recordRunner.isRecording();
     }
 
+    public boolean isReplaying() {
+        return replayRunner != null;
+    }
+
     public void startRecord(File file) {
         this.recordRunner = RecordRunner.ofFile(this, file);
         this.recordRunner.start();
+    }
+
+    public void startReplay(File file) {
+        this.replayRunner = ReplayRunner.ofFile(this, file);
+        this.replayRunner.start();
+    }
+
+    public void stopRecord() {
+        if (recordRunner != null) {
+            recordRunner.stop();
+        }
     }
 
     public void onPacket(ReplayPacket packet) {
@@ -84,5 +100,13 @@ public class ReplayUser {
         if (isRecording()) {
             recordRunner.onPacket(packet);
         }
+    }
+
+    public RecordRunner getRecordRunner() {
+        return recordRunner;
+    }
+
+    public ReplayRunner getReplayRunner() {
+        return replayRunner;
     }
 }

@@ -51,6 +51,14 @@ public class ReplayPacketContainer {
         return con;
     }
 
+    public RecordPacket get(int pos) {
+        return packets.get(pos);
+    }
+
+    public int size() {
+        return packets.size();
+    }
+
     public void clear() {
         packets.clear();
     }

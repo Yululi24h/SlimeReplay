@@ -13,8 +13,8 @@ public class RecordHookImpl implements RecordHook {
     public RecordHookImpl(ReplayUser user) {
         this.user = user;
         this.container.addPacket(user.getWorld().toPacket(), 0);
-        this.container.addPacket(user.getEntities().toPacket(), 0);
         this.container.addPacket(user.getChunk().toPacket(), 0);
+        this.container.addPacket(user.getEntities().toPacket(), 0);
     }
 
     @Override

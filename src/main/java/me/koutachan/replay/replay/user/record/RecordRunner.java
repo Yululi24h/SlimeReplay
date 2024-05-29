@@ -5,9 +5,7 @@ import me.koutachan.replay.replay.packet.ReplayPacketContainer;
 import me.koutachan.replay.replay.user.ReplayUser;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.util.zip.GZIPOutputStream;
 
 public class RecordRunner {
     private ReplayUser user;
@@ -18,7 +16,7 @@ public class RecordRunner {
     private Thread saveThread;
 
     public RecordRunner(ReplayUser user) {
-        this(user, 5000L);
+        this(user, 1000L);
     }
 
     public RecordRunner(ReplayUser user, long sleep) {
@@ -50,13 +48,19 @@ public class RecordRunner {
     }
 
     public void stop() {
-        this.enabled = false;
-        if (saveThread != null) {
-            saveThread = null;
+        try {
+            //this.onSave();
+            /* this.onSave(); */
+            this.enabled = false;
+            if (saveThread != null) {
+                saveThread = null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    public void onSave() throws FileNotFoundException, Exception {
+    public synchronized void onSave() throws Exception {
     }
 
     public void onPacket(ReplayPacket packet) {
@@ -70,7 +74,7 @@ public class RecordRunner {
     }
 
     public static RecordRunner ofFile(ReplayUser user, File file) {
-        return new FileRunner(user, file, 5000L);
+        return new FileRunner(user, file);
     }
 
     public static RecordRunner ofFile(ReplayUser user, File file, long sleep) {
@@ -79,6 +83,14 @@ public class RecordRunner {
 
     public static class FileRunner extends RecordRunner {
         private final File to;
+
+        public FileRunner(ReplayUser user, File to) {
+            super(user);
+            this.to = to;
+            if (to.exists() && !to.delete()) {
+                throw new IllegalAccessError();
+            }
+        }
 
         public FileRunner(ReplayUser user, File to, long sleep) {
             super(user, sleep);
@@ -89,13 +101,16 @@ public class RecordRunner {
         }
 
         @Override
-        public void onSave() throws Exception {
+        public synchronized void onSave() throws Exception {
+            if (!isRecording())
+                return;
             ReplayPacketContainer container = hook.onSave();
             if (container != null) {
-                ReplayPacketContainer copied  = container.copy();
+                ReplayPacketContainer copied = container.copy();
                 container.clear();
-                copied.write(new GZIPOutputStream(new FileOutputStream(to, true)));
-                copied.clear();
+                try (FileOutputStream stream = new FileOutputStream(to, true)) {
+                    copied.write(stream);
+                }
             }
         }
     }

@@ -9,19 +9,25 @@ import com.github.retrooper.packetevents.protocol.world.chunk.TileEntity;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerChunkData;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerChunkDataBulk;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerPositionAndLook;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUnloadChunk;
 import me.koutachan.replay.replay.packet.ReplayPacket;
+import me.koutachan.replay.replay.packet.ServerChunkData;
 import me.koutachan.replay.replay.packet.impl.ReplayPacketImpl;
 import me.koutachan.replay.replay.user.PacketMap;
+import me.koutachan.replay.replay.user.ReplayUser;
+import org.bukkit.Location;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ChunkMap extends PacketMap<ReplayPacket> {
-    private final Map<ChunkPair, IChunkWrapper> chunks = new HashMap<>();
+    private final Map<ChunkPos, IChunkWrapper> chunks = new HashMap<>();
+    private final ReplayUser user;
+
+    public ChunkMap(ReplayUser user) {
+        this.user = user;
+    }
 
     @Override
     public void onPacket(ReplayPacket packet) {
@@ -31,8 +37,8 @@ public class ChunkMap extends PacketMap<ReplayPacket> {
         if (side == PacketSide.SERVER) {
             switch ((PacketType.Play.Server) packetType) {
                 case CHUNK_DATA: {
-                    WrapperPlayServerChunkData chunk = (WrapperPlayServerChunkData) packetWrapper;
-                    chunks.put(new ChunkPair(chunk.getColumn().getX(), chunk.getColumn().getZ()), new ChunkWrapper(chunk));
+                    ServerChunkData chunk = (ServerChunkData) packetWrapper;
+                    chunks.put(new ChunkPos(chunk.getColumn().getX(), chunk.getColumn().getZ()), new ChunkWrapper(chunk));
                     break;
                 }
                 case MAP_CHUNK_BULK: {
@@ -44,7 +50,7 @@ public class ChunkMap extends PacketMap<ReplayPacket> {
                         //TODO: Fixes //TODO: TO INT[]
                         byte[] biomeData = chunk.getBiomeData()[i];
                         Column column = new Column(x, z, true, baseChunk, new TileEntity[0]);
-                        chunks.put(new ChunkPair(x, z), new ChunkWrapper(column));
+                        chunks.put(new ChunkPos(x, z), new ChunkWrapper(column));
                     }
                     break;
                 }
@@ -54,7 +60,7 @@ public class ChunkMap extends PacketMap<ReplayPacket> {
                 }
                 case UNLOAD_CHUNK: {
                     WrapperPlayServerUnloadChunk chunk = (WrapperPlayServerUnloadChunk) packetWrapper;
-                    chunks.remove(new ChunkPair(chunk.getChunkZ(), chunk.getChunkZ()));
+                    chunks.remove(new ChunkPos(chunk.getChunkZ(), chunk.getChunkZ()));
                     break;
                 }
             }
@@ -69,7 +75,7 @@ public class ChunkMap extends PacketMap<ReplayPacket> {
         private final ReplayPacket chunk;
 
         // Because of packet events is shitty.
-        public ChunkWrapper(WrapperPlayServerChunkData chunk) {
+        public ChunkWrapper(ServerChunkData chunk) {
             this.chunk = new ReplayPacketImpl(chunk);
         }
 
@@ -87,10 +93,10 @@ public class ChunkMap extends PacketMap<ReplayPacket> {
         ReplayPacket toPacket();
     }
 
-    public static class ChunkPair {
+    public static class ChunkPos {
         private final int x, z;
 
-        public ChunkPair(int x, int z) {
+        public ChunkPos(int x, int z) {
             this.x = x;
             this.z = z;
         }
@@ -106,9 +112,9 @@ public class ChunkMap extends PacketMap<ReplayPacket> {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof ChunkPair)) return false;
-            ChunkPair chunkPair = (ChunkPair) o;
-            return x == chunkPair.x && z == chunkPair.z;
+            if (!(o instanceof ChunkPos)) return false;
+            ChunkPos chunkPos = (ChunkPos) o;
+            return x == chunkPos.x && z == chunkPos.z;
         }
 
         @Override
@@ -117,10 +123,25 @@ public class ChunkMap extends PacketMap<ReplayPacket> {
         }
     }
 
+    public void sentPacket(ReplayUser user) {
+        List<ReplayPacket> packets = toPacket();
+        packets.forEach(packet -> {
+            PacketWrapper<?> wrapper = packet.toPacket();
+            wrapper.resetBuffer();
+            ServerChunkData chunkData = (ServerChunkData) wrapper;
+            user.sendSilent(new WrapperPlayServerUnloadChunk(chunkData.getColumn().getX(), chunkData.getColumn().getZ()));
+            user.sendSilent(wrapper);
+        });
+
+    }
+
     @Override
     public List<ReplayPacket> toPacket() {
-        return chunks.values().stream()
+        List<ReplayPacket> packets = chunks.values().stream()
                 .map(IChunkWrapper::toPacket)
                 .collect(Collectors.toList());
+        Location location = user.getPlayer().getLocation();
+        packets.add(new ReplayPacketImpl(new WrapperPlayServerPlayerPositionAndLook(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch(), (byte) 0, 0, true)));
+        return packets;
     }
 }
