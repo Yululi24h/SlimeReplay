@@ -5,7 +5,7 @@ import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientTeleportConfirm;
 import com.github.retrooper.packetevents.wrapper.play.server.*;
 import me.koutachan.replay.replay.packet.ReplayPacket;
-import me.koutachan.replay.replay.packet.ServerChunkData;
+import me.koutachan.replay.replay.packet.in.ReplayChunkData;
 import me.koutachan.replay.replay.packet.impl.ReplayPacketImpl;
 import me.koutachan.replay.replay.user.ReplayUser;
 import me.koutachan.replay.replay.user.ReplayUserContainer;
@@ -63,7 +63,7 @@ public class PacketListener extends PacketListenerAbstract {
                     break;
                 }
                 case CHUNK_DATA: {
-                    packet = new ReplayPacketImpl(new ServerChunkData(event));
+                    packet = new ReplayPacketImpl(new ReplayChunkData(event));
                     break;
                 }
                 case MAP_CHUNK_BULK: {

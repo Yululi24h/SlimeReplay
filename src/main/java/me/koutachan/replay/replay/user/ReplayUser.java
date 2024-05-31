@@ -9,6 +9,7 @@ import me.koutachan.replay.replay.user.map.EntitiesData;
 import me.koutachan.replay.replay.user.map.WorldData;
 import me.koutachan.replay.replay.user.record.RecordRunner;
 import me.koutachan.replay.replay.user.replay.ReplayRunner;
+import net.kyori.adventure.text.Component;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
@@ -91,6 +92,10 @@ public class ReplayUser {
         if (recordRunner != null) {
             recordRunner.stop();
         }
+    }
+
+    public void sendMessage(String message) {
+        user.sendMessage(Component.text(message));
     }
 
     public void onPacket(ReplayPacket packet) {

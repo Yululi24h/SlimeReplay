@@ -12,7 +12,7 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPl
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUnloadChunk;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerWindowConfirmation;
 import me.koutachan.replay.replay.packet.ReplayPacketContainer;
-import me.koutachan.replay.replay.packet.ServerChunkData;
+import me.koutachan.replay.replay.packet.in.ReplayChunkData;
 import me.koutachan.replay.replay.user.ReplayUser;
 
 import java.io.File;
@@ -78,8 +78,8 @@ public class ReplayRunner {
             if (packetWrapper instanceof WrapperPlayServerPlayerPositionAndLook) {
                 chunkHandler.onPosition((WrapperPlayServerPlayerPositionAndLook) packetWrapper);
             }
-            if (packetWrapper instanceof ServerChunkData) {
-                ServerChunkData chunkData = (ServerChunkData) packetWrapper;
+            if (packetWrapper instanceof ReplayChunkData) {
+                ReplayChunkData chunkData = (ReplayChunkData) packetWrapper;
                 chunkHandler.addChunk(chunkData);
                 return;
             } else if (packetWrapper instanceof WrapperPlayServerUnloadChunk) {
@@ -126,6 +126,9 @@ public class ReplayRunner {
             if (confirmation.isAccepted()) {
                 return;
             }
+        }
+        if (packetType == PacketType.Play.Server.CHAT_MESSAGE || packetType == PacketType.Play.Server.SYSTEM_CHAT_MESSAGE) {
+            return;
         }
 
         event.setCancelled(true);

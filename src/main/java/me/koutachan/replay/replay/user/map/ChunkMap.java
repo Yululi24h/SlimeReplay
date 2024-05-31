@@ -12,7 +12,7 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerCh
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerPositionAndLook;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUnloadChunk;
 import me.koutachan.replay.replay.packet.ReplayPacket;
-import me.koutachan.replay.replay.packet.ServerChunkData;
+import me.koutachan.replay.replay.packet.in.ReplayChunkData;
 import me.koutachan.replay.replay.packet.impl.ReplayPacketImpl;
 import me.koutachan.replay.replay.user.PacketMap;
 import me.koutachan.replay.replay.user.ReplayUser;
@@ -37,7 +37,7 @@ public class ChunkMap extends PacketMap<ReplayPacket> {
         if (side == PacketSide.SERVER) {
             switch ((PacketType.Play.Server) packetType) {
                 case CHUNK_DATA: {
-                    ServerChunkData chunk = (ServerChunkData) packetWrapper;
+                    ReplayChunkData chunk = (ReplayChunkData) packetWrapper;
                     chunks.put(new ChunkPos(chunk.getColumn().getX(), chunk.getColumn().getZ()), new ChunkWrapper(chunk));
                     break;
                 }
@@ -75,7 +75,7 @@ public class ChunkMap extends PacketMap<ReplayPacket> {
         private final ReplayPacket chunk;
 
         // Because of packet events is shitty.
-        public ChunkWrapper(ServerChunkData chunk) {
+        public ChunkWrapper(ReplayChunkData chunk) {
             this.chunk = new ReplayPacketImpl(chunk);
         }
 
@@ -128,7 +128,7 @@ public class ChunkMap extends PacketMap<ReplayPacket> {
         packets.forEach(packet -> {
             PacketWrapper<?> wrapper = packet.toPacket();
             wrapper.resetBuffer();
-            ServerChunkData chunkData = (ServerChunkData) wrapper;
+            ReplayChunkData chunkData = (ReplayChunkData) wrapper;
             user.sendSilent(new WrapperPlayServerUnloadChunk(chunkData.getColumn().getX(), chunkData.getColumn().getZ()));
             user.sendSilent(wrapper);
         });

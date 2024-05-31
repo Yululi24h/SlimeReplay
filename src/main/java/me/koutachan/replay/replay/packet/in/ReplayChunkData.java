@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.koutachan.replay.replay.packet;
+package me.koutachan.replay.replay.packet.in;
 
 import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
@@ -44,7 +44,7 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
-public class ServerChunkData extends PacketWrapper<ServerChunkData> {
+public class ReplayChunkData extends PacketWrapper<ReplayChunkData> {
     private static ChunkReader_v1_7 chunkReader_v1_7 = new ChunkReader_v1_7();
     private static ChunkReader_v1_8 chunkReader_v1_8 = new ChunkReader_v1_8();
     private static ChunkReader_v1_9 chunkReader_v1_9 = new ChunkReader_v1_9();
@@ -68,11 +68,11 @@ public class ServerChunkData extends PacketWrapper<ServerChunkData> {
     private byte[][] skyLightArray;
     private byte[][] blockLightArray;
 
-    public ServerChunkData(PacketSendEvent event) {
+    public ReplayChunkData(PacketSendEvent event) {
         super(event);
     }
 
-    public ServerChunkData(Column column) {
+    public ReplayChunkData(Column column) {
         super(PacketType.Play.Server.CHUNK_DATA);
         this.column = column;
     }
@@ -135,9 +135,11 @@ public class ServerChunkData extends PacketWrapper<ServerChunkData> {
             secondaryChunkMask = readChunkMask();
         }
 
-        int chunkSize = 16;
-        if (serverVersion.isNewerThanOrEquals(ServerVersion.V_1_17)) {
-            chunkSize = user.getTotalWorldHeight() >> 4;
+        int chunkSize;
+        if (serverVersion.isNewerThanOrEquals(ServerVersion.V_1_17)) { //Slime Replay: Read Chunk Size;
+            chunkSize = readVarInt();
+        } else {
+            chunkSize = 16;
         }
 
         // 1.7 logic is the same
@@ -327,11 +329,15 @@ public class ServerChunkData extends PacketWrapper<ServerChunkData> {
         BitSet chunkMask = new BitSet();
         BaseChunk[] chunks = column.getChunks();
 
+        if (serverVersion.isNewerThanOrEquals(ServerVersion.V_1_17)) { // SLIME REPLAY: Write chunk size;
+            writeVarInt(chunks.length);
+        }
+
         if (serverVersion.isNewerThanOrEquals(ServerVersion.V_1_9)) {
             for (int index = 0; index < chunks.length; index++) {
                 BaseChunk chunk = chunks[index];
                 if (v1_18) {
-                    System.out.println(((Chunk_v1_18) chunk).getBlockCount());
+                    //System.out.println(((Chunk_v1_18) chunk).getBlockCount());
                     Chunk_v1_18.write(dataOut, (Chunk_v1_18) chunk);
                 } else if (v1_9 && chunk != null) {
                     chunkMask.set(index);
@@ -460,7 +466,7 @@ public class ServerChunkData extends PacketWrapper<ServerChunkData> {
     }
 
     @Override
-    public void copy(ServerChunkData wrapper) {
+    public void copy(ReplayChunkData wrapper) {
         this.column = wrapper.column;
         this.ignoreOldData = wrapper.ignoreOldData;
         this.trustEdges = wrapper.trustEdges;
