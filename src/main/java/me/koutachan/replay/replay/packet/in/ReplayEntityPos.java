@@ -13,6 +13,10 @@ public class ReplayEntityPos extends ReplayWrapper<ReplayEntityPos> {
     protected Vector3d pos;
     protected boolean onGround;
 
+    public ReplayEntityPos(ServerVersion version, Object byteBuf) {
+        super(version, byteBuf);
+    }
+
     public ReplayEntityPos(int entityId, Vector3d pos, boolean onGround) {
         this.entityId = entityId;
         this.pos = pos;

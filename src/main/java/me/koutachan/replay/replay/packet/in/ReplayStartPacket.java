@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ReplayStartPacket extends ReplayWrapper<ReplayStartPacket> {
     private List<ReplayChunkData> chunkData;
-    private List<EntitySpawnData> entitySpawn;
+    private List<EntitySpawnData> entityData;
     private PlayerSelfData playerSelf;
     private Dimension dimension;
     private Location startPos;
@@ -30,19 +30,30 @@ public class ReplayStartPacket extends ReplayWrapper<ReplayStartPacket> {
             //ReplayChunkData chunkData = new ReplayChunkData(this.serverVersion, this.buffer);
         }
         int entitySize = readInt();
-        this.entitySpawn = new ArrayList<>();
+        this.entityData = new ArrayList<>();
         for (int i = 0; i < entitySize; i++) {
-            entitySpawn.add(new EntitySpawnData(this.serverVersion, this.buffer));
+            this.entityData.add(new EntitySpawnData(this.serverVersion, this.buffer));
         }
-
-        this.playerSelf = new PlayerSelfData();
+        this.playerSelf = new PlayerSelfData(this.serverVersion, this.buffer);
         this.dimension = readDimension();
     }
 
     @Override
     public void write() {
-        super.write();
+        writeInt(this.chunkData.size());
+        for (ReplayChunkData chunkData : this.chunkData) {
+            writeWrapper(chunkData);
+        }
+        writeInt(this.entityData.size());
+        for (EntitySpawnData entityData : this.entityData) {
+            writeWrapper(entityData);
+        }
+        writeWrapper(this.playerSelf);
+        writeDimension(this.dimension);
+
     }
+
+
 
     @Override
     public boolean isSupportedVersion(ServerVersion version) {

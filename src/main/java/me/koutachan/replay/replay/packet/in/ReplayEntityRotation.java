@@ -13,6 +13,10 @@ public class ReplayEntityRotation extends ReplayWrapper<ReplayEntityRotation> {
     private float pitch;
     private boolean onGround;
 
+    public ReplayEntityRotation(ServerVersion version, Object byteBuf) {
+        super(version, byteBuf);
+    }
+
     public ReplayEntityRotation(int entityId, float yaw, float pitch, boolean onGround) {
         super();
         this.entityId = entityId;

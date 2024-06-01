@@ -124,14 +124,7 @@ public class ChunkMap extends PacketMap<ReplayPacket> {
     }
 
     public void sentPacket(ReplayUser user) {
-        List<ReplayPacket> packets = toPacket();
-        packets.forEach(packet -> {
-            PacketWrapper<?> wrapper = packet.toPacket();
-            wrapper.resetBuffer();
-            ReplayChunkData chunkData = (ReplayChunkData) wrapper;
-            user.sendSilent(new WrapperPlayServerUnloadChunk(chunkData.getColumn().getX(), chunkData.getColumn().getZ()));
-            user.sendSilent(wrapper);
-        });
+
 
     }
 

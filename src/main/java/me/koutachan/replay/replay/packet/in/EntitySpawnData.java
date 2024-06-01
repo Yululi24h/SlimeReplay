@@ -24,6 +24,16 @@ public class EntitySpawnData extends ReplayWrapper<EntitySpawnData> {
         super(version, byteBuf);
     }
 
+    public EntitySpawnData(int entityId, EntityType entityType, UUID uuid, Location location, float headYaw, Vector3d velocity, List<EntityData> entityData) {
+        this.entityId = entityId;
+        this.entityType = entityType;
+        this.uuid = uuid;
+        this.location = location;
+        this.headYaw = headYaw;
+        this.velocity = velocity;
+        this.entityData = entityData;
+    }
+
     @Override
     public void read() {
         super.read();

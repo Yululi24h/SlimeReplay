@@ -154,39 +154,6 @@ public class ReplayChunkHandler {
             }
         }
         loadedPos.forEach(this::preUnloadChunk);
-        /*System.out.println("Called! ");
-        boolean viewX = Math.abs(chunkX - sectionX) <= this.viewDistance * 2;
-        boolean viewZ = Math.abs(chunkZ - sectionZ) <= this.viewDistance * 2;
-        if (viewX && viewZ) {
-            System.out.println("Ok Going! ");
-            int minX = Math.min(sectionX, chunkX) - this.viewDistance;
-            int minZ = Math.min(sectionZ, chunkZ) - this.viewDistance;
-            int maxX = Math.max(sectionX, chunkX) + this.viewDistance;
-            int maxZ = Math.max(sectionZ, chunkZ) + this.viewDistance;
-            for (int x = minX; x <= maxX; x++) {
-                for (int z = minZ; z <= maxZ; z++) {
-                    ChunkMap.ChunkPos chunkPos1 = new ChunkMap.ChunkPos(x, z);
-                    boolean flagChunkPos = getChunkDistance(chunkPos1, chunkX, chunkZ) <= viewDistance;
-                    boolean flagPlayerPos = getChunkDistance(chunkPos1, sectionX, sectionZ) <= viewDistance;
-                    if (flagChunkPos && !flagPlayerPos) {
-                        loadChunk(chunkPos1);
-                    } else if (!flagChunkPos && flagPlayerPos) {
-                        preUnloadChunk(chunkPos);
-                    }
-                }
-            }
-        } else {
-            for (int x = chunkPos.getX() - this.viewDistance; x <= chunkPos.getX() + this.viewDistance; x++) {
-                for (int z = chunkPos.getZ() - this.viewDistance; z <= chunkPos.getZ() + this.viewDistance; z++) {
-                    loadChunk(new ChunkMap.ChunkPos(x, z));
-                }
-            }
-            for (int x = sectionX - this.viewDistance; x <= sectionX + this.viewDistance; x++) {
-                for (int z = sectionZ - this.viewDistance; z <= sectionZ + this.viewDistance; z++) {
-                    preUnloadChunk(chunkPos);
-                }
-            }
-        }*/
     }
 
     //TODO:

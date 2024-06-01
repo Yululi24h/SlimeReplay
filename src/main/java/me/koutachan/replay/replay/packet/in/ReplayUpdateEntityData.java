@@ -12,6 +12,15 @@ public class ReplayUpdateEntityData extends ReplayWrapper<ReplayUpdateEntityData
     private int entityId;
     private List<EntityData> entityData;
 
+    public ReplayUpdateEntityData(ServerVersion version, Object byteBuf) {
+        super(version, byteBuf);
+    }
+
+    public ReplayUpdateEntityData(int entityId, List<EntityData> entityData) {
+        super();
+        this.entityData = entityData;
+    }
+
     @Override
     public void read() {
         this.entityId = readInt();

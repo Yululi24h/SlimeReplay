@@ -62,8 +62,12 @@ public class PacketListener extends PacketListenerAbstract {
                     packet = new ReplayPacketImpl(new WrapperPlayServerRespawn(event));
                     break;
                 }
+                case UPDATE_LIGHT: {
+
+
+                }
                 case CHUNK_DATA: {
-                    packet = new ReplayPacketImpl(new ReplayChunkData(event));
+                    packet = new ReplayPacketImpl(new WrapperPlayServerChunkData(event);
                     break;
                 }
                 case MAP_CHUNK_BULK: {

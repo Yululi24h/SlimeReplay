@@ -17,6 +17,13 @@ public class ReplayEntityPosAndRotation extends ReplayWrapper<ReplayEntityPosAnd
         super(version, byteBuf);
     }
 
+    public ReplayEntityPosAndRotation(int entityId, Location location, boolean onGround) {
+        this.entityId = entityId;
+        this.location = location;
+        this.onGround = onGround;
+    }
+
+
     @Override
     public boolean isSupportedVersion(ServerVersion version) {
         return true;
@@ -31,7 +38,13 @@ public class ReplayEntityPosAndRotation extends ReplayWrapper<ReplayEntityPosAnd
     @Override
     public void read() {
         this.entityId = readInt();
-        this.location = new Location(readDouble(), readDouble(), readDouble(), readFloat(), readFloat());
+        this.location = new Location(
+                readDouble(),
+                readDouble(),
+                readDouble(),
+                readFloat(),
+                readFloat()
+        );
         this.onGround = readBoolean();
     }
 

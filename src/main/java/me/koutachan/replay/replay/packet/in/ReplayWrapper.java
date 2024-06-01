@@ -25,6 +25,17 @@ public abstract class ReplayWrapper<T extends PacketWrapper<T>> extends PacketWr
 
     public abstract boolean isSupportedVersion(ServerVersion version);
 
+    protected void writeWrapper(PacketWrapper<?> wrapper) {
+        wrapper.buffer = this.buffer;
+        wrapper.write();
+    }
+
+    protected <U extends PacketWrapper<U>> U readWrapper(U wrapper) {
+        wrapper.buffer = this.buffer;
+        wrapper.read();
+        return wrapper;
+    }
+
     /*public boolean isSupportedVersion() {
         return getPacketTypeData().getNativePacketId() != -1;
     }*/
