@@ -1,41 +1,39 @@
 package me.koutachan.replay.replay.packet.in;
 
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
-import com.github.retrooper.packetevents.util.Vector3d;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityRelativeMove;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityRotation;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReplayEntityPos extends ReplayWrapper<ReplayEntityPos> {
-    protected int entityId;
-    protected Vector3d pos;
-    protected boolean onGround;
+public class ReplayEntityRotation extends ReplayWrapper<ReplayEntityRotation> {
+    private int entityId;
+    private float yaw;
+    private float pitch;
+    private boolean onGround;
 
-    public ReplayEntityPos(int entityId, Vector3d pos, boolean onGround) {
+    public ReplayEntityRotation(int entityId, float yaw, float pitch, boolean onGround) {
+        super();
         this.entityId = entityId;
-        this.pos = pos;
+        this.yaw = yaw;
+        this.pitch = pitch;
         this.onGround = onGround;
     }
 
     @Override
     public void read() {
         this.entityId = readInt();
-        this.pos = new Vector3d(
-                readDouble(),
-                readDouble(),
-                readDouble()
-        );
+        this.yaw = readFloat();
+        this.pitch = readFloat();
         this.onGround = readBoolean();
     }
 
     @Override
     public void write() {
         writeInt(this.entityId);
-        writeDouble(this.pos.getX());
-        writeDouble(this.pos.getY());
-        writeDouble(this.pos.getZ());
+        writeFloat(this.yaw);
+        writeFloat(this.pitch);
         writeBoolean(this.onGround);
     }
 
@@ -47,11 +45,10 @@ public class ReplayEntityPos extends ReplayWrapper<ReplayEntityPos> {
     @Override
     public List<PacketWrapper<?>> getPacket() {
         List<PacketWrapper<?>> packets = new ArrayList<>();
-        packets.add(new WrapperPlayServerEntityRelativeMove(
+        packets.add(new WrapperPlayServerEntityRotation(
                 this.entityId,
-                this.pos.getX(),
-                this.pos.getY(),
-                this.pos.getZ(),
+                this.yaw,
+                this.pitch,
                 this.onGround
         ));
         return packets;

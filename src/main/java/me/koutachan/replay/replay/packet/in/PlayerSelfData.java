@@ -20,6 +20,10 @@ public class PlayerSelfData extends ReplayWrapper<PlayerSelfData> {
     //private List<PotionType> potionTypes = new ArrayList<>();
     private List<EntityData> entityData;
 
+    public PlayerSelfData() {
+
+    }
+
     @Override
     public void read() {
         super.read();
