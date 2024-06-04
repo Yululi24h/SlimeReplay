@@ -29,8 +29,8 @@ public class LightData implements Cloneable {
     private BitSet skyLightMask;
     private BitSet emptyBlockLightMask;
     private BitSet emptySkyLightMask;
-    private int skyLightCount;
-    private int blockLightCount;
+    private Integer skyLightCount;
+    private Integer blockLightCount;
     private byte[][] skyLightArray;
     private byte[][] blockLightArray;
 
@@ -68,12 +68,16 @@ public class LightData implements Cloneable {
         ChunkBitMask.writeChunkMask(packet, emptySkyLightMask);
         ChunkBitMask.writeChunkMask(packet, emptyBlockLightMask);
 
+        if (skyLightCount == null) // Most
+            skyLightCount = skyLightArray.length;
         if (serverVersion.isNewerThanOrEquals(ServerVersion.V_1_17))
             packet.writeVarInt(skyLightCount);
         for (int x = 0; x < skyLightCount; x++) {
             packet.writeByteArray(skyLightArray[x]);
         }
 
+        if (blockLightCount == null)
+            blockLightCount = blockLightArray.length;
         if (serverVersion.isNewerThanOrEquals(ServerVersion.V_1_17))
             packet.writeVarInt(blockLightCount);
         for (int x = 0; x < blockLightCount; x++) {

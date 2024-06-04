@@ -18,6 +18,7 @@ public class ReplayUpdateEntityData extends ReplayWrapper<ReplayUpdateEntityData
 
     public ReplayUpdateEntityData(int entityId, List<EntityData> entityData) {
         super();
+        this.entityId = entityId;
         this.entityData = entityData;
     }
 

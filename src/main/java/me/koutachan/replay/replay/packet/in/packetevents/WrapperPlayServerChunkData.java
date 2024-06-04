@@ -121,9 +121,10 @@ public class WrapperPlayServerChunkData extends PacketWrapper<WrapperPlayServerC
         }
 
         if (chunkSize == null) {
-            chunkSize = 16;
             if (serverVersion.isNewerThanOrEquals(ServerVersion.V_1_17)) {
                 chunkSize = user.getTotalWorldHeight() >> 4;
+            } else {
+                chunkSize = 16;
             }
         }
 
@@ -418,6 +419,10 @@ public class WrapperPlayServerChunkData extends PacketWrapper<WrapperPlayServerC
 
     public Column getColumn() {
         return column;
+    }
+
+    public BaseChunk[] getBaseChunk() {
+        return column.getChunks();
     }
 
     public int getChunkSize() {

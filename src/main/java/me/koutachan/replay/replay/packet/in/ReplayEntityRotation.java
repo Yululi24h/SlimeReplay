@@ -1,5 +1,6 @@
 package me.koutachan.replay.replay.packet.in;
 
+import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityRotation;
@@ -15,6 +16,14 @@ public class ReplayEntityRotation extends ReplayWrapper<ReplayEntityRotation> {
 
     public ReplayEntityRotation(ServerVersion version, Object byteBuf) {
         super(version, byteBuf);
+    }
+
+    public ReplayEntityRotation(PacketSendEvent event) {
+        WrapperPlayServerEntityRotation rotation = new WrapperPlayServerEntityRotation(event);
+        this.entityId = rotation.getEntityId();
+        this.yaw = rotation.getYaw();
+        this.pitch = rotation.getPitch();
+        this.onGround = rotation.isOnGround();
     }
 
     public ReplayEntityRotation(int entityId, float yaw, float pitch, boolean onGround) {

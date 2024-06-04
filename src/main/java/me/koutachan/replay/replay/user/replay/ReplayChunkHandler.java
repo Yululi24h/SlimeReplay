@@ -3,18 +3,19 @@ package me.koutachan.replay.replay.user.replay;
 import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.world.chunk.Column;
+import com.github.retrooper.packetevents.protocol.world.states.WrappedBlockState;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientTeleportConfirm;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerChangeGameState;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerPositionAndLook;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUnloadChunk;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUpdateViewPosition;
+import com.github.retrooper.packetevents.wrapper.play.server.*;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import me.koutachan.replay.replay.packet.in.ReplayChunkData;
+import me.koutachan.replay.replay.packet.in.packetevents.LightData;
+import me.koutachan.replay.replay.packet.in.packetevents.WrapperPlayServerChunkData;
 import me.koutachan.replay.replay.user.ReplayUser;
 import me.koutachan.replay.replay.user.map.ChunkMap;
 import me.koutachan.replay.replay.user.map.data.PacketEntity;
 import org.bukkit.Location;
+import org.bukkit.generator.ChunkGenerator;
 
 import java.util.*;
 
@@ -74,12 +75,10 @@ public class ReplayChunkHandler {
 
     public void firstChunks() {
         if (PacketEvents.getAPI().getServerManager().getVersion().isNewerThanOrEquals(ServerVersion.V_1_20_4)) {
-            user.sendSilent(new WrapperPlayServerChangeGameState(WrapperPlayServerChangeGameState.Reason.START_LOADING_CHUNKS, 0F));
+            this.user.sendSilent(new WrapperPlayServerChangeGameState(WrapperPlayServerChangeGameState.Reason.START_LOADING_CHUNKS, 0F));
         }
-
-
-        int chunkX = floor(playerPos.getX()) >> 4;
-        int chunkZ = floor(playerPos.getZ()) >> 4;
+        int chunkX = floor(this.playerPos.getX()) >> 4;
+        int chunkZ = floor(this.playerPos.getZ()) >> 4;
         updateChunkPos(new ChunkMap.ChunkPos(chunkX, chunkZ));
         for (int x = chunkX - this.viewDistance; x <= chunkX + this.viewDistance; ++x) {
             for (int z = chunkZ - this.viewDistance; z <= chunkZ + this.viewDistance; ++z) {
@@ -168,7 +167,7 @@ public class ReplayChunkHandler {
     public void updateChunkPos(ChunkMap.ChunkPos pos) {
         if (!Objects.equals(pos, lastChunkPos)) {
             this.lastChunkPos = pos;
-            user.sendSilent(new WrapperPlayServerUpdateViewPosition(pos.getX(), pos.getZ()));
+            this.user.sendSilent(new WrapperPlayServerUpdateViewPosition(pos.getX(), pos.getZ()));
         }
     }
 
@@ -215,14 +214,42 @@ public class ReplayChunkHandler {
     }
 
 
-    public static class WrapperChunkData {
+    public static class ChunkDataCache {
         private Column column;
-        private WrapperChunkData data;
+        private LightData lightData;
+        private boolean ignoreOldData;
 
-        public WrapperChunkData(WrapperChunkData data) {
+        /* TODO: chunk data? Idk */
+        private final Map<Long, Column> columnDataAndTimes = new HashMap<>();
+        private final Map<Long, LightData> lightDataAndTimes = new HashMap<>();
+        private final Map<Long, WrappedBlockState> blockStatesAndTimes = new HashMap<>();
+
+        public ChunkDataCache(WrapperPlayServerChunkData chunkData) {
+            this.column = chunkData.getColumn();
+            this.lightData = chunkData.getLightData();
+            this.ignoreOldData = chunkData.isIgnoreOldData();
+            //WrapperPlayServerBlockChange
+        }
+
+        public void setLightData(LightData lightData) {
+            this.lightData = lightData;
+        }
+
+        public void updateChunkData(Column column) {
+            if (column.isFullChunk()) {
+                this.column = column;
+            } else {
+                this.column.getChunks();
+            }
+        }
+
+        public void updateBlockData() {
 
         }
 
+        public void toChunkData() {
+
+        }
     }
 
 

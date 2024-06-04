@@ -11,7 +11,7 @@ import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import java.util.List;
 import java.util.UUID;
 
-public class EntitySpawnData extends ReplayWrapper<EntitySpawnData> {
+public class ReplayEntitySpawnData extends ReplayWrapper<ReplayEntitySpawnData> {
     private int entityId;
     private EntityType entityType;
     private UUID uuid;
@@ -20,11 +20,11 @@ public class EntitySpawnData extends ReplayWrapper<EntitySpawnData> {
     private Vector3d velocity;
     private List<EntityData> entityData;
 
-    public EntitySpawnData(ServerVersion version, Object byteBuf) {
+    public ReplayEntitySpawnData(ServerVersion version, Object byteBuf) {
         super(version, byteBuf);
     }
 
-    public EntitySpawnData(int entityId, EntityType entityType, UUID uuid, Location location, float headYaw, Vector3d velocity, List<EntityData> entityData) {
+    public ReplayEntitySpawnData(int entityId, EntityType entityType, UUID uuid, Location location, float headYaw, Vector3d velocity, List<EntityData> entityData) {
         this.entityId = entityId;
         this.entityType = entityType;
         this.uuid = uuid;

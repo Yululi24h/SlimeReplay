@@ -9,7 +9,7 @@ import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import java.util.List;
 import java.util.UUID;
 
-public class PlayerSelfData extends ReplayWrapper<PlayerSelfData> {
+public class ReplayPlayerSelfData extends ReplayWrapper<ReplayPlayerSelfData> {
     private int entityId;
     private Location pos;
     private UUID uuid;
@@ -20,7 +20,7 @@ public class PlayerSelfData extends ReplayWrapper<PlayerSelfData> {
     private List<EntityData> entityData;
     private Dimension dimension;
 
-    public PlayerSelfData(ServerVersion version, Object byteBuf) {
+    public ReplayPlayerSelfData(ServerVersion version, Object byteBuf) {
         super(version, byteBuf);
     }
 

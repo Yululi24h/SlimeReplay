@@ -130,7 +130,6 @@ public class ReplayRunner {
         if (packetType == PacketType.Play.Server.CHAT_MESSAGE || packetType == PacketType.Play.Server.SYSTEM_CHAT_MESSAGE) {
             return;
         }
-
         event.setCancelled(true);
     }
 

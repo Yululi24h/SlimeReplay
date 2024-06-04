@@ -18,6 +18,7 @@
 
 package me.koutachan.replay.replay.packet.in;
 
+import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.world.chunk.Column;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
@@ -36,6 +37,13 @@ public class ReplayChunkData extends ReplayWrapper<ReplayChunkData> {
 
     public ReplayChunkData(ServerVersion version, Object byteBuf) {
         super(version, byteBuf);
+    }
+
+    public ReplayChunkData(PacketSendEvent event) {
+        WrapperPlayServerChunkData chunkData = new WrapperPlayServerChunkData(event);
+        this.column = chunkData.getColumn();
+        this.lightData = chunkData.getLightData();
+        this.ignoreOldData = chunkData.isIgnoreOldData();
     }
 
     public ReplayChunkData(Column column, LightData lightData, boolean ignoreOldData) {
