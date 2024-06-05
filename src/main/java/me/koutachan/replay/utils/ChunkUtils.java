@@ -7,7 +7,6 @@ import com.github.retrooper.packetevents.protocol.world.chunk.NibbleArray3d;
 import com.github.retrooper.packetevents.protocol.world.chunk.impl.v1_16.Chunk_v1_9;
 import com.github.retrooper.packetevents.protocol.world.chunk.impl.v1_8.Chunk_v1_8;
 import com.github.retrooper.packetevents.protocol.world.chunk.impl.v_1_18.Chunk_v1_18;
-import com.github.retrooper.packetevents.protocol.world.chunk.reader.impl.ChunkReader_v1_16;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import me.koutachan.replay.replay.packet.in.packetevents.LightData;
 import me.koutachan.replay.replay.packet.in.packetevents.WrapperPlayServerChunkData;
@@ -35,6 +34,7 @@ public class ChunkUtils {
         } else if (to.isNewerThanOrEquals(ServerVersion.V_1_13)) {
 
         }
+        return null;
     }
 
     public static List<PacketWrapper<?>> toLightData(WrapperPlayServerChunkData chunkData, LightTransform[] transforms, ServerVersion from, ServerVersion to) {
@@ -205,6 +205,10 @@ public class ChunkUtils {
         public byte[][] getLightArray() {
             return lightList.toArray(new byte[0][]);
         }
+    }
+
+    public static class BiomeTransform {
+        //private final BaseChunk baseChunk;
     }
 
     public static class LightTransform {
