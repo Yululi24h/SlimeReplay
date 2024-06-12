@@ -1,5 +1,6 @@
 package me.koutachan.replay.replay.packet.in;
 
+import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.util.Vector3d;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
@@ -16,8 +17,13 @@ public class ReplayEntityVelocity extends ReplayWrapper<ReplayEntityVelocity> {
         super(version, byteBuf);
     }
 
+    public ReplayEntityVelocity(PacketSendEvent event) {
+        WrapperPlayServerEntityVelocity wrapper = new WrapperPlayServerEntityVelocity(event);
+        this.entityId = wrapper.getEntityId();
+        this.velocity = wrapper.getVelocity();
+    }
+
     public ReplayEntityVelocity(int entityId, Vector3d velocity) {
-        super();
         this.entityId = entityId;
         this.velocity = velocity;
     }

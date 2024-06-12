@@ -74,7 +74,7 @@ public class ReplayChunkData extends ReplayWrapper<ReplayChunkData> {
 
     @Override
     public boolean isSupportedVersion(ServerVersion version) {
-        return false;
+        return true;
     }
 
     public WrapperPlayServerChunkData createChunkData() {

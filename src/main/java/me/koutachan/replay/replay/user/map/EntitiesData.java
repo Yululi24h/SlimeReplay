@@ -1,18 +1,15 @@
 package me.koutachan.replay.replay.user.map;
 
-import com.github.retrooper.packetevents.protocol.PacketSide;
-import com.github.retrooper.packetevents.protocol.packettype.PacketType;
-import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
-import com.github.retrooper.packetevents.protocol.world.Location;
-import com.github.retrooper.packetevents.util.Vector3d;
-import com.github.retrooper.packetevents.wrapper.PacketWrapper;
-import com.github.retrooper.packetevents.wrapper.play.server.*;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDestroyEntities;
 import me.koutachan.replay.replay.packet.ReplayPacket;
 import me.koutachan.replay.replay.user.PacketMap;
 import me.koutachan.replay.replay.user.ReplayUser;
-import me.koutachan.replay.replay.user.map.data.*;
+import me.koutachan.replay.replay.user.map.data.BasePacketEntity;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class EntitiesData extends PacketMap<ReplayPacket> {
@@ -25,7 +22,7 @@ public class EntitiesData extends PacketMap<ReplayPacket> {
 
     @Override
     public void onPacket(ReplayPacket packet) {
-        PacketWrapper<?> packetWrapper = packet.toPacket();
+        /*PacketWrapper<?> packetWrapper = packet.toPacket();
         PacketTypeCommon packetType = packetWrapper.getPacketTypeData().getPacketType();
         PacketSide side = packetType.getSide();
         if (side == PacketSide.SERVER) {
@@ -123,7 +120,7 @@ public class EntitiesData extends PacketMap<ReplayPacket> {
                         entity.onNBTUpdate(nbt.getNBTCompound());
                     }
                     break;
-                }*/
+                }
                 case DESTROY_ENTITIES: {
                     WrapperPlayServerDestroyEntities destroyEntities = (WrapperPlayServerDestroyEntities) packetWrapper;
                     for (int entityId : destroyEntities.getEntityIds()) {
@@ -136,9 +133,9 @@ public class EntitiesData extends PacketMap<ReplayPacket> {
                     WrapperPlayServerRespawn respawn = (WrapperPlayServerRespawn) packetWrapper;
                     entities.clear();
                     break;
-                }*/
+                }
             }
-        }
+        }*/
     }
 
     public BasePacketEntity getEntity(int entityId) {

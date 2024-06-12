@@ -1,5 +1,6 @@
 package me.koutachan.replay.replay.packet.in;
 
+import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityHeadLook;
@@ -13,6 +14,12 @@ public class ReplayEntityHeadYaw extends ReplayWrapper<ReplayEntityHeadYaw> {
 
     public ReplayEntityHeadYaw(ServerVersion version, Object byteBuf) {
         super(version, byteBuf);
+    }
+
+    public ReplayEntityHeadYaw(PacketSendEvent event) {
+        WrapperPlayServerEntityHeadLook wrapper = new WrapperPlayServerEntityHeadLook(event);
+        this.entityId = wrapper.getEntityId();
+        this.headYaw = wrapper.getHeadYaw();
     }
 
     public ReplayEntityHeadYaw(int entityId, float headYaw) {

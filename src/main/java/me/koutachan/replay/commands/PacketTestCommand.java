@@ -1,7 +1,5 @@
 package me.koutachan.replay.commands;
 
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerKeepAlive;
-import me.koutachan.replay.replay.packet.impl.ReplayPacketImpl;
 import me.koutachan.replay.replay.user.ReplayUser;
 import me.koutachan.replay.replay.user.ReplayUserContainer;
 import org.bukkit.command.Command;
@@ -9,7 +7,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.io.*;
+import java.io.File;
 
 public class PacketTestCommand implements CommandExecutor {
     public boolean fatal;
@@ -17,18 +15,6 @@ public class PacketTestCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         try {
-            ReplayPacketImpl impl = new ReplayPacketImpl(new WrapperPlayServerKeepAlive(10));
-            try {
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                DataOutputStream stream = new DataOutputStream(outputStream);
-                impl.write(stream);
-                ReplayPacketImpl im = new ReplayPacketImpl();
-                im.read(new DataInputStream(new ByteArrayInputStream(outputStream.toByteArray())));
-                sender.sendMessage("Id: " + ((WrapperPlayServerKeepAlive) im.toPacket()).getId());
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
             sender.sendMessage("Recording...! processing...");
             ReplayUser replayUser = ReplayUserContainer.getUser(((Player) sender).getUniqueId());
             String argT = args[0];

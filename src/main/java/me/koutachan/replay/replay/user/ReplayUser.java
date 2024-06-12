@@ -67,7 +67,7 @@ public class ReplayUser {
     }
 
     public void sendSilent(ReplayPacket packet) {
-        user.sendPacketSilently(packet.toPacket());
+    //    user.sendPacketSilently(packet.toPacket());
     }
 
     public boolean isRecording() {

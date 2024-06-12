@@ -12,7 +12,7 @@ public abstract class ReplayWrapper<T extends PacketWrapper<T>> extends PacketWr
     }
 
     public ReplayWrapper(ServerVersion version) {
-        super(version.toClientVersion(), version, -1);
+        super(version.toClientVersion(), version, -999); //-999 is registered by slime replay.
     }
 
     public ReplayWrapper(ServerVersion version, Object byteBuf) {

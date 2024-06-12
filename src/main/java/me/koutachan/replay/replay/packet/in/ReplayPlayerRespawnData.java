@@ -1,5 +1,6 @@
 package me.koutachan.replay.replay.packet.in;
 
+import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.player.GameMode;
 import com.github.retrooper.packetevents.protocol.world.Difficulty;
@@ -18,6 +19,13 @@ public class ReplayPlayerRespawnData extends ReplayWrapper<ReplayPlayerRespawnDa
 
     public ReplayPlayerRespawnData(ServerVersion version, Object byteBuf) {
         super(version, byteBuf);
+    }
+
+    public ReplayPlayerRespawnData(PacketSendEvent event) {
+        WrapperPlayServerRespawn respawn = new WrapperPlayServerRespawn(event);
+        this.dimension = respawn.getDimension();
+        this.gameMode = respawn.getGameMode();
+        this.keptData = respawn.getKeptData();
     }
 
     public ReplayPlayerRespawnData(Dimension dimension, GameMode gameMode, byte keptData) {

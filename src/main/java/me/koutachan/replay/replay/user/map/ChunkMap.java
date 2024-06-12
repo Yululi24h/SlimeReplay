@@ -1,24 +1,17 @@
 package me.koutachan.replay.replay.user.map;
 
-import com.github.retrooper.packetevents.protocol.PacketSide;
-import com.github.retrooper.packetevents.protocol.packettype.PacketType;
-import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
-import com.github.retrooper.packetevents.protocol.world.chunk.BaseChunk;
 import com.github.retrooper.packetevents.protocol.world.chunk.Column;
-import com.github.retrooper.packetevents.protocol.world.chunk.TileEntity;
-import com.github.retrooper.packetevents.wrapper.PacketWrapper;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerChunkData;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerChunkDataBulk;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerPositionAndLook;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUnloadChunk;
 import me.koutachan.replay.replay.packet.ReplayPacket;
-import me.koutachan.replay.replay.packet.in.ReplayChunkData;
 import me.koutachan.replay.replay.packet.impl.ReplayPacketImpl;
+import me.koutachan.replay.replay.packet.in.ReplayChunkData;
 import me.koutachan.replay.replay.user.PacketMap;
 import me.koutachan.replay.replay.user.ReplayUser;
 import org.bukkit.Location;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ChunkMap extends PacketMap<ReplayPacket> {
@@ -31,6 +24,7 @@ public class ChunkMap extends PacketMap<ReplayPacket> {
 
     @Override
     public void onPacket(ReplayPacket packet) {
+        /*
         PacketWrapper<?> packetWrapper = packet.toPacket();
         PacketTypeCommon packetType = packetWrapper.getPacketTypeData().getPacketType();
         PacketSide side = packetType.getSide();
@@ -55,7 +49,6 @@ public class ChunkMap extends PacketMap<ReplayPacket> {
                     break;
                 }
                 case CHUNK_BIOMES: {
-                    /* TODO: WAIT WRAPPERS */
                     break;
                 }
                 case UNLOAD_CHUNK: {
@@ -64,7 +57,7 @@ public class ChunkMap extends PacketMap<ReplayPacket> {
                     break;
                 }
             }
-        }
+        }*/
     }
 
     public void clear() {
@@ -80,7 +73,7 @@ public class ChunkMap extends PacketMap<ReplayPacket> {
         }
 
         public ChunkWrapper(Column column) {
-            this.chunk = new ReplayPacketImpl(new WrapperPlayServerChunkData(column));
+            this.chunk = null;
         }
 
         @Override
@@ -134,7 +127,7 @@ public class ChunkMap extends PacketMap<ReplayPacket> {
                 .map(IChunkWrapper::toPacket)
                 .collect(Collectors.toList());
         Location location = user.getPlayer().getLocation();
-        packets.add(new ReplayPacketImpl(new WrapperPlayServerPlayerPositionAndLook(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch(), (byte) 0, 0, true)));
+        //packets.add(new ReplayPacketImpl(new WrapperPlayServerPlayerPositionAndLook(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch(), (byte) 0, 0, true)));
         return packets;
     }
 }

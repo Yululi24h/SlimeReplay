@@ -10,12 +10,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReplayEntityPosAndRotation extends ReplayWrapper<ReplayEntityPosAndRotation> {
-    private int entityId;
-    private Location location;
-    private boolean onGround;
+    protected int entityId;
+    protected Location location;
+    protected boolean onGround;
 
     public ReplayEntityPosAndRotation(ServerVersion version, Object byteBuf) {
         super(version, byteBuf);
+    }
+
+    public ReplayEntityPosAndRotation() {
+
     }
 
     public ReplayEntityPosAndRotation(PacketSendEvent event) {

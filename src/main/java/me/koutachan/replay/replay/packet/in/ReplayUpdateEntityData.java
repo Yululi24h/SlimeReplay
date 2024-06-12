@@ -1,5 +1,6 @@
 package me.koutachan.replay.replay.packet.in;
 
+import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
@@ -14,6 +15,12 @@ public class ReplayUpdateEntityData extends ReplayWrapper<ReplayUpdateEntityData
 
     public ReplayUpdateEntityData(ServerVersion version, Object byteBuf) {
         super(version, byteBuf);
+    }
+
+    public ReplayUpdateEntityData(PacketSendEvent event) {
+        WrapperPlayServerEntityMetadata wrapper = new WrapperPlayServerEntityMetadata(event);
+        this.entityId = wrapper.getEntityId();
+        this.entityData = wrapper.getEntityMetadata();
     }
 
     public ReplayUpdateEntityData(int entityId, List<EntityData> entityData) {

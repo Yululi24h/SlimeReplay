@@ -2,13 +2,9 @@ package me.koutachan.replay.packetevents;
 
 import com.github.retrooper.packetevents.event.*;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
-import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientTeleportConfirm;
-import com.github.retrooper.packetevents.wrapper.play.server.*;
 import me.koutachan.replay.replay.packet.ReplayPacket;
 import me.koutachan.replay.replay.packet.impl.ReplayPacketImpl;
-import me.koutachan.replay.replay.packet.in.ReplayChunkData;
-import me.koutachan.replay.replay.packet.in.ReplayUnloadChunkData;
-import me.koutachan.replay.replay.packet.in.ReplayWrapper;
+import me.koutachan.replay.replay.packet.in.*;
 import me.koutachan.replay.replay.user.ReplayUser;
 import me.koutachan.replay.replay.user.ReplayUserContainer;
 
@@ -56,7 +52,7 @@ public class PacketListener extends PacketListenerAbstract {
             ReplayWrapper<?> packet = null;
             switch ((PacketType.Play.Server) event.getPacketType()) {
                 case RESPAWN: {
-                    packet = new ReplayPacketImpl(new WrapperPlayServerRespawn(event));
+                    packet = new ReplayPlayerRespawnData(event);
                     break;
                 }
                 case CHUNK_DATA: {
@@ -64,75 +60,72 @@ public class PacketListener extends PacketListenerAbstract {
                     break;
                 }
                 case MAP_CHUNK_BULK: {
-                    packet = new ReplayPacketImpl(new WrapperPlayServerChunkDataBulk(event));
+                    packet = new ReplayChunkBulkData(event);
                     break;
                 }
                 case ENTITY_VELOCITY: {
-                    packet = new ReplayPacketImpl(new WrapperPlayServerEntityVelocity(event));
+                    packet = new ReplayEntityVelocity(event);
                     break;
                 }
                 case UNLOAD_CHUNK: {
                     packet = new ReplayUnloadChunkData(event);
                     break;
                 }
+                case SPAWN_LIVING_ENTITY:
                 case SPAWN_ENTITY: {
-                    packet = new ReplayPacketImpl(new WrapperPlayServerSpawnEntity(event));
+                    packet = new ReplayLivingEntitySpawnData(event);
                     break;
                 }
-                case SPAWN_LIVING_ENTITY: {
-                    packet = new ReplayPacketImpl(new WrapperPlayServerSpawnLivingEntity(event));
+                case SPAWN_PAINTING: { //TODO:
+                    //packet = new ReplayPacketImpl(new WrapperPlayServerSpawnPainting(event));
                     break;
                 }
-                case SPAWN_PAINTING: {
-                    packet = new ReplayPacketImpl(new WrapperPlayServerSpawnPainting(event));
+                case SPAWN_PLAYER: { //TODO:
+                    //packet = new ReplayPacketImpl(new WrapperPlayServerSpawnPlayer(event));
                     break;
                 }
-                case SPAWN_PLAYER: {
-                    packet = new ReplayPacketImpl(new WrapperPlayServerSpawnPlayer(event));
+                case SPAWN_EXPERIENCE_ORB: { //TODO:
+                    //packet = new ReplayPacketImpl(new WrapperPlayServerSpawnExperienceOrb(event));
                     break;
                 }
-                case SPAWN_EXPERIENCE_ORB: {
-                    packet = new ReplayPacketImpl(new WrapperPlayServerSpawnExperienceOrb(event));
+                case ENTITY_EQUIPMENT: { //TODO:
+                    //packet = new ReplayPacketImpl(new WrapperPlayServerEntityEquipment(event));
                     break;
                 }
-                case ENTITY_EQUIPMENT: {
-                    packet = new ReplayPacketImpl(new WrapperPlayServerEntityEquipment(event));
-                    break;
-                }
-                case UPDATE_ENTITY_NBT: {
-                    packet = new ReplayPacketImpl(new WrapperPlayServerUpdateEntityNBT(event));
+                case UPDATE_ENTITY_NBT: { //TODO: IDk what is that. using in 1.8
+                    //packet = new ReplayPacketImpl(new WrapperPlayServerUpdateEntityNBT(event));
                     break;
                 }
                 case ENTITY_METADATA: {
-                    packet = new ReplayPacketImpl(new WrapperPlayServerEntityMetadata(event));
+                    packet = new ReplayUpdateEntityData(event);
                     break;
                 }
                 case ENTITY_RELATIVE_MOVE: {
-                    packet = new ReplayPacketImpl(new WrapperPlayServerEntityRelativeMove(event));
+                    packet = new ReplayEntityPos(event);
                     break;
                 }
                 case ENTITY_ROTATION: {
-                    packet = new ReplayPacketImpl(new WrapperPlayServerEntityRotation(event));
+                    packet = new ReplayEntityRotation(event);
                     break;
                 }
                 case ENTITY_RELATIVE_MOVE_AND_ROTATION: {
-                    packet = new ReplayPacketImpl(new WrapperPlayServerEntityRelativeMoveAndRotation(event));
+                    packet = new ReplayEntityPosAndRotation(event);
                     break;
                 }
                 case ENTITY_TELEPORT: {
-                    packet = new ReplayPacketImpl(new WrapperPlayServerEntityTeleport(event));
+                    packet = new ReplayEntityTeleport(event);
                     break;
                 }
                 case ENTITY_HEAD_LOOK: {
-                    packet = new ReplayPacketImpl(new WrapperPlayServerEntityHeadLook(event));
+                    packet = new ReplayEntityHeadYaw(event);
                     break;
                 }
                 case DESTROY_ENTITIES: {
-                    packet = new ReplayPacketImpl(new WrapperPlayServerDestroyEntities(event));
+                    packet = new ReplayDestroyEntities(event);
                     break;
                 }
-                case SYSTEM_CHAT_MESSAGE: {
-                    packet = new ReplayPacketImpl(new WrapperPlayServerSystemChatMessage(event));
+                case SYSTEM_CHAT_MESSAGE: { //TODO:
+                    //packet = new ReplayPacketImpl(new WrapperPlayServerSystemChatMessage(event));
                     break;
                 }
             }

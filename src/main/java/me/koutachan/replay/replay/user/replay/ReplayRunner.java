@@ -4,15 +4,11 @@ import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
-import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientTeleportConfirm;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientWindowConfirmation;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerPositionAndLook;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUnloadChunk;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerWindowConfirmation;
 import me.koutachan.replay.replay.packet.ReplayPacketContainer;
-import me.koutachan.replay.replay.packet.in.ReplayChunkData;
 import me.koutachan.replay.replay.user.ReplayUser;
 
 import java.io.File;
@@ -74,7 +70,7 @@ public class ReplayRunner {
             if (recordPacket == null || recordPacket.getMilliseconds() > currentTick)
                 return;
             rows++;
-            PacketWrapper<?> packetWrapper = recordPacket.getPacket().toPacket();
+            /*PacketWrapper<?> packetWrapper = recordPacket.getPacket().toPacket();
             if (packetWrapper instanceof WrapperPlayServerPlayerPositionAndLook) {
                 chunkHandler.onPosition((WrapperPlayServerPlayerPositionAndLook) packetWrapper);
             }
@@ -87,7 +83,7 @@ public class ReplayRunner {
                 chunkHandler.removeChunk(chunkData);
                 return;
 
-            }
+            }*/
             System.out.println("Sent=" + recordPacket.getPacket().toPacket().getClass().getName() + " sentMs=" + currentTick);
             user.sendSilent(recordPacket.getPacket());
         }
