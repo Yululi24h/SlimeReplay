@@ -47,7 +47,6 @@ public class ReplayChunkData extends ReplayWrapper<ReplayChunkData> {
     }
 
     public ReplayChunkData(Column column, LightData lightData, boolean ignoreOldData) {
-        super();
         this.column = column;
         this.lightData = lightData;
         this.ignoreOldData = ignoreOldData;
@@ -82,15 +81,23 @@ public class ReplayChunkData extends ReplayWrapper<ReplayChunkData> {
         return new WrapperPlayServerChunkData(this.column, this.lightData, this.ignoreOldData, this.chunkSize);
     }
 
+    public int getX() {
+        return column.getX();
+    }
+
+    public int getZ() {
+        return column.getZ();
+    }
+
     @Override
-    public List<PacketWrapper<?>> getPacket() {
+    public List<PacketWrapper<?>> getPackets() {
         List<PacketWrapper<?>> packets = new ArrayList<>();
         packets.add(createChunkData());
         return packets;
     }
 
     @Override
-    public List<PacketWrapper<?>> getUntilPacket() {
+    public List<PacketWrapper<?>> getInvertedPackets() {
         List<PacketWrapper<?>> packets = new ArrayList<>();
         packets.add(new WrapperPlayServerUnloadChunk(this.column.getX(), this.column.getZ()));
         return packets;

@@ -37,7 +37,7 @@ public class ReplayEntityVelocity extends ReplayWrapper<ReplayEntityVelocity> {
     }
 
     @Override
-    public List<PacketWrapper<?>> getPacket() {
+    public List<PacketWrapper<?>> getPackets() {
         List<PacketWrapper<?>> packets = new ArrayList<>();
         packets.add(new WrapperPlayServerEntityVelocity(
                 this.entityId,
@@ -47,7 +47,7 @@ public class ReplayEntityVelocity extends ReplayWrapper<ReplayEntityVelocity> {
     }
 
     @Override
-    public List<PacketWrapper<?>> getUntilPacket() {
+    public List<PacketWrapper<?>> getInvertedPackets() {
         return null;
     }
 

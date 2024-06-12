@@ -8,7 +8,7 @@ public class ReplayUpdateEntityPosBukkit extends ReplayEntityPosAndRotation {
         super(version, byteBuf);
     }
 
-    public ReplayUpdateEntityPosBukkit(int entityId, Location location) {
-        super(entityId, location);
+    public ReplayUpdateEntityPosBukkit(int entityId, Location location, boolean onGround) {
+        super(entityId, location, onGround);
     }
 }

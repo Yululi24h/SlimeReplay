@@ -22,7 +22,6 @@ public class PacketListener extends PacketListenerAbstract {
     public void onUserLogin(UserLoginEvent event) {
         super.onUserLogin(event);
         ReplayUserContainer.registerUser(event.getUser(), event.getPlayer());
-
     }
 
     @Override
@@ -38,10 +37,10 @@ public class PacketListener extends PacketListenerAbstract {
         if (user != null) {
             ReplayPacket packet = null;
             switch ((PacketType.Play.Client) event.getPacketType()) {
-                case TELEPORT_CONFIRM: {
+                /*case TELEPORT_CONFIRM: {
                     packet = new ReplayPacketImpl(new WrapperPlayClientTeleportConfirm(event));
                     break;
-                }
+                }*/
             }
             if (user.getReplayRunner() != null) {
                 user.getReplayRunner().onReceivedPacket(user, event);

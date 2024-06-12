@@ -13,6 +13,7 @@ import me.koutachan.replay.replay.packet.in.ReplayWrapper;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 public class ReplayPacketImpl extends ReplayPacket {
     private ReplayWrapper<?> packet;
@@ -52,7 +53,12 @@ public class ReplayPacketImpl extends ReplayPacket {
     }
 
     @Override
-    public PacketWrapper<?> toPacket() {
+    public List<PacketWrapper<?>> toPacket() {
+        return packet.getPackets();
+    }
+
+    @Override
+    public ReplayWrapper<?> getReplayWrapper() {
         return packet;
     }
 

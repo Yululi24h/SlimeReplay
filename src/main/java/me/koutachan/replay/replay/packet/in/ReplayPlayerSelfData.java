@@ -5,7 +5,9 @@ import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
 import com.github.retrooper.packetevents.protocol.world.Dimension;
 import com.github.retrooper.packetevents.protocol.world.Location;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnPlayer;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -60,12 +62,22 @@ public class ReplayPlayerSelfData extends ReplayWrapper<ReplayPlayerSelfData> {
     }
 
     @Override
-    public List<PacketWrapper<?>> getPacket() {
-        return null;
+    public List<PacketWrapper<?>> getPackets() {
+        List<PacketWrapper<?>> packets = new ArrayList<>();
+        //int entityId, UUID uuid, Location location, List<EntityData> entityMetadata
+        packets.add(new WrapperPlayServerSpawnPlayer(
+                this.entityId,
+                this.uuid,
+                this.pos,
+                this.entityData
+        ));
+        //packets.add(new WrapperPlayServerSpawnPlayer());
+
+        return packets;
     }
 
     @Override
-    public List<PacketWrapper<?>> getUntilPacket() {
+    public List<PacketWrapper<?>> getInvertedPackets() {
         return null;
     }
 }

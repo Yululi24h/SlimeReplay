@@ -53,7 +53,7 @@ public class ReplayPlayerRespawnData extends ReplayWrapper<ReplayPlayerRespawnDa
     }
 
     @Override
-    public List<PacketWrapper<?>> getPacket() {
+    public List<PacketWrapper<?>> getPackets() {
         List<PacketWrapper<?>> packets = new ArrayList<>();
         packets.add(new WrapperPlayServerRespawn(
                 this.dimension,
@@ -64,7 +64,7 @@ public class ReplayPlayerRespawnData extends ReplayWrapper<ReplayPlayerRespawnDa
                 this.gameMode,
                 false,
                 false,
-                this.keptData, //TODO: Is this really needed?
+                this.keptData, //TODO: Is this really needed? //TODO: I don't need that. but we're track here.
                 null,
                 null
         ));
@@ -72,7 +72,7 @@ public class ReplayPlayerRespawnData extends ReplayWrapper<ReplayPlayerRespawnDa
     }
 
     @Override
-    public List<PacketWrapper<?>> getUntilPacket() {
+    public List<PacketWrapper<?>> getInvertedPackets() {
         return null;
     }
 }

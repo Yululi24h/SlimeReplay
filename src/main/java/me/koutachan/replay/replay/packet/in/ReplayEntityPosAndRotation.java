@@ -1,5 +1,6 @@
 package me.koutachan.replay.replay.packet.in;
 
+import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.world.Location;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
@@ -17,22 +18,28 @@ public class ReplayEntityPosAndRotation extends ReplayWrapper<ReplayEntityPosAnd
         super(version, byteBuf);
     }
 
-    public ReplayEntityPosAndRotation(int entityId, Location location, boolean onGround) {
-        this.entityId = entityId;
-        this.location = location;
-        this.onGround = onGround;
-    }
-
-
-    @Override
-    public boolean isSupportedVersion(ServerVersion version) {
-        return true;
+    public ReplayEntityPosAndRotation(PacketSendEvent event) {
+        WrapperPlayServerEntityRelativeMoveAndRotation relative = new WrapperPlayServerEntityRelativeMoveAndRotation(event);
+        this.location = new Location(
+                relative.getDeltaX(),
+                relative.getDeltaY(),
+                relative.getDeltaZ(),
+                relative.getYaw(),
+                relative.getPitch()
+        ); // Delta
+        this.onGround = relative.isOnGround();
     }
 
     public ReplayEntityPosAndRotation(int entityId, Location location) {
         super();
         this.entityId = entityId;
         this.location = location;
+    }
+
+    public ReplayEntityPosAndRotation(int entityId, Location location, boolean onGround) {
+        this.entityId = entityId;
+        this.location = location;
+        this.onGround = onGround;
     }
 
     @Override
@@ -60,7 +67,12 @@ public class ReplayEntityPosAndRotation extends ReplayWrapper<ReplayEntityPosAnd
     }
 
     @Override
-    public List<PacketWrapper<?>> getPacket() {
+    public boolean isSupportedVersion(ServerVersion version) {
+        return true;
+    }
+
+    @Override
+    public List<PacketWrapper<?>> getPackets() {
         List<PacketWrapper<?>> packets = new ArrayList<>();
         packets.add(new WrapperPlayServerEntityRelativeMoveAndRotation(
                 this.entityId,
@@ -75,7 +87,7 @@ public class ReplayEntityPosAndRotation extends ReplayWrapper<ReplayEntityPosAnd
     }
 
     @Override
-    public List<PacketWrapper<?>> getUntilPacket() {
+    public List<PacketWrapper<?>> getInvertedPackets() {
         return null;
     }
 }

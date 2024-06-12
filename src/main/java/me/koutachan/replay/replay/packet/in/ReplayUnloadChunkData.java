@@ -22,7 +22,6 @@ public class ReplayUnloadChunkData extends ReplayWrapper<ReplayUnloadChunkData> 
     }
 
     public ReplayUnloadChunkData(int x, int z) {
-        super();
         this.x = x;
         this.z = z;
     }
@@ -53,12 +52,12 @@ public class ReplayUnloadChunkData extends ReplayWrapper<ReplayUnloadChunkData> 
     }
 
     @Override
-    public List<PacketWrapper<?>> getPacket() {
+    public List<PacketWrapper<?>> getPackets() {
         return null;
     }
 
     @Override
-    public List<PacketWrapper<?>> getUntilPacket() {
+    public List<PacketWrapper<?>> getInvertedPackets() {
         return null;
     }
 }

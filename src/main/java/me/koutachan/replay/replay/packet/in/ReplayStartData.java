@@ -9,18 +9,15 @@ import java.util.List;
 
 public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
     private List<ReplayChunkData> chunkData;
-    private List<ReplayEntitySpawnData> entityData;
+    private List<ReplayLivingEntitySpawnData> entityData;
     private ReplayPlayerSelfData playerSelf;
 
     private int height;
 
     public ReplayStartData(ReplayUser user) {
-        super();
-
     }
 
-    public ReplayStartData(List<ReplayChunkData> chunkData, List<ReplayEntitySpawnData> entityData, ReplayPlayerSelfData playerSelf) {
-        super();
+    public ReplayStartData(List<ReplayChunkData> chunkData, List<ReplayLivingEntitySpawnData> entityData, ReplayPlayerSelfData playerSelf) {
         this.chunkData = chunkData;
         this.entityData = entityData;
         this.playerSelf = playerSelf;
@@ -35,7 +32,7 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
         int entitySize = readVarInt();
         this.entityData = new ArrayList<>();
         for (int i = 0; i < entitySize; i++) {
-            this.entityData.add(new ReplayEntitySpawnData(this.serverVersion, this.buffer));
+            this.entityData.add(new ReplayLivingEntitySpawnData(this.serverVersion, this.buffer));
         }
         this.playerSelf = new ReplayPlayerSelfData(this.serverVersion, this.buffer);
         //this.dimension = readDimension();
@@ -48,7 +45,7 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
             writeWrapper(chunkData);
         }
         writeVarInt(this.entityData.size());
-        for (ReplayEntitySpawnData entityData : this.entityData) {
+        for (ReplayLivingEntitySpawnData entityData : this.entityData) {
             writeWrapper(entityData);
         }
         writeWrapper(this.playerSelf);
@@ -60,12 +57,12 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
     }
 
     @Override
-    public List<PacketWrapper<?>> getPacket() {
+    public List<PacketWrapper<?>> getPackets() {
         return null;
     }
 
     @Override
-    public List<PacketWrapper<?>> getUntilPacket() {
+    public List<PacketWrapper<?>> getInvertedPackets() {
         return null;
     }
 }

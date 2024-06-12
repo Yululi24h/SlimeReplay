@@ -56,7 +56,7 @@ public class ReplayEntityRotation extends ReplayWrapper<ReplayEntityRotation> {
     }
 
     @Override
-    public List<PacketWrapper<?>> getPacket() {
+    public List<PacketWrapper<?>> getPackets() {
         List<PacketWrapper<?>> packets = new ArrayList<>();
         packets.add(new WrapperPlayServerEntityRotation(
                 this.entityId,
@@ -68,7 +68,7 @@ public class ReplayEntityRotation extends ReplayWrapper<ReplayEntityRotation> {
     }
 
     @Override
-    public List<PacketWrapper<?>> getUntilPacket() {
+    public List<PacketWrapper<?>> getInvertedPackets() {
         return null;
     }
 }

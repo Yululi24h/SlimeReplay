@@ -1,5 +1,6 @@
 package me.koutachan.replay.replay.packet.in;
 
+import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.util.Vector3d;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
@@ -15,6 +16,17 @@ public class ReplayEntityPos extends ReplayWrapper<ReplayEntityPos> {
 
     public ReplayEntityPos(ServerVersion version, Object byteBuf) {
         super(version, byteBuf);
+    }
+
+    public ReplayEntityPos(PacketSendEvent event) {
+        WrapperPlayServerEntityRelativeMove relative = new WrapperPlayServerEntityRelativeMove(event);
+        this.entityId = relative.getEntityId();
+        this.pos = new Vector3d(
+                relative.getDeltaX(),
+                relative.getDeltaY(),
+                relative.getDeltaZ()
+        );
+        this.onGround = relative.isOnGround();
     }
 
     public ReplayEntityPos(int entityId, Vector3d pos, boolean onGround) {
@@ -49,7 +61,7 @@ public class ReplayEntityPos extends ReplayWrapper<ReplayEntityPos> {
     }
 
     @Override
-    public List<PacketWrapper<?>> getPacket() {
+    public List<PacketWrapper<?>> getPackets() {
         List<PacketWrapper<?>> packets = new ArrayList<>();
         packets.add(new WrapperPlayServerEntityRelativeMove(
                 this.entityId,
@@ -62,7 +74,7 @@ public class ReplayEntityPos extends ReplayWrapper<ReplayEntityPos> {
     }
 
     @Override
-    public List<PacketWrapper<?>> getUntilPacket() {
+    public List<PacketWrapper<?>> getInvertedPackets() {
         return null;
     }
 }

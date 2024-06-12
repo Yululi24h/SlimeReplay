@@ -1,24 +1,33 @@
 package me.koutachan.replay.replay.packet.in;
 
+import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
-import com.github.retrooper.packetevents.protocol.world.chunk.BaseChunk;
-import com.github.retrooper.packetevents.protocol.world.chunk.Column;
-import com.github.retrooper.packetevents.protocol.world.chunk.TileEntity;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
-import me.koutachan.replay.replay.packet.in.packetevents.LightData;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUnloadChunk;
+import me.koutachan.replay.replay.packet.in.packetevents.WrapperPlayServerChunkDataBulk;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ReplayChunkBulkData extends ReplayWrapper<ReplayChunkBulkData> {
-    private int[] x;
-    private int[] z;
-    private BaseChunk[][] baseChunks;
-    private byte[] biomeData;
+    private WrapperPlayServerChunkDataBulk chunkData;
 
     public ReplayChunkBulkData(ServerVersion version, Object byteBuf) {
         super(version, byteBuf);
+    }
+
+    public ReplayChunkBulkData(PacketSendEvent event) {
+        this.chunkData = new WrapperPlayServerChunkDataBulk(event);
+    }
+
+    @Override
+    public void read() {
+        this.chunkData = readWrapper(new WrapperPlayServerChunkDataBulk());
+    }
+
+    @Override
+    public void write() {
+        writeWrapper(this.chunkData);
     }
 
     @Override
@@ -27,45 +36,24 @@ public class ReplayChunkBulkData extends ReplayWrapper<ReplayChunkBulkData> {
     }
 
     @Override
-    public List<PacketWrapper<?>> getPacket() {
+    public List<PacketWrapper<?>> getPackets() {
         List<PacketWrapper<?>> packets = new ArrayList<>();
-        if (CURRENT_VERSION.isNewerThanOrEquals(ServerVersion.V_1_9)) {
-            LightData data;
-            for (Column column : toColumn()) {
-                //column
-                //packets.add(new WrapperPlayServerChunkData(column, new LightData()));
-            }
-        } else {
-
-        }
-
+        packets.add(this.chunkData);
         return null;
-    }
-
-    public Column[] toColumn() {
-        Column[] columns = new Column[this.baseChunks.length];
-        for (int i = 0; i < columns.length; i++) {
-            columns[i] = new Column(
-                    this.x[i],
-                    this.z[i],
-                    true,
-                    this.baseChunks[i],
-                    new TileEntity[0],
-                    fill(this.biomeData[i], 1024)
-            );
-        }
-        return columns;
-    }
-
-    public byte[] fill(byte b, int length) {
-        byte[] array = new byte[length];
-        Arrays.fill(array, b);
-        return array;
-
     }
 
     @Override
-    public List<PacketWrapper<?>> getUntilPacket() {
-        return null;
+    public List<PacketWrapper<?>> getInvertedPackets() {
+        List<PacketWrapper<?>> packets = new ArrayList<>();
+        int length = this.chunkData.getChunks().length;
+        int[] x = this.chunkData.getX();
+        int[] z = this.chunkData.getZ();
+        for (int i = 0; i < length; i++) {
+            packets.add(new WrapperPlayServerUnloadChunk(
+                    x[i],
+                    z[i]
+            ));
+        }
+        return packets;
     }
 }

@@ -7,13 +7,9 @@ import com.github.retrooper.packetevents.protocol.player.Equipment;
 import com.github.retrooper.packetevents.protocol.player.EquipmentSlot;
 import com.github.retrooper.packetevents.protocol.world.Location;
 import com.github.retrooper.packetevents.util.Vector3d;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityEquipment;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityHeadLook;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnEntity;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import me.koutachan.replay.replay.packet.ReplayPacket;
-import me.koutachan.replay.replay.packet.impl.ReplayPacketImpl;
 import me.koutachan.replay.replay.user.ReplayUser;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
@@ -106,16 +102,16 @@ public class PacketEntity extends BasePacketEntity {
                 velocity = toVector3d(entity.getVelocity());
             }
         }
-        packets.add(new ReplayPacketImpl(new WrapperPlayServerSpawnEntity(entityId, uuid, entityType, location, headYaw, data, velocity)));
+        //packets.add(new ReplayPacketImpl(new WrapperPlayServerSpawnEntity(entityId, uuid, entityType, location, headYaw, data, velocity)));
         return addEntityPacket(packets);
     }
 
     protected List<ReplayPacket> addEntityPacket(List<ReplayPacket> packets) {
         if (!equipments.isEmpty()) {
-            packets.add(new ReplayPacketImpl(new WrapperPlayServerEntityEquipment(entityId, getEquipments())));
+            //packets.add(new ReplayPacketImpl(new WrapperPlayServerEntityEquipment(entityId, getEquipments())));
         }
-        packets.add(new ReplayPacketImpl(new WrapperPlayServerEntityMetadata(entityId, entityData)));
-        packets.add(new ReplayPacketImpl(new WrapperPlayServerEntityHeadLook(entityId, headYaw)));
+        //packets.add(new ReplayPacketImpl(new WrapperPlayServerEntityMetadata(entityId, entityData)));
+        //packets.add(new ReplayPacketImpl(new WrapperPlayServerEntityHeadLook(entityId, headYaw)));
         return packets;
     }
 

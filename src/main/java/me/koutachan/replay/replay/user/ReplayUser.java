@@ -114,4 +114,8 @@ public class ReplayUser {
     public ReplayRunner getReplayRunner() {
         return replayRunner;
     }
+
+    public int getEntityId() {
+        return user.getEntityId();
+    }
 }

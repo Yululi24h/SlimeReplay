@@ -4,7 +4,6 @@ import com.github.retrooper.packetevents.protocol.world.Location;
 import com.github.retrooper.packetevents.util.Vector3d;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnLivingEntity;
 import me.koutachan.replay.replay.packet.ReplayPacket;
-import me.koutachan.replay.replay.packet.impl.ReplayPacketImpl;
 import me.koutachan.replay.replay.user.ReplayUser;
 import org.bukkit.entity.Entity;
 
@@ -23,10 +22,6 @@ public class PacketLivingEntity extends PacketEntity {
         this.entityData = living.getEntityMetadata();
     }
 
-    /*public void onHeadPitch(float pitch) {
-        headPitch = pitch;
-    }*/
-
     @Override
     public List<ReplayPacket> toPacket() {
         List<ReplayPacket> packets = new ArrayList<>();
@@ -40,7 +35,7 @@ public class PacketLivingEntity extends PacketEntity {
                 velocity = toVector3d(entity.getVelocity());
             }
         }
-        packets.add(new ReplayPacketImpl(new WrapperPlayServerSpawnLivingEntity(entityId, uuid, entityType, location, headYaw, velocity, entityData)));
+        //packets.add(new ReplayPacketImpl(new ReplayLivingEntitySpawnData(entityId, uuid, entityType, location, headYaw, velocity, entityId)))//new ReplayPacketImpl(new WrapperPlayServerSpawnLivingEntity(entityId, uuid, entityType, location, headYaw, velocity, entityData)));
         return addEntityPacket(packets);
     }
 }

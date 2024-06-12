@@ -1,37 +1,35 @@
 package me.koutachan.replay.replay.packet.in;
 
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
-import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityHeadLook;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReplayUpdateEntityData extends ReplayWrapper<ReplayUpdateEntityData> {
+public class ReplayEntityHeadYaw extends ReplayWrapper<ReplayEntityHeadYaw> {
     private int entityId;
-    private List<EntityData> entityData;
+    private float headYaw;
 
-    public ReplayUpdateEntityData(ServerVersion version, Object byteBuf) {
+    public ReplayEntityHeadYaw(ServerVersion version, Object byteBuf) {
         super(version, byteBuf);
     }
 
-    public ReplayUpdateEntityData(int entityId, List<EntityData> entityData) {
-        super();
+    public ReplayEntityHeadYaw(int entityId, float headYaw) {
         this.entityId = entityId;
-        this.entityData = entityData;
+        this.headYaw = headYaw;
     }
 
     @Override
     public void read() {
         this.entityId = readInt();
-        this.entityData = readEntityMetadata();
+        this.headYaw = readFloat();
     }
 
     @Override
     public void write() {
-        writeInt(this.entityId);
-        writeEntityMetadata(this.entityData);
+        writeVarInt(this.entityId);
+        writeFloat(this.headYaw);
     }
 
     @Override
@@ -42,9 +40,9 @@ public class ReplayUpdateEntityData extends ReplayWrapper<ReplayUpdateEntityData
     @Override
     public List<PacketWrapper<?>> getPackets() {
         List<PacketWrapper<?>> packets = new ArrayList<>();
-        packets.add(new WrapperPlayServerEntityMetadata(
+        packets.add(new WrapperPlayServerEntityHeadLook(
                 this.entityId,
-                this.entityData
+                this.headYaw
         ));
         return packets;
     }
