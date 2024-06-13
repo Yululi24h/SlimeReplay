@@ -1,21 +1,9 @@
 package me.koutachan.replay.replay.user.map;
 
-import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.world.chunk.BaseChunk;
 import com.github.retrooper.packetevents.protocol.world.chunk.Column;
-import com.github.retrooper.packetevents.protocol.world.chunk.ShortArray3d;
-import com.github.retrooper.packetevents.protocol.world.chunk.impl.v1_16.Chunk_v1_9;
-import com.github.retrooper.packetevents.protocol.world.chunk.impl.v1_8.Chunk_v1_8;
-import com.github.retrooper.packetevents.protocol.world.chunk.impl.v_1_18.Chunk_v1_18;
-import com.github.retrooper.packetevents.protocol.world.chunk.palette.DataPalette;
-import com.github.retrooper.packetevents.protocol.world.chunk.palette.GlobalPalette;
-import com.github.retrooper.packetevents.protocol.world.chunk.palette.ListPalette;
-import com.github.retrooper.packetevents.protocol.world.chunk.palette.PaletteType;
-import com.github.retrooper.packetevents.protocol.world.chunk.storage.LegacyFlexibleStorage;
-import com.github.retrooper.packetevents.util.Vector3d;
 import com.github.retrooper.packetevents.util.Vector3i;
 import me.koutachan.replay.replay.packet.ReplayPacket;
-import me.koutachan.replay.replay.packet.impl.ReplayPacketImpl;
 import me.koutachan.replay.replay.packet.in.*;
 import me.koutachan.replay.replay.packet.in.packetevents.LightData;
 import me.koutachan.replay.replay.user.PacketMap;
@@ -41,74 +29,35 @@ public class ChunkMap extends PacketMap<ReplayPacket> {
         if (packet instanceof ReplayChunkData) {
             ReplayChunkData chunkData = (ReplayChunkData) packet;
             this.chunks.put(new ChunkPos(chunkData.getX(), chunkData.getZ()), new ChunkWrapper(chunkData));
-            return;
-        }
-        if (packet instanceof ReplayChunkBulkData) {
+        } else if (packet instanceof ReplayChunkBulkData) {
             ReplayChunkBulkData chunkDataBulk = (ReplayChunkBulkData) packet;
             for (ReplayChunkData chunkData : chunkDataBulk.getChunks()) {
                 this.chunks.put(new ChunkPos(chunkData.getX(), chunkData.getZ()), new ChunkWrapper(chunkData));
             }
-            return;
-        }
-        if (packet instanceof ReplayUpdateLightData) {
+        } else if (packet instanceof ReplayUpdateLightData) {
             ReplayUpdateLightData lightData = (ReplayUpdateLightData) packet;
             IChunkWrapper wrapper = this.chunks.get(new ChunkPos(lightData.getX(), lightData.getZ()));
             if (wrapper != null) {
                 wrapper.setLightData(lightData.getLightData());
             }
-            return;
-        }
-        if (packet instanceof ReplayUpdateBlock) {
+        } else if (packet instanceof ReplayUpdateMultipleBlock) {
+            ReplayUpdateMultipleBlock blocks = (ReplayUpdateMultipleBlock) packet;
+            for (ReplayUpdateMultipleBlock.BlockClazz clazz : blocks.getBlocks()) {
+                IChunkWrapper wrapper = this.chunks.get(clazz.getChunkPos());
+                if (wrapper != null) {
+                    wrapper.setBlock(clazz.getPos(), clazz.getBlockId());
+                }
+            }
+        } else if (packet instanceof ReplayUpdateBlock) {
             ReplayUpdateBlock block = (ReplayUpdateBlock) packet;
             IChunkWrapper wrapper = this.chunks.get(block.getChunkPos());
             if (wrapper != null) {
                 wrapper.setBlock(block.getBlockPos(), block.getBlockId());
             }
-            return;
-        }
-        if (packet instanceof ReplayUnloadChunkData) {
+        } else if (packet instanceof ReplayUnloadChunkData) {
             ReplayUnloadChunkData chunkData = (ReplayUnloadChunkData) packet;
             this.chunks.remove(new ChunkPos(chunkData.getX(), chunkData.getZ()));
-            return;
         }
-    }
-
-    @Override
-    public void onPacket(ReplayPacket packet) {
-        /*
-        PacketWrapper<?> packetWrapper = packet.toPacket();
-        PacketTypeCommon packetType = packetWrapper.getPacketTypeData().getPacketType();
-        PacketSide side = packetType.getSide();
-        if (side == PacketSide.SERVER) {
-            switch ((PacketType.Play.Server) packetType) {
-                case CHUNK_DATA: {
-                    ReplayChunkData chunk = (ReplayChunkData) packetWrapper;
-                    chunks.put(new ChunkPos(chunk.getColumn().getX(), chunk.getColumn().getZ()), new ChunkWrapper(chunk));
-                    break;
-                }
-                case MAP_CHUNK_BULK: {
-                    WrapperPlayServerChunkDataBulk chunk = (WrapperPlayServerChunkDataBulk) packetWrapper;
-                    for (int i = 0; i < chunk.getChunks().length; i++) {
-                        int x = chunk.getX()[i];
-                        int z = chunk.getZ()[i];
-                        BaseChunk[] baseChunk = chunk.getChunks()[i];
-                        //TODO: Fixes //TODO: TO INT[]
-                        byte[] biomeData = chunk.getBiomeData()[i];
-                        Column column = new Column(x, z, true, baseChunk, new TileEntity[0]);
-                        chunks.put(new ChunkPos(x, z), new ChunkWrapper(column));
-                    }
-                    break;
-                }
-                case CHUNK_BIOMES: {
-                    break;
-                }
-                case UNLOAD_CHUNK: {
-                    WrapperPlayServerUnloadChunk chunk = (WrapperPlayServerUnloadChunk) packetWrapper;
-                    chunks.remove(new ChunkPos(chunk.getChunkZ(), chunk.getChunkZ()));
-                    break;
-                }
-            }
-        }*/
     }
 
     public void clear() {
@@ -118,13 +67,9 @@ public class ChunkMap extends PacketMap<ReplayPacket> {
     public static class ChunkWrapper implements IChunkWrapper {
         private final ReplayChunkData chunk;
 
-        // Because of packet events is shitty.
+        // Because of packet events is bad at chunk wrapper.
         public ChunkWrapper(ReplayChunkData chunk) {
             this.chunk = chunk;
-        }
-
-        public ChunkWrapper(Column column) {
-            this.chunk = null;
         }
 
         @Override
@@ -203,11 +148,12 @@ public class ChunkMap extends PacketMap<ReplayPacket> {
 
     @Override
     public List<ReplayPacket> toPacket() {
-        List<ReplayPacket> packets = chunks.values().stream()
+        List<ReplayWrapper<?>> packets = chunks.values().stream()
                 .map(IChunkWrapper::toPacket)
                 .collect(Collectors.toList());
         Location location = user.getPlayer().getLocation();
         //packets.add(new ReplayPacketImpl(new WrapperPlayServerPlayerPositionAndLook(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch(), (byte) 0, 0, true)));
-        return packets;
+        //return packets;
+        return null;
     }
 }

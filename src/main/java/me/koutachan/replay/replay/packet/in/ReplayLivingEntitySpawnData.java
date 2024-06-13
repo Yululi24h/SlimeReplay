@@ -79,7 +79,6 @@ public class ReplayLivingEntitySpawnData extends ReplayWrapper<ReplayLivingEntit
 
     @Override
     public void read() {
-        super.read();
         this.entityId = readInt();
         this.entityType = readMappedEntity(EntityTypes::getById);
         this.uuid = readUUID();

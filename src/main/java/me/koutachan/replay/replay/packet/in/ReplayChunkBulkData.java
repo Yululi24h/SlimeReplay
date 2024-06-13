@@ -45,7 +45,7 @@ public class ReplayChunkBulkData extends ReplayWrapper<ReplayChunkBulkData> {
         }
         return chunkDataList;
     }
-    
+
     @Override
     public boolean isSupportedVersion(ServerVersion version) {
         return false;
