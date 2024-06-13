@@ -15,7 +15,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-public class ReplayPacketImpl extends ReplayPacket {
+public class ReplayPacketImpl implements ReplayPacket {
     private long millis;
     private ReplayWrapper<?> packet;
     private boolean generated;
@@ -60,6 +60,11 @@ public class ReplayPacketImpl extends ReplayPacket {
     @Override
     public ReplayWrapper<?> getReplayWrapper() {
         return packet;
+    }
+
+    @Override
+    public long getMillis() {
+        return millis;
     }
 
     public static ReplayWrapper<?> createFakeWrapper(DataInputStream stream) throws IOException {

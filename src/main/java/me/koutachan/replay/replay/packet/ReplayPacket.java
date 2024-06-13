@@ -2,6 +2,7 @@
 package me.koutachan.replay.replay.packet;
 
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
+import me.koutachan.replay.replay.packet.impl.ReplayPacketImpl;
 import me.koutachan.replay.replay.packet.in.ReplayWrapper;
 
 import java.io.DataInputStream;
@@ -24,4 +25,8 @@ public interface ReplayPacket extends Serializable {
     boolean isGenerated();
 
     boolean isSupported();
+
+    static ReplayPacket of(ReplayWrapper<?> wrapper, long milli) {
+        return new ReplayPacketImpl(wrapper, milli);
+    }
 }

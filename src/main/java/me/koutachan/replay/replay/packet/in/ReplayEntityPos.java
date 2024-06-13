@@ -29,6 +29,10 @@ public class ReplayEntityPos extends ReplayWrapper<ReplayEntityPos> {
         this.onGround = relative.isOnGround();
     }
 
+    public ReplayEntityPos() {
+
+    }
+
     public ReplayEntityPos(int entityId, Vector3d pos, boolean onGround) {
         this.entityId = entityId;
         this.pos = pos;

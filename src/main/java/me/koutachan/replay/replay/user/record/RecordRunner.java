@@ -2,13 +2,14 @@ package me.koutachan.replay.replay.user.record;
 
 import me.koutachan.replay.replay.packet.ReplayPacket;
 import me.koutachan.replay.replay.packet.ReplayPacketContainer;
+import me.koutachan.replay.replay.packet.in.ReplayWrapper;
 import me.koutachan.replay.replay.user.ReplayUser;
 
 import java.io.File;
 import java.io.FileOutputStream;
 
 public class RecordRunner {
-    private ReplayUser user;
+    private final ReplayUser user;
     private final long sleep;
     protected RecordHook hook;
 
@@ -63,7 +64,7 @@ public class RecordRunner {
     public synchronized void onSave() throws Exception {
     }
 
-    public void onPacket(ReplayPacket packet) {
+    public void onPacket(ReplayWrapper<?> packet) {
         if (isRecording()) {
             hook.onPacket(packet);
         }

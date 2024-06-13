@@ -2,45 +2,43 @@ package me.koutachan.replay.packetevents;
 
 import com.github.retrooper.packetevents.event.*;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
-import me.koutachan.replay.replay.packet.ReplayPacket;
-import me.koutachan.replay.replay.packet.impl.ReplayPacketImpl;
 import me.koutachan.replay.replay.packet.in.*;
 import me.koutachan.replay.replay.user.ReplayUser;
 import me.koutachan.replay.replay.user.ReplayUserContainer;
 
 public class PacketListener extends PacketListenerAbstract {
     @Override
-    public void onUserConnect(UserConnectEvent event) {
-        super.onUserConnect(event);
-    }
-
-    @Override
     public void onUserLogin(UserLoginEvent event) {
-        super.onUserLogin(event);
         ReplayUserContainer.registerUser(event.getUser(), event.getPlayer());
     }
 
     @Override
     public void onUserDisconnect(UserDisconnectEvent event) {
-        super.onUserDisconnect(event);
         ReplayUserContainer.unregisterUser(event.getUser());
     }
 
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
-        super.onPacketReceive(event);
         ReplayUser user = ReplayUserContainer.getUser(event.getUser());
         if (user != null) {
-            ReplayPacket packet = null;
+            ReplayWrapper<?> packet = null;
             switch ((PacketType.Play.Client) event.getPacketType()) {
-                /*case TELEPORT_CONFIRM: {
-                    packet = new ReplayPacketImpl(new WrapperPlayClientTeleportConfirm(event));
+                case PLAYER_POSITION: {
+                    packet = new ReplayPlayerPos(event);
                     break;
-                }*/
+                }
+                case PLAYER_ROTATION: {
+                    packet = new ReplayPlayerRotation(event);
+                    break;
+                }
+                case PLAYER_POSITION_AND_ROTATION: {
+                    packet = new ReplayPlayerPosAndRotation(event);
+                    break;
+                }
             }
-            if (user.getReplayRunner() != null) {
-                user.getReplayRunner().onReceivedPacket(user, event);
-            }
+           if (packet != null) {
+               user.onPacket(packet);
+           }
         }
     }
 

@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReplayEntityRotation extends ReplayWrapper<ReplayEntityRotation> {
-    private int entityId;
-    private float yaw;
-    private float pitch;
-    private boolean onGround;
+    protected int entityId;
+    protected float yaw;
+    protected float pitch;
+    protected boolean onGround;
 
     public ReplayEntityRotation(ServerVersion version, Object byteBuf) {
         super(version, byteBuf);
@@ -24,6 +24,10 @@ public class ReplayEntityRotation extends ReplayWrapper<ReplayEntityRotation> {
         this.yaw = rotation.getYaw();
         this.pitch = rotation.getPitch();
         this.onGround = rotation.isOnGround();
+    }
+
+    public ReplayEntityRotation() {
+
     }
 
     public ReplayEntityRotation(int entityId, float yaw, float pitch, boolean onGround) {
