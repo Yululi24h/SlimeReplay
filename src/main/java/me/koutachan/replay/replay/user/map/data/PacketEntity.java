@@ -108,6 +108,7 @@ public class PacketEntity extends BasePacketEntity {
 
     protected List<ReplayPacket> addEntityPacket(List<ReplayPacket> packets) {
         if (!equipments.isEmpty()) {
+
             //packets.add(new ReplayPacketImpl(new WrapperPlayServerEntityEquipment(entityId, getEquipments())));
         }
         //packets.add(new ReplayPacketImpl(new WrapperPlayServerEntityMetadata(entityId, entityData)));

@@ -1,6 +1,7 @@
 package me.koutachan.replay.replay.user;
 
 import me.koutachan.replay.replay.packet.ReplayPacket;
+import me.koutachan.replay.replay.packet.in.ReplayWrapper;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -9,7 +10,7 @@ import java.util.Map;
 public abstract class PacketMap<T extends ReplayPacket> {
     private final Map<Object, T> packets = new HashMap<>();
 
-    public abstract void onPacket(ReplayPacket packet);
+    public abstract void onPacket(ReplayWrapper<?> packet);
 
     public Collection<T> toPacket() {
         return packets.values();

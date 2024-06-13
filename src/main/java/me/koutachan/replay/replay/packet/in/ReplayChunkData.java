@@ -81,12 +81,20 @@ public class ReplayChunkData extends ReplayWrapper<ReplayChunkData> {
         return new WrapperPlayServerChunkData(this.column, this.lightData, this.ignoreOldData, this.chunkSize);
     }
 
+    public Column getColumn() {
+        return column;
+    }
+
     public int getX() {
         return column.getX();
     }
 
     public int getZ() {
         return column.getZ();
+    }
+
+    public void setLightData(LightData lightData) {
+        this.lightData = lightData;
     }
 
     @Override

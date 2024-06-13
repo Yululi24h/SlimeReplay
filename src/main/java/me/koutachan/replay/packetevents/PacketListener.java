@@ -63,6 +63,14 @@ public class PacketListener extends PacketListenerAbstract {
                     packet = new ReplayChunkBulkData(event);
                     break;
                 }
+                case UPDATE_LIGHT: {
+                    packet = new ReplayUpdateLightData(event);
+                    break;
+                }
+                case BLOCK_CHANGE: {
+                    packet = new ReplayUpdateBlock(event);
+                    break;
+                }
                 case ENTITY_VELOCITY: {
                     packet = new ReplayEntityVelocity(event);
                     break;
@@ -88,8 +96,8 @@ public class PacketListener extends PacketListenerAbstract {
                     //packet = new ReplayPacketImpl(new WrapperPlayServerSpawnExperienceOrb(event));
                     break;
                 }
-                case ENTITY_EQUIPMENT: { //TODO:
-                    //packet = new ReplayPacketImpl(new WrapperPlayServerEntityEquipment(event));
+                case ENTITY_EQUIPMENT: {
+                    packet = new ReplayEntityEquipment(event);
                     break;
                 }
                 case UPDATE_ENTITY_NBT: { //TODO: IDk what is that. using in 1.8

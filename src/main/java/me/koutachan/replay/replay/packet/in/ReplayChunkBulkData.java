@@ -2,6 +2,9 @@ package me.koutachan.replay.replay.packet.in;
 
 import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
+import com.github.retrooper.packetevents.protocol.world.chunk.BaseChunk;
+import com.github.retrooper.packetevents.protocol.world.chunk.Column;
+import com.github.retrooper.packetevents.protocol.world.chunk.TileEntity;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUnloadChunk;
 import me.koutachan.replay.replay.packet.in.packetevents.WrapperPlayServerChunkDataBulk;
@@ -30,6 +33,19 @@ public class ReplayChunkBulkData extends ReplayWrapper<ReplayChunkBulkData> {
         writeWrapper(this.chunkData);
     }
 
+    public List<ReplayChunkData> getChunks() {
+        List<ReplayChunkData> chunkDataList = new ArrayList<>();
+        for (int i = 0; i < chunkData.getChunks().length; i++) {
+            int x = chunkData.getX()[i];
+            int z = chunkData.getZ()[i];
+            BaseChunk[] baseChunk = chunkData.getChunks()[i];
+            byte[] biomeData = chunkData.getBiomeData()[i];
+            Column column = new Column(x, z, true, baseChunk, new TileEntity[0], biomeData);
+            chunkDataList.add(new ReplayChunkData(column, null, false));
+        }
+        return chunkDataList;
+    }
+    
     @Override
     public boolean isSupportedVersion(ServerVersion version) {
         return false;
