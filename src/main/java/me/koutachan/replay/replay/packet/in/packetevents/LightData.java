@@ -21,7 +21,9 @@ package me.koutachan.replay.replay.packet.in.packetevents;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 
+import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.List;
 
 public class LightData implements Cloneable {
     private boolean trustEdges;
@@ -31,30 +33,33 @@ public class LightData implements Cloneable {
     private BitSet emptySkyLightMask;
     private Integer skyLightCount;
     private Integer blockLightCount;
-    private byte[][] skyLightArray;
-    private byte[][] blockLightArray;
+    private List<byte[]> skyLightList = new ArrayList<>();
+    private List<byte[]> blockLightList = new ArrayList<>();
 
     public void read(PacketWrapper<?> packet) {
         ServerVersion serverVersion = packet.getServerVersion();
         if (serverVersion.isOlderThanOrEquals(ServerVersion.V_1_19_4)) {
             trustEdges = packet.readBoolean();
         }
-
         skyLightMask = ChunkBitMask.readChunkMask(packet);
         blockLightMask = ChunkBitMask.readChunkMask(packet);
         emptySkyLightMask = ChunkBitMask.readChunkMask(packet);
         emptyBlockLightMask = ChunkBitMask.readChunkMask(packet);
 
         skyLightCount = serverVersion.isNewerThanOrEquals(ServerVersion.V_1_17) ? packet.readVarInt() : 18;
-        this.skyLightArray = new byte[skyLightCount][];
+        skyLightList = new ArrayList<>(skyLightCount);
         for (int x = 0; x < skyLightCount; x++) {
-            skyLightArray[x] = packet.readByteArray();
+            if (skyLightMask.get(x)) {
+                skyLightList.add(packet.readByteArray(2048));
+            }
         }
 
         blockLightCount = serverVersion.isNewerThanOrEquals(ServerVersion.V_1_17) ? packet.readVarInt() : 18;
-        this.blockLightArray = new byte[blockLightCount][];
+        blockLightList = new ArrayList<>(blockLightCount);
         for (int x = 0; x < blockLightCount; x++) {
-            blockLightArray[x] = packet.readByteArray();
+            if (blockLightMask.get(x)) {
+                blockLightList.add(packet.readByteArray(2048));
+            }
         }
     }
 
@@ -67,21 +72,23 @@ public class LightData implements Cloneable {
         ChunkBitMask.writeChunkMask(packet, blockLightMask);
         ChunkBitMask.writeChunkMask(packet, emptySkyLightMask);
         ChunkBitMask.writeChunkMask(packet, emptyBlockLightMask);
-
-        if (skyLightCount == null) // Most
-            skyLightCount = skyLightArray.length;
-        if (serverVersion.isNewerThanOrEquals(ServerVersion.V_1_17))
+        if (serverVersion.isNewerThanOrEquals(ServerVersion.V_1_17)) {
+            if (skyLightCount == null) {
+                skyLightCount = skyLightList.size();
+            }
             packet.writeVarInt(skyLightCount);
-        for (int x = 0; x < skyLightCount; x++) {
-            packet.writeByteArray(skyLightArray[x]);
         }
-
-        if (blockLightCount == null)
-            blockLightCount = blockLightArray.length;
-        if (serverVersion.isNewerThanOrEquals(ServerVersion.V_1_17))
+        for (byte[] skyLightArray : skyLightList) {
+            packet.writeByteArray(skyLightArray);
+        }
+        if (serverVersion.isNewerThanOrEquals(ServerVersion.V_1_17)) {
+            if (blockLightCount == null) {
+                blockLightCount = blockLightList.size();
+            }
             packet.writeVarInt(blockLightCount);
-        for (int x = 0; x < blockLightCount; x++) {
-            packet.writeByteArray(blockLightArray[x]);
+        }
+        for (byte[] blockLightArray : blockLightList) {
+            packet.writeByteArray(blockLightArray);
         }
     }
 
@@ -141,37 +148,32 @@ public class LightData implements Cloneable {
         this.blockLightCount = blockLightCount;
     }
 
-    public byte[][] getSkyLightArray() {
-        return skyLightArray;
+    public List<byte[]> getSkyLightList() {
+        return skyLightList;
     }
 
-    public void setSkyLightArray(byte[][] skyLightArray) {
-        this.skyLightArray = skyLightArray;
+    public void setSkyLightList(List<byte[]> skyLightList) {
+        this.skyLightList = skyLightList;
     }
 
-    public byte[][] getBlockLightArray() {
-        return blockLightArray;
+    public List<byte[]> getBlockLightList() {
+        return blockLightList;
     }
 
-    public void setBlockLightArray(byte[][] blockLightArray) {
-        this.blockLightArray = blockLightArray;
+    public void setBlockLightList(List<byte[]> blockLightList) {
+        this.blockLightList = blockLightList;
     }
 
     @Override
     public LightData clone() {
-        try {
-            LightData clone = (LightData) super.clone();
-            clone.blockLightMask = (BitSet) blockLightMask.clone();
-            clone.skyLightMask = (BitSet) skyLightMask.clone();
-            clone.emptyBlockLightMask = (BitSet) emptyBlockLightMask.clone();
-            clone.emptySkyLightMask = (BitSet) emptySkyLightMask.clone();
-            clone.skyLightArray = skyLightArray.clone();
-            clone.blockLightArray = blockLightArray.clone();
-            clone.skyLightArray = skyLightArray.clone();
-            clone.blockLightArray = blockLightArray.clone();
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
+        LightData clone = new LightData();
+        clone.trustEdges = trustEdges;
+        clone.blockLightMask = (BitSet) blockLightMask.clone();
+        clone.skyLightMask = (BitSet) skyLightMask.clone();
+        clone.emptyBlockLightMask = (BitSet) emptyBlockLightMask.clone();
+        clone.emptySkyLightMask = (BitSet) emptySkyLightMask.clone();
+        clone.skyLightList = new ArrayList<>(skyLightList);
+        clone.blockLightList = new ArrayList<>(blockLightList);
+        return clone;
     }
 }

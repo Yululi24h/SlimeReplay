@@ -6,10 +6,8 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDe
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import me.koutachan.replay.replay.packet.ReplayPacket;
 import me.koutachan.replay.replay.packet.in.*;
-import me.koutachan.replay.replay.user.PacketMap;
 import me.koutachan.replay.replay.user.ReplayUser;
 import me.koutachan.replay.replay.user.map.data.BasePacketEntity;
-import me.koutachan.replay.replay.user.map.data.PacketEntity;
 import me.koutachan.replay.replay.user.map.data.PacketEntitySelf;
 
 import java.util.HashMap;
@@ -40,7 +38,7 @@ public class EntitiesCache {
     public void onPacket(ReplayWrapper<?> packet) {
         if (packet instanceof ReplayLivingEntitySpawnData) {
             ReplayLivingEntitySpawnData spawnData = (ReplayLivingEntitySpawnData) packet;
-            entities.put(spawnData.getEntityId(), new PacketEntity(this.user, ))
+            //entities.put(spawnData.getEntityId(), new PacketEntity(this.user, ))
         } else if (packet instanceof ReplayEntityPos) {
             ReplayEntityPos entityPos = (ReplayEntityPos) packet;
             BasePacketEntity entity = getEntity(entityPos.getEntityId());

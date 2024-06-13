@@ -1,6 +1,7 @@
 package me.koutachan.replay.replay.packet.in;
 
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
+import com.github.retrooper.packetevents.protocol.world.Dimension;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import me.koutachan.replay.replay.user.ReplayUser;
 
@@ -10,17 +11,22 @@ import java.util.List;
 public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
     private List<ReplayChunkData> chunkData;
     private List<ReplayLivingEntitySpawnData> entityData;
-    private ReplayPlayerSelfData playerSelf;
+    private Dimension dimension;
+    /*private ReplayPlayerSelfData playerSelf;
 
-    private int height;
+    private int height;*/
 
     public ReplayStartData(ReplayUser user) {
     }
 
-    public ReplayStartData(List<ReplayChunkData> chunkData, List<ReplayLivingEntitySpawnData> entityData, ReplayPlayerSelfData playerSelf) {
+    public ReplayStartData(ServerVersion version, Object byteBuf) {
+        super(version, byteBuf);
+    }
+
+    public ReplayStartData(List<ReplayChunkData> chunkData, List<ReplayLivingEntitySpawnData> entityData, Dimension dimension) {
         this.chunkData = chunkData;
         this.entityData = entityData;
-        this.playerSelf = playerSelf;
+        this.dimension = dimension;
     }
 
     @Override
@@ -34,7 +40,8 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
         for (int i = 0; i < entitySize; i++) {
             this.entityData.add(new ReplayLivingEntitySpawnData(this.serverVersion, this.buffer));
         }
-        this.playerSelf = new ReplayPlayerSelfData(this.serverVersion, this.buffer);
+        //this.playerSelf = new ReplayPlayerSelfData(this.serverVersion, this.buffer);
+        this.dimension = readDimension();
         //this.dimension = readDimension();
     }
 
@@ -48,7 +55,7 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
         for (ReplayLivingEntitySpawnData entityData : this.entityData) {
             writeWrapper(entityData);
         }
-        writeWrapper(this.playerSelf);
+        writeDimension(this.dimension);
     }
 
     @Override

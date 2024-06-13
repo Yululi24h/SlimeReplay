@@ -42,15 +42,21 @@ public class ChunkBitMask {
     }
 
     public static void writeChunkMask(PacketWrapper<?> packet, BitSet chunkMask) {
+
         if (packet.getServerVersion().isNewerThanOrEquals(ServerVersion.V_1_17)) {
             //Write primary bit mask
             long[] longArray = chunkMask.toLongArray();
             packet.writeLongArray(longArray);
         } else if (packet.getServerVersion().isNewerThanOrEquals(ServerVersion.V_1_9)) {
             //Write primary bit mask
-            packet.writeVarInt((int) chunkMask.toLongArray()[0]);
+            packet.writeVarInt(convertBitSetToInt(chunkMask));
         } else {
-            packet.writeShort((int) chunkMask.toLongArray()[0]);
+            packet.writeShort(convertBitSetToInt(chunkMask));
         }
+    }
+
+    public static int convertBitSetToInt(BitSet bitSet) {
+        long[] longArray = bitSet.toLongArray();
+        return longArray.length > 0 ? (int) longArray[0] : 0;
     }
 }

@@ -27,9 +27,9 @@ dependencies {
 }
 
 shadowJar {
-    relocate 'com.github.retrooper.packetevents', 'me.koutachan.packetevents.api'
-    relocate 'io.github.retrooper.packetevents', 'me.koutachan.packetevents.impl'
-    relocate 'net.kyori', 'me.koutachan.packetevents.kyori'
+    //relocate 'com.github.retrooper.packetevents', 'me.koutachan.packetevents.api'
+    //relocate 'io.github.retrooper.packetevents', 'me.koutachan.packetevents.impl'
+    //relocate 'net.kyori', 'me.koutachan.packetevents.kyori'
 }
 
 def targetJavaVersion = 8
