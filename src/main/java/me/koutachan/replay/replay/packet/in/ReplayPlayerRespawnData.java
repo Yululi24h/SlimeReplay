@@ -49,6 +49,10 @@ public class ReplayPlayerRespawnData extends ReplayWrapper<ReplayPlayerRespawnDa
         writeByte(this.keptData);
     }
 
+    public Dimension getDimension() {
+        return dimension;
+    }
+
     public boolean isWorldChanged(Dimension dimension) {
         return !this.dimension.getAttributes().equals(this.dimension.getAttributes())
                 || !this.dimension.getDimensionName().equals(dimension.getDimensionName())

@@ -41,6 +41,14 @@ public class ReplayUpdateEntityData extends ReplayWrapper<ReplayUpdateEntityData
         writeEntityMetadata(this.entityData);
     }
 
+    public int getEntityId() {
+        return entityId;
+    }
+
+    public List<EntityData> getEntityData() {
+        return entityData;
+    }
+
     @Override
     public boolean isSupportedVersion(ServerVersion version) {
         return true;

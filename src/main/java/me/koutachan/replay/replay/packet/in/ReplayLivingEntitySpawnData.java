@@ -115,6 +115,10 @@ public class ReplayLivingEntitySpawnData extends ReplayWrapper<ReplayLivingEntit
         writeEntityMetadata(this.entityData);
     }
 
+    public int getEntityId() {
+        return entityId;
+    }
+
     public boolean isUUIDUndefined() {
         return EMPTY_UUID == this.uuid;
     }

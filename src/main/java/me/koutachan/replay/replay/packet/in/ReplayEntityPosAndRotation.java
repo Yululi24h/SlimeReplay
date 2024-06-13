@@ -70,6 +70,34 @@ public class ReplayEntityPosAndRotation extends ReplayWrapper<ReplayEntityPosAnd
         writeBoolean(this.onGround);
     }
 
+    public int getEntityId() {
+        return entityId;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public double getX() {
+        return location.getX();
+    }
+
+    public double getY() {
+        return location.getY();
+    }
+
+    public double getZ() {
+        return location.getZ();
+    }
+
+    public float getYaw() {
+        return location.getYaw();
+    }
+
+    public float getPitch() {
+        return location.getPitch();
+    }
+
     @Override
     public boolean isSupportedVersion(ServerVersion version) {
         return true;

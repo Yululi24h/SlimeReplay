@@ -1,3 +1,4 @@
+
 package me.koutachan.replay.replay.packet;
 
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
@@ -9,24 +10,18 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 
-public abstract class ReplayPacket implements Serializable {
-    public ReplayPacket() {
+public interface ReplayPacket extends Serializable {
+    void write(DataOutputStream stream) throws IOException;
 
-    }
+    void read(DataInputStream stream) throws IOException;
 
-    public void write(DataOutputStream stream) throws IOException {
-    }
+    List<PacketWrapper<?>> toPacket();
 
-    public void read(DataInputStream stream) throws IOException {
-    }
+    ReplayWrapper<?> getReplayWrapper();
 
-    public abstract List<PacketWrapper<?>> toPacket();
+    long getMillis();
 
-    public abstract ReplayWrapper<?> getReplayWrapper();
+    boolean isGenerated();
 
-    public abstract boolean isGenerated();
-
-    public boolean isSupported() {
-        return true;
-    }
+    boolean isSupported();
 }

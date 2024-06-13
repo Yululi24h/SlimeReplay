@@ -138,7 +138,7 @@ public class PacketListener extends PacketListenerAbstract {
                 }
             }
             if (packet != null) {
-                user.onPacket(new ReplayPacketImpl(packet));
+                user.onPacket(packet);
             }
             if (user.getReplayRunner() != null) {
                 user.getReplayRunner().onSendPacket(user, event);

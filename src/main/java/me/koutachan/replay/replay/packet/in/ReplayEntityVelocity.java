@@ -52,6 +52,10 @@ public class ReplayEntityVelocity extends ReplayWrapper<ReplayEntityVelocity> {
         return packets;
     }
 
+    public int getEntityId() {
+        return entityId;
+    }
+
     @Override
     public List<PacketWrapper<?>> getInvertedPackets() {
         return null;

@@ -15,7 +15,7 @@ import me.koutachan.replay.replay.packet.in.ReplayChunkData;
 import me.koutachan.replay.replay.packet.in.packetevents.LightData;
 import me.koutachan.replay.replay.packet.in.packetevents.WrapperPlayServerChunkData;
 import me.koutachan.replay.replay.user.ReplayUser;
-import me.koutachan.replay.replay.user.map.ChunkMap;
+import me.koutachan.replay.replay.user.map.ChunkCache;
 import me.koutachan.replay.replay.user.map.data.PacketEntity;
 import org.bukkit.Location;
 
@@ -25,10 +25,10 @@ public class ReplayChunkHandler {
     private int viewDistance;
 
     private final ReplayUser user;
-    private final Map<ChunkMap.ChunkPos, ReplayChunkData> chunks = new HashMap<>();
+    private final Map<ChunkCache.ChunkPos, ReplayChunkData> chunks = new HashMap<>();
 
     private Location playerPos;
-    private final Map<ChunkMap.ChunkPos, ReplayChunkData> loadedChunks = new HashMap<>();
+    private final Map<ChunkCache.ChunkPos, ReplayChunkData> loadedChunks = new HashMap<>();
     // Don't mess me...
     private final Map<Integer, PacketEntity> trackingEntity = new HashMap<>();
 
@@ -36,7 +36,7 @@ public class ReplayChunkHandler {
     private int totalDelta;
     private boolean spawned;
 
-    private ChunkMap.ChunkPos lastChunkPos;
+    private ChunkCache.ChunkPos lastChunkPos;
     private int localTeleportId;
 
     public ReplayChunkHandler(ReplayUser user, int viewDistance) {
@@ -44,20 +44,20 @@ public class ReplayChunkHandler {
         this.viewDistance = viewDistance;
     }
 
-    private static int getChunkDistance(ChunkMap.ChunkPos chunkPos, int x, int z) {
+    private static int getChunkDistance(ChunkCache.ChunkPos chunkPos, int x, int z) {
         return Math.max(Math.abs(chunkPos.getX() - x), Math.abs(chunkPos.getZ() - z));
     }
 
-    public ChunkMap.ChunkPos toChunkPos(Location location) {
-        return new ChunkMap.ChunkPos(location.getBlockX() >> 4, location.getBlockZ() >> 4);
+    public ChunkCache.ChunkPos toChunkPos(Location location) {
+        return new ChunkCache.ChunkPos(location.getBlockX() >> 4, location.getBlockZ() >> 4);
     }
 
-    public ChunkMap.ChunkPos toChunkPos(ReplayChunkData chunkData) {
+    public ChunkCache.ChunkPos toChunkPos(ReplayChunkData chunkData) {
         return null;//toChunkPos(chunkData.getColumn());
     }
 
-    public ChunkMap.ChunkPos toChunkPos(Column column) {
-        return new ChunkMap.ChunkPos(column.getX(), column.getZ());
+    public ChunkCache.ChunkPos toChunkPos(Column column) {
+        return new ChunkCache.ChunkPos(column.getX(), column.getZ());
     }
 
     public void onPosition(WrapperPlayServerPlayerPositionAndLook pos) {
@@ -81,10 +81,10 @@ public class ReplayChunkHandler {
         }
         int chunkX = floor(this.playerPos.getX()) >> 4;
         int chunkZ = floor(this.playerPos.getZ()) >> 4;
-        updateChunkPos(new ChunkMap.ChunkPos(chunkX, chunkZ));
+        updateChunkPos(new ChunkCache.ChunkPos(chunkX, chunkZ));
         for (int x = chunkX - this.viewDistance; x <= chunkX + this.viewDistance; ++x) {
             for (int z = chunkZ - this.viewDistance; z <= chunkZ + this.viewDistance; ++z) {
-                loadChunk(new ChunkMap.ChunkPos(x, z));
+                loadChunk(new ChunkCache.ChunkPos(x, z));
             }
         }
     }
@@ -123,7 +123,7 @@ public class ReplayChunkHandler {
     public boolean isLoadedChunk(Location location) {
         int chunkX = floor(this.playerPos.getX()) >> 4;
         int chunkZ = floor(this.playerPos.getZ()) >> 4;
-        return chunks.containsKey(new ChunkMap.ChunkPos(chunkX, chunkZ));
+        return chunks.containsKey(new ChunkCache.ChunkPos(chunkX, chunkZ));
     }
 
 
@@ -141,16 +141,16 @@ public class ReplayChunkHandler {
         //Set<ChunkMap.ChunkPos> chunkPosSet = new HashSet<>(this.loadedChunks.keySet());
         int chunkX = floor(this.playerPos.getX()) >> 4;
         int chunkZ = floor(this.playerPos.getZ()) >> 4;
-        ChunkMap.ChunkPos chunkPos = new ChunkMap.ChunkPos(chunkX, chunkZ);
+        ChunkCache.ChunkPos chunkPos = new ChunkCache.ChunkPos(chunkX, chunkZ);
         if (!this.lastChunkPos.equals(chunkPos)) {
             updateChunkPos(chunkPos);
         }
-        List<ChunkMap.ChunkPos> loadedPos = new ArrayList<>(loadedChunks.keySet());
+        List<ChunkCache.ChunkPos> loadedPos = new ArrayList<>(loadedChunks.keySet());
         for (int x = chunkX - this.viewDistance; x <= chunkX + this.viewDistance; ++x) {
             for (int z = chunkZ - this.viewDistance; z <= chunkZ + this.viewDistance; ++z) {
-                ChunkMap.ChunkPos chunkPos1 = new ChunkMap.ChunkPos(x, z);
+                ChunkCache.ChunkPos chunkPos1 = new ChunkCache.ChunkPos(x, z);
                 if (!loadedPos.remove(chunkPos1)) {
-                    loadChunk(new ChunkMap.ChunkPos(x, z));
+                    loadChunk(new ChunkCache.ChunkPos(x, z));
                 }
             }
         }
@@ -163,21 +163,21 @@ public class ReplayChunkHandler {
     }
 
     public void updateChunkPos() {
-        updateChunkPos(new ChunkMap.ChunkPos(floor(playerPos.getX()) >> 4, floor(playerPos.getZ()) >> 4));
+        updateChunkPos(new ChunkCache.ChunkPos(floor(playerPos.getX()) >> 4, floor(playerPos.getZ()) >> 4));
     }
 
-    public void updateChunkPos(ChunkMap.ChunkPos pos) {
+    public void updateChunkPos(ChunkCache.ChunkPos pos) {
         if (!Objects.equals(pos, lastChunkPos)) {
             this.lastChunkPos = pos;
             this.user.sendSilent(new WrapperPlayServerUpdateViewPosition(pos.getX(), pos.getZ()));
         }
     }
 
-    public void loadChunk(ChunkMap.ChunkPos pos) {
+    public void loadChunk(ChunkCache.ChunkPos pos) {
         loadChunk(pos, chunks.get(pos));
     }
 
-    public void loadChunk(ChunkMap.ChunkPos chunkPos, ReplayChunkData chunk) {
+    public void loadChunk(ChunkCache.ChunkPos chunkPos, ReplayChunkData chunk) {
         if (chunk == null)
             return;
         ReplayChunkData loadedChunk = loadedChunks.get(chunkPos);
@@ -188,7 +188,7 @@ public class ReplayChunkHandler {
     }
 
     public void addChunk(ReplayChunkData chunk) {
-        ChunkMap.ChunkPos chunkPos = toChunkPos(chunk);
+        ChunkCache.ChunkPos chunkPos = toChunkPos(chunk);
         chunks.put(chunkPos, chunk);
         if (!canSendChunks() || getChunkDistance(this.lastChunkPos, chunkPos.getX(), chunkPos.getZ()) > this.viewDistance)
             return;
@@ -196,7 +196,7 @@ public class ReplayChunkHandler {
     }
 
     public void removeChunk(WrapperPlayServerUnloadChunk chunk) {
-        ChunkMap.ChunkPos pos = new ChunkMap.ChunkPos(chunk.getChunkX(), chunk.getChunkZ());
+        ChunkCache.ChunkPos pos = new ChunkCache.ChunkPos(chunk.getChunkX(), chunk.getChunkZ());
         if (chunks.remove(pos) != null) {
             preUnloadChunk(pos);
         }
@@ -207,7 +207,7 @@ public class ReplayChunkHandler {
     }
 
 
-    public void preUnloadChunk(ChunkMap.ChunkPos pos) {
+    public void preUnloadChunk(ChunkCache.ChunkPos pos) {
         ReplayChunkData chunkData = loadedChunks.remove(pos);
         if (chunkData != null) {
             System.out.println("Pre Unloading Chunk x=" + pos.getX() + " z=" + pos.getZ());

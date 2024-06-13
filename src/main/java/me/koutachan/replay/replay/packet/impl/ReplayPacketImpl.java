@@ -16,11 +16,13 @@ import java.io.IOException;
 import java.util.List;
 
 public class ReplayPacketImpl extends ReplayPacket {
+    private long millis;
     private ReplayWrapper<?> packet;
     private boolean generated;
 
-    public ReplayPacketImpl(ReplayWrapper<?> packet) {
+    public ReplayPacketImpl(ReplayWrapper<?> packet, long millis) {
         this.packet = packet;
+        this.millis = millis;
     }
 
     public ReplayPacketImpl() {
@@ -29,16 +31,13 @@ public class ReplayPacketImpl extends ReplayPacket {
 
     @Override
     public void read(DataInputStream stream) throws IOException {
-        super.read(stream);
         this.generated = true;
         packet = createFakeWrapper(stream);
-        /*ByteBufHelper.release(packet.getBuffer());
-        packet.buffer = null;*/
+        millis = stream.readLong();
     }
 
     @Override
     public void write(DataOutputStream stream) throws IOException {
-        super.write(stream);
         stream.writeInt(packet.getServerVersion().getProtocolVersion());
         stream.writeUTF(packet.getClass().getName());
         packet.buffer = PacketEvents.getAPI().getNettyManager().getByteBufAllocationOperator().buffer();
@@ -50,6 +49,7 @@ public class ReplayPacketImpl extends ReplayPacket {
                 stream.write(inputStream.read());
             }
         }
+        stream.writeLong(millis);
     }
 
     @Override
@@ -92,6 +92,11 @@ public class ReplayPacketImpl extends ReplayPacket {
     @Override
     public boolean isGenerated() {
         return generated;
+    }
+
+    @Override
+    public boolean isSupported() {
+        return packet.isSupportedVersion(PacketEvents.getAPI().getServerManager().getVersion());
     }
 
     @Override

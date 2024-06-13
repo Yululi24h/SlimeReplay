@@ -55,6 +55,30 @@ public class ReplayEntityPos extends ReplayWrapper<ReplayEntityPos> {
         writeBoolean(this.onGround);
     }
 
+    public int getEntityId() {
+        return entityId;
+    }
+
+    public Vector3d getPos() {
+        return pos;
+    }
+
+    public double getX() {
+        return pos.getX();
+    }
+
+    public double getY() {
+        return pos.getY();
+    }
+
+    public double getZ() {
+        return pos.getZ();
+    }
+
+    public boolean isOnGround() {
+        return onGround;
+    }
+
     @Override
     public boolean isSupportedVersion(ServerVersion version) {
         return true;

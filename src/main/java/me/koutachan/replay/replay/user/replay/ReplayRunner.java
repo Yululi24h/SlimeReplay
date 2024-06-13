@@ -8,6 +8,7 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPl
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientTeleportConfirm;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientWindowConfirmation;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerWindowConfirmation;
+import me.koutachan.replay.replay.packet.ReplayPacket;
 import me.koutachan.replay.replay.packet.ReplayPacketContainer;
 import me.koutachan.replay.replay.user.ReplayUser;
 
@@ -66,8 +67,8 @@ public class ReplayRunner {
         while (true) {
             if (rows >= container.size())
                 return;
-            ReplayPacketContainer.RecordPacket recordPacket = container.get(rows);
-            if (recordPacket == null || recordPacket.getMilliseconds() > currentTick)
+            ReplayPacket recordPacket = container.get(rows);
+            if (recordPacket == null || recordPacket.getMillis() > currentTick)
                 return;
             rows++;
             /*PacketWrapper<?> packetWrapper = recordPacket.getPacket().toPacket();
@@ -84,8 +85,8 @@ public class ReplayRunner {
                 return;
 
             }*/
-            System.out.println("Sent=" + recordPacket.getPacket().toPacket().getClass().getName() + " sentMs=" + currentTick);
-            user.sendSilent(recordPacket.getPacket());
+            System.out.println("Sent=" + recordPacket.toPacket().getClass().getName() + " sentMs=" + currentTick);
+            user.sendSilent(recordPacket);
         }
     }
 

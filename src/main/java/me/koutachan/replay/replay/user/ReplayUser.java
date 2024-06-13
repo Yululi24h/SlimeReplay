@@ -4,8 +4,9 @@ import com.github.retrooper.packetevents.protocol.player.User;
 import com.github.retrooper.packetevents.protocol.world.Dimension;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import me.koutachan.replay.replay.packet.ReplayPacket;
-import me.koutachan.replay.replay.user.map.ChunkMap;
-import me.koutachan.replay.replay.user.map.EntitiesData;
+import me.koutachan.replay.replay.packet.in.ReplayWrapper;
+import me.koutachan.replay.replay.user.map.ChunkCache;
+import me.koutachan.replay.replay.user.map.EntitiesCache;
 import me.koutachan.replay.replay.user.map.WorldData;
 import me.koutachan.replay.replay.user.record.RecordRunner;
 import me.koutachan.replay.replay.user.replay.ReplayRunner;
@@ -20,8 +21,8 @@ public class ReplayUser {
     private final Player player;
 
     private final WorldData world;
-    private final EntitiesData entities;
-    private final ChunkMap chunk ;
+    private final EntitiesCache entities;
+    private final ChunkCache chunk ;
 
     private RecordRunner recordRunner;
     private ReplayRunner replayRunner;
@@ -30,8 +31,8 @@ public class ReplayUser {
         this.user = user;
         this.player = (Player) player;
         this.world = new WorldData(this);
-        this.entities = new EntitiesData(this);
-        this.chunk = new ChunkMap(this);
+        this.entities = new EntitiesCache(this);
+        this.chunk = new ChunkCache(this);
     }
 
     public User getUser() {
@@ -46,11 +47,11 @@ public class ReplayUser {
         return player.getWorld();
     }
 
-    public ChunkMap getChunk() {
+    public ChunkCache getChunk() {
         return chunk;
     }
 
-    public EntitiesData getEntities() {
+    public EntitiesCache getEntities() {
         return entities;
     }
 
@@ -98,7 +99,7 @@ public class ReplayUser {
         user.sendMessage(Component.text(message));
     }
 
-    public void onPacket(ReplayPacket packet) {
+    public void onPacket(ReplayWrapper<?> packet) {
         world.onPacket(packet);
         entities.onPacket(packet);
         chunk.onPacket(packet);

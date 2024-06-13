@@ -39,6 +39,14 @@ public class ReplayEntityHeadYaw extends ReplayWrapper<ReplayEntityHeadYaw> {
         writeFloat(this.headYaw);
     }
 
+    public int getEntityId() {
+        return entityId;
+    }
+
+    public float getHeadYaw() {
+        return headYaw;
+    }
+
     @Override
     public boolean isSupportedVersion(ServerVersion version) {
         return true;

@@ -7,31 +7,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReplayPacketContainer {
-    private final List<RecordPacket> packets;
+    private final List<ReplayPacket> packets;
 
     public ReplayPacketContainer() {
         this(new ArrayList<>());
     }
 
-    public ReplayPacketContainer(List<RecordPacket> packets) {
+    public ReplayPacketContainer(List<ReplayPacket> packets) {
         this.packets = packets;
     }
 
     public void write(OutputStream stream) throws IOException {
         DataOutputStream outputStream = new DataOutputStream(stream);
-        for (RecordPacket packet : packets) {
+        for (ReplayPacket packet : packets) {
             outputStream.writeBoolean(true);
             packet.write(outputStream);
         }
     }
 
-    public void addPacket(ReplayPacket packet, long milliseconds) {
-        packets.add(new RecordPacket(packet, milliseconds));
+    public void addPacket(ReplayPacket packet) {
+        packets.add(packet);
     }
 
-    public void addPacket(List<ReplayPacket> packets, long milliseconds) {
+    public void addPacket(List<ReplayPacket> packets) {
         for (ReplayPacket packet : packets) {
-            addPacket(packet, milliseconds);
+            addPacket(packet);
         }
     }
 
@@ -41,7 +41,7 @@ public class ReplayPacketContainer {
             while (dis.readBoolean()) {
                 ReplayPacket packet = new ReplayPacketImpl();//(dis.readInt());
                 packet.read(dis);
-                con.addPacket(packet, dis.readLong());
+                con.addPacket(packet);
             }
         } catch (EOFException ex) {
             /* Ignored */
@@ -51,7 +51,7 @@ public class ReplayPacketContainer {
         return con;
     }
 
-    public RecordPacket get(int pos) {
+    public ReplayPacket get(int pos) {
         return packets.get(pos);
     }
 

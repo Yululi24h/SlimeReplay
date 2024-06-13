@@ -2,6 +2,8 @@ package me.koutachan.replay.replay.user.map;
 
 import com.github.retrooper.packetevents.protocol.world.Dimension;
 import me.koutachan.replay.replay.packet.ReplayPacket;
+import me.koutachan.replay.replay.packet.in.ReplayPlayerRespawnData;
+import me.koutachan.replay.replay.packet.in.ReplayWrapper;
 import me.koutachan.replay.replay.user.ReplayUser;
 import org.bukkit.Location;
 
@@ -18,22 +20,15 @@ public class WorldData {
         this.dimension = user.getDimension();
     }
 
-    public void onPacket(ReplayPacket packet) {
-        /*PacketWrapper<?> packetWrapper = packet.toPacket();
-        PacketTypeCommon packetType = packetWrapper.getPacketTypeData().getPacketType();
-        if (packetType == PacketType.Play.Server.RESPAWN) {
-            WrapperPlayServerRespawn respawn = (WrapperPlayServerRespawn) packetWrapper;
-            Dimension dimension = respawn.getDimension();
-            if (!this.dimension.getAttributes().equals(dimension.getAttributes()) ||
-                    !this.dimension.getDimensionName().equals(dimension.getDimensionName()) ||
-                    this.dimension.getId() != dimension.getId()) {
-                // Clear chunks.
-                user.getChunk().clear();
+    public void onPacket(ReplayWrapper<?> packet) {
+        if (packet instanceof ReplayPlayerRespawnData) {
+            ReplayPlayerRespawnData data = (ReplayPlayerRespawnData) packet;
+            if (data.isWorldChanged(this.dimension)) {
+                this.user.getChunk().clearCache();
             }
-            // Clear Entities.
-            user.getEntities().clear();
-            this.dimension = dimension;
-        }*/
+            this.user.getEntities().clearCache();
+            this.dimension = data.getDimension();
+        }
     }
 
     public List<ReplayPacket> toPacket() {

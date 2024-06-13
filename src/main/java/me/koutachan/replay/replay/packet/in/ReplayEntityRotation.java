@@ -50,6 +50,18 @@ public class ReplayEntityRotation extends ReplayWrapper<ReplayEntityRotation> {
         writeBoolean(this.onGround);
     }
 
+    public int getEntityId() {
+        return entityId;
+    }
+
+    public float getYaw() {
+        return yaw;
+    }
+
+    public float getPitch() {
+        return pitch;
+    }
+
     @Override
     public boolean isSupportedVersion(ServerVersion version) {
         return true;

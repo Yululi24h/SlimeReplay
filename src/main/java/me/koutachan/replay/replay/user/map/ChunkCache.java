@@ -6,7 +6,6 @@ import com.github.retrooper.packetevents.util.Vector3i;
 import me.koutachan.replay.replay.packet.ReplayPacket;
 import me.koutachan.replay.replay.packet.in.*;
 import me.koutachan.replay.replay.packet.in.packetevents.LightData;
-import me.koutachan.replay.replay.user.PacketMap;
 import me.koutachan.replay.replay.user.ReplayUser;
 import org.bukkit.Location;
 
@@ -16,15 +15,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class ChunkMap extends PacketMap<ReplayPacket> {
+public class ChunkCache {
     private final Map<ChunkPos, IChunkWrapper> chunks = new HashMap<>();
     private final ReplayUser user;
 
-    public ChunkMap(ReplayUser user) {
+    public ChunkCache(ReplayUser user) {
         this.user = user;
     }
 
-    @Override
     public void onPacket(ReplayWrapper<?> packet) {
         if (packet instanceof ReplayChunkData) {
             ReplayChunkData chunkData = (ReplayChunkData) packet;
@@ -60,14 +58,13 @@ public class ChunkMap extends PacketMap<ReplayPacket> {
         }
     }
 
-    public void clear() {
+    public void clearCache() {
         chunks.clear();
     }
 
     public static class ChunkWrapper implements IChunkWrapper {
         private final ReplayChunkData chunk;
 
-        // Because of packet events is bad at chunk wrapper.
         public ChunkWrapper(ReplayChunkData chunk) {
             this.chunk = chunk;
         }
@@ -146,7 +143,6 @@ public class ChunkMap extends PacketMap<ReplayPacket> {
 
     }
 
-    @Override
     public List<ReplayPacket> toPacket() {
         List<ReplayWrapper<?>> packets = chunks.values().stream()
                 .map(IChunkWrapper::toPacket)
