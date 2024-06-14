@@ -4,13 +4,13 @@ import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
-import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
-import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientTeleportConfirm;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientWindowConfirmation;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerWindowConfirmation;
 import me.koutachan.replay.replay.packet.ReplayPacket;
 import me.koutachan.replay.replay.packet.ReplayPacketContainer;
 import me.koutachan.replay.replay.user.ReplayUser;
+import me.koutachan.replay.replay.user.replay.chain.ReplayChain;
+import me.koutachan.replay.replay.user.replay.chain.ReplayRunnerHandler;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,67 +27,46 @@ public class ReplayRunner {
     private long currentTick;
     private double speed = 1000D;
     private boolean paused;
-    private int rows;
     private boolean enabled;
 
     private boolean confirmed;
 
-    private boolean test = false;
-
     private final ReplayPacketContainer container;
-    private final ReplayChunkHandler chunkHandler;
+    private final ReplayRunnerHandler handler;
 
     public ReplayRunner(ReplayUser user, ReplayPacketContainer container) {
         this.user = user;
         this.container = container;
-        this.chunkHandler = new ReplayChunkHandler(user, 4);
-
+        this.handler = new ReplayRunnerHandler(user, ReplayChain.fromContainer(container));
     }
 
     public void start() {
-        enabled = true;
-        timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
+        this.enabled = true;
+        this.timer = new Timer();
+        this.timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 if (!paused) {
-                    currentTick += calculateTicks();
+                    processPacket();
                 }
-                processPacket();
             }
         }, TICK_MILLISECONDS, TICK_MILLISECONDS);
         //processPacket();
     }
 
     public long calculateTicks() {
-        return (long) (TICK_MILLISECONDS * speed);
+        return (long) (TICK_MILLISECONDS * this.speed);
     }
 
     public void processPacket() {
-        while (true) {
-            if (rows >= container.size())
-                return;
-            ReplayPacket recordPacket = container.get(rows);
-            if (recordPacket == null || recordPacket.getMillis() > currentTick)
-                return;
-            rows++;
-            /*PacketWrapper<?> packetWrapper = recordPacket.getPacket().toPacket();
-            if (packetWrapper instanceof WrapperPlayServerPlayerPositionAndLook) {
-                chunkHandler.onPosition((WrapperPlayServerPlayerPositionAndLook) packetWrapper);
-            }
-            if (packetWrapper instanceof ReplayChunkData) {
-                ReplayChunkData chunkData = (ReplayChunkData) packetWrapper;
-                chunkHandler.addChunk(chunkData);
-                return;
-            } else if (packetWrapper instanceof WrapperPlayServerUnloadChunk) {
-                WrapperPlayServerUnloadChunk chunkData = (WrapperPlayServerUnloadChunk) packetWrapper;
-                chunkHandler.removeChunk(chunkData);
-                return;
+        this.handler.nextChain(calculateTicks());
+    }
 
-            }*/
-            System.out.println("Sent=" + recordPacket.toPacket().getClass().getName() + " sentMs=" + currentTick);
-            user.sendSilent(recordPacket);
-        }
+    public void sendActionBar() {
+        //TODO:
+        long millis = this.handler.getMillis();
+        ReplayPacket lastPacket = this.container.get(this.container.size() - 1); // We can calculate esliminated time
+
     }
 
     public void onReceivedPacket(ReplayUser user, PacketReceiveEvent event) {
@@ -104,11 +83,6 @@ public class ReplayRunner {
             }
         }
 
-        if (packetType == PacketType.Play.Client.TELEPORT_CONFIRM) {
-            chunkHandler.onCompleted(new WrapperPlayClientTeleportConfirm(event));
-        } else if (WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())) {
-            chunkHandler.addDeltaMovement(new WrapperPlayClientPlayerFlying(event));
-        }
         event.setCancelled(true);
     }
 
@@ -136,5 +110,9 @@ public class ReplayRunner {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    public ReplayPacketContainer getContainer() {
+        return container;
     }
 }

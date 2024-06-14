@@ -4,6 +4,7 @@ import com.github.retrooper.packetevents.protocol.player.GameMode;
 import com.github.retrooper.packetevents.protocol.world.Difficulty;
 import com.github.retrooper.packetevents.protocol.world.Dimension;
 import com.github.retrooper.packetevents.protocol.world.Location;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerPositionAndLook;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerRespawn;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUnloadChunk;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUpdateViewPosition;
@@ -11,7 +12,6 @@ import me.koutachan.replay.replay.packet.in.ReplayChunkData;
 import me.koutachan.replay.replay.user.ReplayUser;
 import me.koutachan.replay.replay.user.map.ChunkCache;
 import me.koutachan.replay.replay.user.map.data.PacketEntity;
-import me.koutachan.replay.replay.user.map.data.PacketEntitySelf;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -26,15 +26,17 @@ public class ReplayRunnerHandler {
 
     private Location playerPos;
     private ChunkCache.ChunkPos lastChunkPos;
-
-    private PacketEntitySelf self;
     private Dimension dimension;
-
     private int chunkRadius;
+    private final List<TeleportQueue> teleportQueues = new ArrayList<>();
 
-    public ReplayRunnerHandler(ReplayUser user) {
+    private long millis;
+
+    public ReplayRunnerHandler(ReplayUser user, ReplayChain current) {
         this.user = user;
         this.user.getEntityId();
+        this.current = current;
+        this.current.send(this); // Possibly 'ReplayStartDataChain'
     }
 
     @Nullable
@@ -68,31 +70,6 @@ public class ReplayRunnerHandler {
                 .orElse(null);
     }
 
-    public boolean canSendChunks() {
-        return true;
-    }
-
-    public void updateChunkPos(ChunkCache.ChunkPos pos) {
-        if (!Objects.equals(pos, lastChunkPos)) {
-            this.lastChunkPos = pos;
-            this.user.sendSilent(new WrapperPlayServerUpdateViewPosition(pos.getX(), pos.getZ()));
-        }
-    }
-
-    public void loadChunk(ChunkCache.ChunkPos pos) {
-        ReplayChunkData chunkData = getChunk(pos);
-        if (chunkData != null) {
-            this.user.sendSilent(chunkData.getPackets());
-            this.sentChunks.add(pos);
-        }
-    }
-
-    public void unloadChunk(ChunkCache.ChunkPos pos) {
-        if (this.sentChunks.remove(pos)) {
-            this.user.sendSilent(new WrapperPlayServerUnloadChunk(pos.getX(), pos.getZ()));
-        }
-    }
-
     public void move() {
         if (!canSendChunks())
             return;
@@ -115,12 +92,37 @@ public class ReplayRunnerHandler {
         loadedPos.forEach(this::unloadChunk);
     }
 
+    public void loadChunk(ChunkCache.ChunkPos pos) {
+        ReplayChunkData chunkData = getChunk(pos);
+        if (chunkData != null) {
+            this.user.sendSilent(chunkData.getPackets());
+            this.sentChunks.add(pos);
+        }
+    }
+
+    public void unloadChunk(ChunkCache.ChunkPos pos) {
+        if (this.sentChunks.remove(pos)) {
+            this.user.sendSilent(new WrapperPlayServerUnloadChunk(pos.getX(), pos.getZ()));
+        }
+    }
+
+    public boolean canSendChunks() {
+        return teleportQueues.isEmpty();
+    }
+
+    public void updateChunkPos(ChunkCache.ChunkPos pos) {
+        if (!Objects.equals(pos, lastChunkPos)) {
+            this.lastChunkPos = pos;
+            this.user.sendSilent(new WrapperPlayServerUpdateViewPosition(pos.getX(), pos.getZ()));
+        }
+    }
+
     public static int floor(double p_76128_0_) {
         int i = (int)p_76128_0_;
         return p_76128_0_ < (double)i ? i - 1 : i;
     }
 
-    public void onSpawn(Dimension dimension, GameMode gameMode) {
+    public void onSpawn(Dimension dimension, Location location, GameMode gameMode) {
         this.user.sendSilent(new WrapperPlayServerRespawn(
                 dimension,
                 "Slime-Replay-InDev",
@@ -134,21 +136,45 @@ public class ReplayRunnerHandler {
                 null,
                 null
         ));
+        //double x, double y, double z, float yaw, float pitch, byte flags, int teleportId, boolean dismountVehicle)
+        this.user.sendSilent(new WrapperPlayServerPlayerPositionAndLook(
+                location.getX(),
+                location.getY(),
+                location.getZ(),
+                location.getYaw(),
+                location.getPitch(),
+                (byte) 0,
+                -1,
+                true
+        ));
+        this.teleportQueues.add(new TeleportQueue(-1, location));
+        this.dimension = dimension;
     }
 
-    public void onMove() {
-
+    public void onMove(Location location) {
+        if (!this.playerPos.getPosition().equals(location.getPosition())) {
+            this.playerPos = location;
+            move();
+        }
     }
 
     public void sentEntity() {
 
     }
 
-    public void nextChain() {
-
+    public void nextChain(long millis) {
+        this.millis += millis;
+        while (loopNext()) {
+            this.current = this.current.next();
+            this.current.send(this);
+        }
     }
 
-    public void backChain(int millis) {
+    private boolean loopNext() {
+        return this.current != null && this.millis > this.current.next().getMillis();
+    }
+
+    public void backChain(long millis) {
         ReplayChain current = this.current;
         List<ReplayChain> collectedChain = new ArrayList<>(); //TODO:
         while (millis > current.getMillis()) {
@@ -158,7 +184,29 @@ public class ReplayRunnerHandler {
         this.current = current;
     }
 
+    public long getMillis() {
+        return millis;
+    }
+
     private static int getChunkDistance(ChunkCache.ChunkPos chunkPos, int x, int z) {
         return Math.max(Math.abs(chunkPos.getX() - x), Math.abs(chunkPos.getZ() - z));
+    }
+
+    public static class TeleportQueue {
+        private final int teleportId;
+        private final Location playerPos;
+
+        public TeleportQueue(int teleportId, Location playerPos) {
+            this.teleportId = teleportId;
+            this.playerPos = playerPos;
+        }
+
+        public int getTeleportId() {
+            return teleportId;
+        }
+
+        public Location getPlayerPos() {
+            return playerPos;
+        }
     }
 }

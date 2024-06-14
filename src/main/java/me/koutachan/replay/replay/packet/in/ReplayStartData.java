@@ -2,6 +2,7 @@ package me.koutachan.replay.replay.packet.in;
 
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.world.Dimension;
+import com.github.retrooper.packetevents.protocol.world.Location;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import me.koutachan.replay.replay.user.ReplayUser;
 
@@ -13,6 +14,7 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
     private List<ReplayLivingEntitySpawnData> entityData;
 
     private Dimension dimension;
+    private Location location;
     /*private ReplayPlayerSelfData playerSelf;
 
     private int height;*/
@@ -24,11 +26,12 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
         super(version, byteBuf);
     }
 
-    public ReplayStartData(List<ReplayChunkData> chunkData, List<ReplayLivingEntitySpawnData> entityData, Dimension dimension) {
+    public ReplayStartData(List<ReplayChunkData> chunkData, List<ReplayLivingEntitySpawnData> entityData, Dimension dimension, Location location) {
         this.chunkData = chunkData;
         this.entityData = entityData;
         this.dimension = dimension;
-    }
+        this.location = location;
+}
 
     @Override
     public void read() {
@@ -43,6 +46,13 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
         }
         //this.playerSelf = new ReplayPlayerSelfData(this.serverVersion, this.buffer);
         this.dimension = readDimension();
+        this.location = new Location(
+                readDouble(),
+                readDouble(),
+                readDouble(),
+                readFloat(),
+                readFloat()
+        );
         //this.dimension = readDimension();
     }
 
@@ -57,6 +67,11 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
             writeWrapper(entityData);
         }
         writeDimension(this.dimension);
+        writeDouble(this.location.getX());
+        writeDouble(this.location.getY());
+        writeDouble(this.location.getZ());
+        writeFloat(this.location.getYaw());
+        writeFloat(this.location.getPitch());
     }
 
     public List<ReplayChunkData> getChunkData() {
@@ -69,6 +84,10 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
 
     public Dimension getDimension() {
         return dimension;
+    }
+
+    public Location getLocation() {
+        return location;
     }
 
     @Override

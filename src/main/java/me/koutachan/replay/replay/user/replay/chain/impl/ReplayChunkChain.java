@@ -21,7 +21,7 @@ public class ReplayChunkChain extends ReplayChainImpl<ReplayChunkData> {
     @Override
     public List<PacketWrapper<?>> send(ReplayRunnerHandler handler) {
         handler.handleChunk(this.packet);
-        return super.send(handler);
+        return null;
     }
 
     @Override

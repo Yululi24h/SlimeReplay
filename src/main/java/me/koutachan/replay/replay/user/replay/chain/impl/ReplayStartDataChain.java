@@ -2,6 +2,7 @@ package me.koutachan.replay.replay.user.replay.chain.impl;
 
 import com.github.retrooper.packetevents.protocol.player.GameMode;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
+import me.koutachan.replay.replay.packet.in.ReplayChunkData;
 import me.koutachan.replay.replay.packet.in.ReplayStartData;
 import me.koutachan.replay.replay.user.replay.chain.ReplayChain;
 import me.koutachan.replay.replay.user.replay.chain.ReplayChainType;
@@ -21,7 +22,11 @@ public class ReplayStartDataChain extends ReplayChainImpl<ReplayStartData> {
 
     @Override
     public List<PacketWrapper<?>> send(ReplayRunnerHandler handler) {
-        handler.onSpawn(this.packet.getDimension(), GameMode.CREATIVE);
+        handler.onSpawn(this.packet.getDimension(), this.packet.getLocation(), GameMode.CREATIVE);
+        for (ReplayChunkData chunkData : packet.getChunkData()) {
+            handler.handleChunk(chunkData);
+        }
+        return null;
     }
 
     @Override
