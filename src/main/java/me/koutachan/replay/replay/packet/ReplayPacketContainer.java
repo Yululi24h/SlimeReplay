@@ -51,6 +51,10 @@ public class ReplayPacketContainer {
         return con;
     }
 
+    public List<ReplayPacket> getPackets() {
+        return packets;
+    }
+
     public ReplayPacket get(int pos) {
         return packets.get(pos);
     }

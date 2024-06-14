@@ -19,7 +19,7 @@ public class RecordHookImpl implements RecordHook {
     }
 
     @Override
-    public ReplayPacketContainer onSave() {
+    public ReplayPacketContainer getContainer() {
         return container;
     }
 

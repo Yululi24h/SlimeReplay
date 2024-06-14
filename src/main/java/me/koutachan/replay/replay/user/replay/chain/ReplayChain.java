@@ -1,6 +1,8 @@
 package me.koutachan.replay.replay.user.replay.chain;
 
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
+import me.koutachan.replay.replay.packet.ReplayPacket;
+import me.koutachan.replay.replay.packet.ReplayPacketContainer;
 
 import java.util.List;
 
@@ -24,4 +26,12 @@ public interface ReplayChain {
 
     //** TODO*
     List<PacketWrapper<?>> inverted(ReplayRunnerHandler handler);
+
+    static ReplayChain fromContainer(ReplayPacketContainer container) {
+        ReplayChainFactory factory = new ReplayChainFactory();
+        for (ReplayPacket packet : container.getPackets()) {
+            factory.appendChain(packet);
+        }
+        return factory.getFirstChain();
+    }
 }

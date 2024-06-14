@@ -5,4 +5,5 @@ public enum ReplayChainType {
     BLOCK,
     ENTITY_MOVE,
     PLAYER_MOVE,
+    UNKNOWN
 }

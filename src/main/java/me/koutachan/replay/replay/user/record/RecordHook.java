@@ -5,7 +5,7 @@ import me.koutachan.replay.replay.packet.in.ReplayWrapper;
 import me.koutachan.replay.replay.user.ReplayUser;
 
 public interface RecordHook {
-    ReplayPacketContainer onSave();
+    ReplayPacketContainer getContainer();
 
     void onPacket(ReplayWrapper<?> packet);
 

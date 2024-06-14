@@ -15,6 +15,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.io.File;
+import java.util.List;
 
 public class ReplayUser {
     private final User user;
@@ -65,6 +66,12 @@ public class ReplayUser {
 
     public void sendSilent(PacketWrapper<?> wrapper) {
         user.sendPacketSilently(wrapper);
+    }
+
+    public void sendSilent(List<PacketWrapper<?>> wrappers) {
+        for (PacketWrapper<?> wrapper : wrappers) {
+            sendSilent(wrapper);
+        }
     }
 
     public void sendSilent(ReplayPacket packet) {

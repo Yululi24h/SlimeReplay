@@ -11,6 +11,7 @@ import java.util.List;
 public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
     private List<ReplayChunkData> chunkData;
     private List<ReplayLivingEntitySpawnData> entityData;
+
     private Dimension dimension;
     /*private ReplayPlayerSelfData playerSelf;
 
@@ -56,6 +57,18 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
             writeWrapper(entityData);
         }
         writeDimension(this.dimension);
+    }
+
+    public List<ReplayChunkData> getChunkData() {
+        return chunkData;
+    }
+
+    public List<ReplayLivingEntitySpawnData> getEntityData() {
+        return entityData;
+    }
+
+    public Dimension getDimension() {
+        return dimension;
     }
 
     @Override
