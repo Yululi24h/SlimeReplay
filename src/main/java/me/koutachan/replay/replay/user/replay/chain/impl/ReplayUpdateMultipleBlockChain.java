@@ -1,39 +1,38 @@
 package me.koutachan.replay.replay.user.replay.chain.impl;
 
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
-import me.koutachan.replay.replay.packet.in.ReplayChunkData;
+import me.koutachan.replay.replay.packet.in.ReplayUpdateMultipleBlock;
 import me.koutachan.replay.replay.user.replay.chain.ReplayChain;
 import me.koutachan.replay.replay.user.replay.chain.ReplayChainType;
 import me.koutachan.replay.replay.user.replay.chain.ReplayRunnerHandler;
 
 import java.util.List;
 
-public class ReplayChunkChain extends ReplayChainImpl<ReplayChunkData> {
-    private ReplayChunkData oldChunk;
+public class ReplayUpdateMultipleBlockChain extends ReplayChainImpl<ReplayUpdateMultipleBlock> {
+    private ReplayRunnerHandler.BlockChangesData changesData;
 
-    public ReplayChunkChain(ReplayChunkData packet, long millis, ReplayChain back) {
+    public ReplayUpdateMultipleBlockChain(ReplayUpdateMultipleBlock packet, long millis, ReplayChain back) {
         super(packet, millis, back);
     }
 
     @Override
     public ReplayChainType getType() {
-        return ReplayChainType.CHUNK;
+        return ReplayChainType.BLOCK;
     }
 
     @Override
     public List<PacketWrapper<?>> send(ReplayRunnerHandler handler) {
-        this.oldChunk = handler.getChunk(this.packet.toChunkPos());
-        handler.handleChunk(this.packet);
+        this.changesData = handler.setBlocks(this.packet);
         return null;
     }
 
     @Override
     public List<PacketWrapper<?>> inverted(ReplayRunnerHandler handler) {
-        if (this.oldChunk != null) {
-            handler.handleChunk(this.oldChunk);
-        } else if (handler.hasChunk(this.packet)) {
-            return this.packet.getInvertedPackets();
-        }
+        handler.setBlocks(new ReplayUpdateMultipleBlock(
+                this.packet.getChunkPosition(),
+                this.packet.getTrustEdges(),
+                this.changesData.getBlocks()
+        ));
         return null;
     }
 }

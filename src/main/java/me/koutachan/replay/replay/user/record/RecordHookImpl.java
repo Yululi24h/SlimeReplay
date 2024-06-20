@@ -44,6 +44,6 @@ public class RecordHookImpl implements RecordHook {
 
     @Override
     public ReplayUser getUser() {
-        return null;
+        return user;
     }
 }

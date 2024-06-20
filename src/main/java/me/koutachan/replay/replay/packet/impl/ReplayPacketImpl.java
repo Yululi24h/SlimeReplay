@@ -39,7 +39,6 @@ public class ReplayPacketImpl implements ReplayPacket {
     @Override
     public void write(DataOutputStream stream) throws IOException {
         stream.writeInt(this.packet.getServerVersion().getProtocolVersion());
-        System.out.println("Clazz1: " + this.packet.getClass().getName());
         stream.writeUTF(this.packet.getClass().getName());
         this.packet.buffer = PacketEvents.getAPI().getNettyManager().getByteBufAllocationOperator().buffer();
         this.packet.write();
@@ -72,8 +71,6 @@ public class ReplayPacketImpl implements ReplayPacket {
         try {
             ServerVersion protocolVersion = ServerVersion.getById(stream.readInt());
             String  str = stream.readUTF();
-            System.out.println("Clazz: " + str);
-
             Class<?> clazz = Class.forName(str);
             Object byteBuf = readByteBuf(stream);
             return (ReplayWrapper<?>) clazz.getConstructor(ServerVersion.class, Object.class).newInstance(protocolVersion, byteBuf);

@@ -4,13 +4,16 @@ import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerFlying;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientTeleportConfirm;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientWindowConfirmation;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerWindowConfirmation;
-import me.koutachan.replay.replay.packet.ReplayPacket;
 import me.koutachan.replay.replay.packet.ReplayPacketContainer;
 import me.koutachan.replay.replay.user.ReplayUser;
 import me.koutachan.replay.replay.user.replay.chain.ReplayChain;
+import me.koutachan.replay.replay.user.replay.chain.ReplayChainFactory;
 import me.koutachan.replay.replay.user.replay.chain.ReplayRunnerHandler;
+import net.kyori.adventure.text.Component;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,23 +24,23 @@ import java.util.TimerTask;
 public class ReplayRunner {
     private final static long TICK_MILLISECONDS = 50L;
     private Timer timer;
-
-    private ReplayUser user;
+    private final ReplayUser user;
 
     private long currentTick;
-    private double speed = 1000D;
+    private double speed = 1D;
     private boolean paused;
     private boolean enabled;
 
-    private boolean confirmed;
-
-    private final ReplayPacketContainer container;
     private final ReplayRunnerHandler handler;
+    private final ReplayChain lastChain;
+    private final ReplayChain firstChain;
 
     public ReplayRunner(ReplayUser user, ReplayPacketContainer container) {
         this.user = user;
-        this.container = container;
-        this.handler = new ReplayRunnerHandler(user, ReplayChain.fromContainer(container));
+        ReplayChainFactory factory = ReplayChain.toContainer(container);
+        this.lastChain = factory.currentChain;
+        this.firstChain = factory.firstChain;
+        this.handler = new ReplayRunnerHandler(user, this.firstChain);
     }
 
     public void start() {
@@ -49,6 +52,7 @@ public class ReplayRunner {
                 if (!paused) {
                     processPacket();
                 }
+                sendActionBar();
             }
         }, TICK_MILLISECONDS, TICK_MILLISECONDS);
         //processPacket();
@@ -64,10 +68,10 @@ public class ReplayRunner {
 
     public void sendActionBar() {
         //TODO:
-        long millis = this.handler.getMillis();
-        ReplayPacket lastPacket = this.container.get(this.container.size() - 1);
-
-
+        long currentMillis = this.handler.getMillis();
+        long lastMillis = this.lastChain.getMillis();
+        this.user.getUser().sendMessage(Component.text(String.format("%s/%s", currentMillis, lastMillis)));
+        //this.user.sendSilent(new WrapperPlayServerSystemChatMessage(true, Component.text(String.format("%s/%s", millis, lastPacket.getMillis()))));
     }
 
     public void onReceivedPacket(ReplayUser user, PacketReceiveEvent event) {
@@ -83,7 +87,14 @@ public class ReplayRunner {
                 return;
             }
         }
-
+        if (packetType == PacketType.Play.Client.TELEPORT_CONFIRM) {
+            this.handler.onCompleteTeleport(new WrapperPlayClientTeleportConfirm(event).getTeleportId());
+        } else if (WrapperPlayClientPlayerFlying.isFlying(event.getPacketType())){
+            WrapperPlayClientPlayerFlying flying = new WrapperPlayClientPlayerFlying(event);
+            if (flying.hasPositionChanged()) {
+                this.handler.onMove(flying.getLocation());
+            }
+        }
         event.setCancelled(true);
     }
 
@@ -113,7 +124,11 @@ public class ReplayRunner {
         }
     }
 
-    public ReplayPacketContainer getContainer() {
-        return container;
+    public ReplayChain getFirstChain() {
+        return firstChain;
+    }
+
+    public ReplayChain getLastChain() {
+        return lastChain;
     }
 }

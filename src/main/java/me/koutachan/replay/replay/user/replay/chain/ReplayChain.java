@@ -31,11 +31,15 @@ public interface ReplayChain {
     //** TODO*
     List<PacketWrapper<?>> inverted(ReplayRunnerHandler handler);
 
-    static ReplayChain fromContainer(ReplayPacketContainer container) {
+    static ReplayChainFactory toContainer(ReplayPacketContainer container) {
         ReplayChainFactory factory = new ReplayChainFactory();
         for (ReplayPacket packet : container.getPackets()) {
             factory.appendChain(packet);
         }
-        return factory.getFirstChain();
+        return factory;
+    }
+
+    static ReplayChain fromContainer(ReplayPacketContainer container) {
+        return toContainer(container).getFirstChain();
     }
 }

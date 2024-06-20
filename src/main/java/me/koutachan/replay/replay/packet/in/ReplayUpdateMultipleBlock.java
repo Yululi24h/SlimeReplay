@@ -12,10 +12,16 @@ import java.util.List;
 public class ReplayUpdateMultipleBlock extends ReplayWrapper<ReplayUpdateMultipleBlock> {
     private Vector3i chunkPosition;
     private Boolean trustEdges;
-    private final List<BlockClazz> blocks = new ArrayList<>();
+    private List<BlockClazz> blocks;
 
-    public ReplayUpdateMultipleBlock() {
+    public ReplayUpdateMultipleBlock(ServerVersion version, Object byteBuf) {
+        super(version, byteBuf);
+    }
 
+    public ReplayUpdateMultipleBlock(Vector3i chunkPosition, Boolean trustEdges, List<BlockClazz> blocks) {
+        this.chunkPosition = chunkPosition;
+        this.trustEdges = trustEdges;
+        this.blocks = blocks;
     }
 
     @Override
@@ -24,6 +30,7 @@ public class ReplayUpdateMultipleBlock extends ReplayWrapper<ReplayUpdateMultipl
         if (serverVersion.isNewerThanOrEquals(ServerVersion.V_1_16) && serverVersion.isOlderThanOrEquals(ServerVersion.V_1_19_4)) {
             this.trustEdges = readBoolean();
         }
+        this.blocks = new ArrayList<>();
         for (int i = 0; i < readVarInt(); i++) {
             this.blocks.add(new BlockClazz(readBlockPosition(), readVarInt()));
         }
@@ -40,6 +47,14 @@ public class ReplayUpdateMultipleBlock extends ReplayWrapper<ReplayUpdateMultipl
             writeBlockPosition(clazz.getPos());
             writeVarInt(clazz.getBlockId());
         }
+    }
+
+    public Vector3i getChunkPosition() {
+        return chunkPosition;
+    }
+
+    public Boolean getTrustEdges() {
+        return trustEdges;
     }
 
     public List<BlockClazz> getBlocks() {
