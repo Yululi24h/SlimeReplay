@@ -86,6 +86,10 @@ public class ReplayChunkData extends ReplayWrapper<ReplayChunkData> {
         return column;
     }
 
+    public LightData getLightData() {
+        return lightData;
+    }
+
     public int getX() {
         return column.getX();
     }

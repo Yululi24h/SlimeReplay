@@ -2,10 +2,7 @@ package me.koutachan.replay.replay.user.replay.chain;
 
 import me.koutachan.replay.replay.packet.ReplayPacket;
 import me.koutachan.replay.replay.packet.in.*;
-import me.koutachan.replay.replay.user.replay.chain.impl.ReplayChunkChain;
-import me.koutachan.replay.replay.user.replay.chain.impl.ReplayStartDataChain;
-import me.koutachan.replay.replay.user.replay.chain.impl.ReplayUpdateBlockChain;
-import me.koutachan.replay.replay.user.replay.chain.impl.ReplayUpdateMultipleBlockChain;
+import me.koutachan.replay.replay.user.replay.chain.impl.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +18,7 @@ public class ReplayChainFactory {
         TO_REPLAY_CHAIN.put(ReplayChunkData.class, ReplayChunkChain.class);
         TO_REPLAY_CHAIN.put(ReplayUpdateBlock.class, ReplayUpdateBlockChain.class);
         TO_REPLAY_CHAIN.put(ReplayUpdateMultipleBlock.class, ReplayUpdateMultipleBlockChain.class);
+        TO_REPLAY_CHAIN.put(ReplayUpdateLightData.class, ReplayUpdateLightChain.class);
     }
 
     public ReplayChainFactory() {
