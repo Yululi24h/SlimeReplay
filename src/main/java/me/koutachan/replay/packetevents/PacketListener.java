@@ -39,6 +39,9 @@ public class PacketListener extends PacketListenerAbstract {
            if (packet != null) {
                user.onPacket(packet);
            }
+           if (user.isReplaying()) {
+               user.getReplayRunner().onReceivedPacket(user, event);
+           }
         }
     }
 
@@ -138,7 +141,7 @@ public class PacketListener extends PacketListenerAbstract {
             if (packet != null) {
                 user.onPacket(packet);
             }
-            if (user.getReplayRunner() != null) {
+            if (user.isReplaying()) {
                 user.getReplayRunner().onSendPacket(user, event);
             }
         }

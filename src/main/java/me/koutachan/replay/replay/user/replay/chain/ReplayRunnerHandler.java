@@ -12,12 +12,13 @@ import me.koutachan.replay.replay.packet.in.ReplayChunkData;
 import me.koutachan.replay.replay.user.ReplayUser;
 import me.koutachan.replay.replay.user.map.ChunkCache;
 import me.koutachan.replay.replay.user.map.data.PacketEntity;
+import me.koutachan.replay.replay.user.replay.chain.impl.ReplayStartDataChain;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 public class ReplayRunnerHandler {
-    private ReplayUser user;
+    private final ReplayUser user;
 
     private final Set<ChunkCache.ChunkPos> sentChunks = new HashSet<>();
     private final List<ReplayChunkData> currentChunks = new ArrayList<>();
@@ -29,6 +30,7 @@ public class ReplayRunnerHandler {
     private Dimension dimension;
     private int chunkRadius;
     private final List<TeleportQueue> teleportQueues = new ArrayList<>();
+    private int localId; //Uses in teleport
 
     private long millis;
 
@@ -36,7 +38,10 @@ public class ReplayRunnerHandler {
         this.user = user;
         this.user.getEntityId();
         this.current = current;
-        this.current.send(this); // Possibly 'ReplayStartDataChain'
+        if (!(current instanceof ReplayStartDataChain)) { //Determined ReplayStartDataChain
+            throw new IllegalStateException();
+        }
+        this.current.send(this);
     }
 
     @Nullable
@@ -53,6 +58,9 @@ public class ReplayRunnerHandler {
 
     public void handleChunk(ReplayChunkData data) {
         this.currentChunks.add(data);
+        if (canSendChunks() && this.chunkRadius >= getChunkDistance(this.lastChunkPos, data.getX(), data.getZ()) ) {
+            loadChunk(data.toChunkPos());
+        }
     }
 
     public boolean hasChunk(ReplayChunkData chunkData) {

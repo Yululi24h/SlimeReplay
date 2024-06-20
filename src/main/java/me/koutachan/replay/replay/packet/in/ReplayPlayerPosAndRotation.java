@@ -12,7 +12,6 @@ public class ReplayPlayerPosAndRotation extends ReplayEntityPosAndRotation {
 
     public ReplayPlayerPosAndRotation(PacketReceiveEvent event) {
         WrapperPlayClientPlayerPositionAndRotation wrapper = new WrapperPlayClientPlayerPositionAndRotation(event);
-        Location location = wrapper.getLocation();
         this.entityId = event.getUser().getEntityId();
         this.location = wrapper.getLocation();
         this.onGround = wrapper.isOnGround();

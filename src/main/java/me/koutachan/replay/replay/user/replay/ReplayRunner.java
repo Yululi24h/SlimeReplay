@@ -65,7 +65,7 @@ public class ReplayRunner {
     public void sendActionBar() {
         //TODO:
         long millis = this.handler.getMillis();
-        ReplayPacket lastPacket = this.container.get(this.container.size() - 1); // We can calculate esliminated time
+        ReplayPacket lastPacket = this.container.get(this.container.size() - 1); // We can calculate eliminated time
 
     }
 

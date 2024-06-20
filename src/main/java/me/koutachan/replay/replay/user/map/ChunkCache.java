@@ -3,11 +3,9 @@ package me.koutachan.replay.replay.user.map;
 import com.github.retrooper.packetevents.protocol.world.chunk.BaseChunk;
 import com.github.retrooper.packetevents.protocol.world.chunk.Column;
 import com.github.retrooper.packetevents.util.Vector3i;
-import me.koutachan.replay.replay.packet.ReplayPacket;
 import me.koutachan.replay.replay.packet.in.*;
 import me.koutachan.replay.replay.packet.in.packetevents.LightData;
 import me.koutachan.replay.replay.user.ReplayUser;
-import org.bukkit.Location;
 
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +57,7 @@ public class ChunkCache {
     }
 
     public void clearCache() {
-        chunks.clear();
+        this.chunks.clear();
     }
 
     public static class ChunkWrapper implements IChunkWrapper {
@@ -88,7 +86,6 @@ public class ChunkCache {
             BaseChunk baseChunk = baseChunks[y];
             if (baseChunk == null) {
                 baseChunk = BaseChunk.create();
-                //baseChunk.set(0, 0, 0, 0);
             }
             baseChunk.set(pos.getX() & 0xF, pos.getY() & 0xF, pos.getZ() & 0xF, blockId);
         }
@@ -143,13 +140,9 @@ public class ChunkCache {
 
     }
 
-    public List<ReplayPacket> toPacket() {
-        List<ReplayWrapper<?>> packets = chunks.values().stream()
+    public List<ReplayChunkData> toPacket() {
+        return chunks.values().stream()
                 .map(IChunkWrapper::toPacket)
                 .collect(Collectors.toList());
-        Location location = user.getPlayer().getLocation();
-        //packets.add(new ReplayPacketImpl(new WrapperPlayServerPlayerPositionAndLook(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch(), (byte) 0, 0, true)));
-        //return packets;
-        return null;
     }
 }

@@ -119,6 +119,14 @@ public class ReplayLivingEntitySpawnData extends ReplayWrapper<ReplayLivingEntit
         return entityId;
     }
 
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
     public boolean isUUIDUndefined() {
         return EMPTY_UUID == this.uuid;
     }
