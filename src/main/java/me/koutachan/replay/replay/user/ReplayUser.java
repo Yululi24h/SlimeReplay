@@ -97,8 +97,9 @@ public class ReplayUser {
     }
 
     public void stopRecord() {
-        if (recordRunner != null) {
-            recordRunner.stop();
+        if (this.recordRunner != null) {
+            this.recordRunner.stop();
+            this.recordRunner = null;
         }
     }
 

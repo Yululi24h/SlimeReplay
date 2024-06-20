@@ -2,8 +2,10 @@ package me.koutachan.replay.replay.user.replay.chain;
 
 import me.koutachan.replay.replay.packet.ReplayPacket;
 import me.koutachan.replay.replay.packet.in.ReplayChunkData;
+import me.koutachan.replay.replay.packet.in.ReplayStartData;
 import me.koutachan.replay.replay.packet.in.ReplayWrapper;
 import me.koutachan.replay.replay.user.replay.chain.impl.ReplayChunkChain;
+import me.koutachan.replay.replay.user.replay.chain.impl.ReplayStartDataChain;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +17,7 @@ public class ReplayChainFactory {
 
     private static final Map<Class<? extends ReplayWrapper<?>>, Class<? extends ReplayChain>> TO_REPLAY_CHAIN = new HashMap<>();
     static {
+        TO_REPLAY_CHAIN.put(ReplayStartData.class, ReplayStartDataChain.class);
         TO_REPLAY_CHAIN.put(ReplayChunkData.class, ReplayChunkChain.class);
     }
 

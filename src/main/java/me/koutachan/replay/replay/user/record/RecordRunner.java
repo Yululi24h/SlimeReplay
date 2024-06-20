@@ -6,7 +6,6 @@ import me.koutachan.replay.replay.user.ReplayUser;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.zip.GZIPOutputStream;
 
 public class RecordRunner {
     private final ReplayUser user;
@@ -53,8 +52,8 @@ public class RecordRunner {
             //this.onSave();
             /* this.onSave(); */
             this.enabled = false;
-            if (saveThread != null) {
-                saveThread = null;
+            if (this.saveThread != null) {
+                this.saveThread = null;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -109,7 +108,7 @@ public class RecordRunner {
             if (container != null) {
                 ReplayPacketContainer copied = container.copy();
                 container.clear();
-                try (GZIPOutputStream stream = new GZIPOutputStream(new FileOutputStream(to, true))) {
+                try (FileOutputStream stream = new FileOutputStream(to, true)) {
                     copied.write(stream);
                 }
             }

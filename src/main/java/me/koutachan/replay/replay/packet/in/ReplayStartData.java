@@ -36,6 +36,7 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
     @Override
     public void read() {
         int chunkSize = readVarInt();
+        this.chunkData = new ArrayList<>();
         for (int i = 0; i < chunkSize; i++) {
             this.chunkData.add(new ReplayChunkData(this.serverVersion, this.buffer));
         }

@@ -2,7 +2,6 @@ package me.koutachan.replay.replay.user.map;
 
 import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes;
 import com.github.retrooper.packetevents.util.Vector3d;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDestroyEntities;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import me.koutachan.replay.replay.packet.ReplayPacket;
 import me.koutachan.replay.replay.packet.in.*;
@@ -97,28 +96,18 @@ public class EntitiesCache {
     }
 
     public BasePacketEntity getEntity(int entityId) {
-        if (entityId == self.getEntityId()) {
-            return self;
+        if (entityId == this.self.getEntityId()) {
+            return this.self;
         }
-        return entities.get(entityId);
-    }
-
-    public void remove() {
-        user.sendSilent(new WrapperPlayServerDestroyEntities(this.entities.keySet().stream().mapToInt(i -> i).toArray()));
-    }
-
-    public void spawn() {
-        for (ReplayPacket packet : toPacket()) {
-            user.sendSilent(packet);
-        }
+        return this.entities.get(entityId);
     }
 
     public void clearCache() {
-        entities.clear();
+        this.entities.clear();
     }
 
     public List<ReplayPacket> toPacket() {
-        return entities.values()
+        return this.entities.values()
                 .stream()
                 .flatMap(entity -> entity.toPacket().stream())
                 .filter(Objects::nonNull)

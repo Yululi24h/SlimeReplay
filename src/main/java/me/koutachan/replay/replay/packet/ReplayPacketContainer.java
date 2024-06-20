@@ -19,14 +19,14 @@ public class ReplayPacketContainer {
 
     public void write(OutputStream stream) throws IOException {
         DataOutputStream outputStream = new DataOutputStream(stream);
-        for (ReplayPacket packet : packets) {
+        for (ReplayPacket packet : this.packets) {
             outputStream.writeBoolean(true);
             packet.write(outputStream);
         }
     }
 
     public void addPacket(ReplayPacket packet) {
-        packets.add(packet);
+        this.packets.add(packet);
     }
 
     public void addPacket(List<ReplayPacket> packets) {
@@ -68,29 +68,6 @@ public class ReplayPacketContainer {
     }
 
     public ReplayPacketContainer copy() {
-        return new ReplayPacketContainer(new ArrayList<>(packets));
-    }
-
-    public static class RecordPacket {
-        private final ReplayPacket packet;
-        private final long milliseconds;
-
-        public RecordPacket(ReplayPacket packet, long milliseconds) {
-            this.packet = packet;
-            this.milliseconds = milliseconds;
-        }
-
-        public ReplayPacket getPacket() {
-            return packet;
-        }
-
-        public long getMilliseconds() {
-            return milliseconds;
-        }
-
-        public void write(DataOutputStream stream) throws IOException {
-            packet.write(stream);
-            stream.writeLong(milliseconds);
-        }
+        return new ReplayPacketContainer(new ArrayList<>(this.packets));
     }
 }

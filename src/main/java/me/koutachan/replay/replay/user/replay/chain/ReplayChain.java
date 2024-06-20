@@ -14,6 +14,10 @@ import java.util.List;
 public interface ReplayChain {
     ReplayChain next();
 
+    default boolean hasNext() {
+        return next() != null;
+    }
+
     void setNext(ReplayChain chain);
 
     ReplayChain back();

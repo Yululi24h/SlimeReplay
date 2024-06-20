@@ -133,7 +133,7 @@ public class ReplayRunnerHandler {
     public void onSpawn(Dimension dimension, Location location, GameMode gameMode) {
         this.user.sendSilent(new WrapperPlayServerRespawn(
                 dimension,
-                "Slime-Replay-InDev",
+                "slime-replay-in-dev",
                 Difficulty.NORMAL, //TODO: I don't think we need to set up a difficulty here,
                 0L,
                 gameMode,

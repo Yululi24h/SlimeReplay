@@ -32,24 +32,25 @@ public class ReplayPacketImpl implements ReplayPacket {
     @Override
     public void read(DataInputStream stream) throws IOException {
         this.generated = true;
-        packet = createFakeWrapper(stream);
-        millis = stream.readLong();
+        this.packet = createFakeWrapper(stream);
+        this.millis = stream.readLong();
     }
 
     @Override
     public void write(DataOutputStream stream) throws IOException {
-        stream.writeInt(packet.getServerVersion().getProtocolVersion());
-        stream.writeUTF(packet.getClass().getName());
-        packet.buffer = PacketEvents.getAPI().getNettyManager().getByteBufAllocationOperator().buffer();
-        packet.write();
-        try (ByteBufInputStream inputStream = new ByteBufInputStream(packet.getBuffer(), true)) {
-            int len = ByteBufHelper.readableBytes(packet.getBuffer());
+        stream.writeInt(this.packet.getServerVersion().getProtocolVersion());
+        System.out.println("Clazz1: " + this.packet.getClass().getName());
+        stream.writeUTF(this.packet.getClass().getName());
+        this.packet.buffer = PacketEvents.getAPI().getNettyManager().getByteBufAllocationOperator().buffer();
+        this.packet.write();
+        try (ByteBufInputStream inputStream = new ByteBufInputStream(this.packet.getBuffer(), true)) {
+            int len = ByteBufHelper.readableBytes(this.packet.getBuffer());
             stream.writeInt(len);
             for (int b = 0; b < len; b++) {
                 stream.write(inputStream.read());
             }
         }
-        stream.writeLong(millis);
+        stream.writeLong(this.millis);
     }
 
     @Override
@@ -70,7 +71,10 @@ public class ReplayPacketImpl implements ReplayPacket {
     public static ReplayWrapper<?> createFakeWrapper(DataInputStream stream) throws IOException {
         try {
             ServerVersion protocolVersion = ServerVersion.getById(stream.readInt());
-            Class<?> clazz = Class.forName(stream.readUTF());
+            String  str = stream.readUTF();
+            System.out.println("Clazz: " + str);
+
+            Class<?> clazz = Class.forName(str);
             Object byteBuf = readByteBuf(stream);
             return (ReplayWrapper<?>) clazz.getConstructor(ServerVersion.class, Object.class).newInstance(protocolVersion, byteBuf);
         } catch (Exception ex) {

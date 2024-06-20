@@ -167,8 +167,7 @@ public class WrapperPlayServerChunkData extends PacketWrapper<WrapperPlayServerC
 
         // 1.7/1.8 don't use this NetStreamInput
         NetStreamInput dataIn = serverVersion.isNewerThanOrEquals(ServerVersion.V_1_9) ? new NetStreamInput(new ByteArrayInputStream(data)) : null;
-        BaseChunk[] chunks = getChunkReader().read(user.getDimension(), chunkMask, secondaryChunkMask, fullChunk, hasBlocklight, checkForSky, chunkSize, data, dataIn);
-
+        BaseChunk[] chunks = getChunkReader().read(null, chunkMask, secondaryChunkMask, fullChunk, hasBlocklight, checkForSky, chunkSize, data, dataIn); //Slime: Remove Dimension Pe.
         if (hasBiomeData && serverVersion.isOlderThan(ServerVersion.V_1_15)) {
             if (serverVersion.isNewerThanOrEquals(ServerVersion.V_1_13)) { // Uses ints
                 biomeDataInts = new int[256];

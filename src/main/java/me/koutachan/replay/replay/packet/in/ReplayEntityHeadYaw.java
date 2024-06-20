@@ -29,7 +29,7 @@ public class ReplayEntityHeadYaw extends ReplayWrapper<ReplayEntityHeadYaw> {
 
     @Override
     public void read() {
-        this.entityId = readInt();
+        this.entityId = readVarInt();
         this.headYaw = readFloat();
     }
 
