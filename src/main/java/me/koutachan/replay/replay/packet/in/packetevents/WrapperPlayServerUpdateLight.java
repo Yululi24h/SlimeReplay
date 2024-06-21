@@ -27,6 +27,10 @@ public class WrapperPlayServerUpdateLight extends PacketWrapper<WrapperPlayServe
     private int z;
     private LightData lightData;
 
+    public WrapperPlayServerUpdateLight() {
+        super(PacketType.Play.Server.UPDATE_LIGHT);
+    }
+
     public WrapperPlayServerUpdateLight(PacketSendEvent event) {
         super(event);
     }

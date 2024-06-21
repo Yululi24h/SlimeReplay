@@ -11,13 +11,11 @@ import java.util.List;
 
 public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
     private List<ReplayChunkData> chunkData;
+    private List<ReplayUpdateLightData> lightData;
     private List<ReplayLivingEntitySpawnData> entityData;
 
     private Dimension dimension;
     private Location location;
-    /*private ReplayPlayerSelfData playerSelf;
-
-    private int height;*/
 
     public ReplayStartData(ReplayUser user) {
     }
@@ -39,6 +37,10 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
         this.chunkData = new ArrayList<>();
         for (int i = 0; i < chunkSize; i++) {
             this.chunkData.add(new ReplayChunkData(this.serverVersion, this.buffer));
+        }
+        int lightSize = readVarInt();
+        for (int i = 0; i < lightSize; i++) {
+            this.lightData.add(new ReplayUpdateLightData(this.serverVersion, this.buffer));
         }
         int entitySize = readVarInt();
         this.entityData = new ArrayList<>();
@@ -62,6 +64,10 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
         writeVarInt(this.chunkData.size());
         for (ReplayChunkData chunkData : this.chunkData) {
             writeWrapper(chunkData);
+        }
+        writeVarInt(this.lightData.size());
+        for (ReplayUpdateLightData lightData : this.lightData) {
+            writeWrapper(lightData);
         }
         writeVarInt(this.entityData.size());
         for (ReplayLivingEntitySpawnData entityData : this.entityData) {

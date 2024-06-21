@@ -47,6 +47,10 @@ public class ReplayChunkData extends ReplayWrapper<ReplayChunkData> {
         this.ignoreOldData = chunkData.isIgnoreOldData();
     }
 
+    public ReplayChunkData() {
+
+    }
+
     public ReplayChunkData(Column column, LightData lightData, boolean ignoreOldData) {
         this.column = column;
         this.lightData = lightData;

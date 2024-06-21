@@ -34,6 +34,20 @@ public class LightData implements Cloneable {
     private byte[][] skyLightArray;
     private byte[][] blockLightArray;
 
+    public LightData() {
+
+    }
+
+    public LightData(BitSet blockLightMask, BitSet skyLightMask, BitSet emptyBlockLightMask, BitSet emptySkyLightMask) {
+        this.trustEdges = false;
+        this.blockLightMask = blockLightMask;
+        this.skyLightMask = skyLightMask;
+        this.emptyBlockLightMask = emptyBlockLightMask;
+        this.emptySkyLightMask = emptySkyLightMask;
+        this.skyLightArray = new byte[0][];
+        this.blockLightArray = new byte[0][];
+    }
+
     public void read(PacketWrapper<?> packet) {
         ServerVersion serverVersion = packet.getServerVersion();
         if (serverVersion.isOlderThanOrEquals(ServerVersion.V_1_19_4)) {

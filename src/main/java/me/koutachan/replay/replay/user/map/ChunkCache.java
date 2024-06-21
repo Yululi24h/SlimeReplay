@@ -6,6 +6,7 @@ import com.github.retrooper.packetevents.util.Vector3i;
 import me.koutachan.replay.replay.packet.in.*;
 import me.koutachan.replay.replay.packet.in.packetevents.LightData;
 import me.koutachan.replay.replay.user.ReplayUser;
+import me.koutachan.replay.utils.LightDataUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -74,7 +75,14 @@ public class ChunkCache {
 
         @Override
         public void setLightData(LightData lightData) {
-            chunk.setLightData(lightData);
+            if (chunk.getLightData() == null) {
+                chunk.setLightData(lightData.clone());
+                return;
+            }
+            LightData chunkLightData = chunk.getLightData().clone();
+            LightDataUtils.merge(chunkLightData, lightData.clone());
+            chunk.setLightData(chunkLightData);
+            //LightDataUtils.merge(chunk.getLightData(), lightData.clone());
         }
 
         @Override

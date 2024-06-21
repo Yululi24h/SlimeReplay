@@ -10,9 +10,11 @@ import me.koutachan.replay.replay.user.replay.chain.ReplayChainType;
 import me.koutachan.replay.replay.user.replay.chain.ReplayRunnerHandler;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 
 public class ReplayUpdateLightChain extends ReplayChainImpl<ReplayUpdateLightData> {
+    public static BitSet EMPTY = new BitSet();
     private LightData lightData;
 
     public ReplayUpdateLightChain(ReplayUpdateLightData packet, long millis, ReplayChain back) {
@@ -29,19 +31,37 @@ public class ReplayUpdateLightChain extends ReplayChainImpl<ReplayUpdateLightDat
         ReplayChunkData chunkData = handler.getChunk(this.packet.getChunkPos());
         if (chunkData != null) {
             LightData lightData = chunkData.getLightData();
+            LightData packetLight = this.packet.getLightData();
+            if (lightData == null) {
+                this.lightData = new LightData(EMPTY, EMPTY, EMPTY, EMPTY);
+                chunkData.setLightData(packetLight);
+                return super.send(handler);
+            }
             this.lightData = lightData.clone();
-            for (int i = 0; i < this.packet.getLightData().getSkyLightCount(); i++) {
-                if (this.packet.getLightData().getSkyLightMask().get(i)) {
-                    lightData.getSkyLightArray()[i] = this.packet.getLightData().getSkyLightArray()[i];
+            for (int i = 0; i < packetLight.getSkyLightCount(); i++) {
+                if (mergeLightMask(i, packetLight.getSkyLightMask(), lightData.getSkyLightMask(), lightData.getEmptySkyLightMask())) {
+                    lightData.getSkyLightArray()[i] = packetLight.getSkyLightArray()[i];
                 }
             }
-            for (int i = 0; i < this.packet.getLightData().getBlockLightCount(); i++) {
-                if (this.packet.getLightData().getBlockLightMask().get(i)) {
-                    lightData.getBlockLightArray()[i] = this.packet.getLightData().getBlockLightArray()[i];
+            for (int i = 0; i < packetLight.getBlockLightCount(); i++) {
+                if (mergeLightMask(i, packetLight.getBlockLightMask(), lightData.getBlockLightMask(), lightData.getEmptyBlockLightMask())) {
+                    lightData.getBlockLightArray()[i] = packetLight.getBlockLightArray()[i];
                 }
             }
         }
         return super.send(handler);
+    }
+
+    public static boolean mergeLightMask(int pos, BitSet fromLight, BitSet empty, BitSet light) {
+        boolean hasLight = fromLight.get(pos);
+        if (hasLight) {
+            light.set(pos, true);
+            empty.set(pos, false);
+        } else {
+            empty.set(pos, true);
+            light.set(pos, false);
+        }
+        return hasLight;
     }
 
     @Override

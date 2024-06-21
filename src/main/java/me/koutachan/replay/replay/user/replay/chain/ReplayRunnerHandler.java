@@ -1,5 +1,6 @@
 package me.koutachan.replay.replay.user.replay.chain;
 
+import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.player.GameMode;
 import com.github.retrooper.packetevents.protocol.world.Difficulty;
 import com.github.retrooper.packetevents.protocol.world.Dimension;
@@ -11,13 +12,17 @@ import com.github.retrooper.packetevents.wrapper.play.server.*;
 import me.koutachan.replay.replay.packet.in.ReplayChunkData;
 import me.koutachan.replay.replay.packet.in.ReplayUpdateBlock;
 import me.koutachan.replay.replay.packet.in.ReplayUpdateMultipleBlock;
+import me.koutachan.replay.replay.packet.in.packetevents.WrapperPlayServerUpdateLight;
 import me.koutachan.replay.replay.user.ReplayUser;
 import me.koutachan.replay.replay.user.map.ChunkCache;
 import me.koutachan.replay.replay.user.map.data.PacketEntity;
 import me.koutachan.replay.replay.user.replay.chain.impl.ReplayStartDataChain;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ReplayRunnerHandler {
     private final ReplayUser user;
@@ -87,7 +92,6 @@ public class ReplayRunnerHandler {
         if (this.playerPos == null || !playerPos.getPosition().equals(location.getPosition())) {
             this.playerPos = location;
             this.move();
-            System.out.println("Can Send Chunk?" + canSendChunks());
         }
     }
 
@@ -107,7 +111,6 @@ public class ReplayRunnerHandler {
                 ChunkCache.ChunkPos chunkPos1 = new ChunkCache.ChunkPos(x, z);
                 if (!loadedPos.remove(chunkPos1)) {
                     loadChunk(new ChunkCache.ChunkPos(x, z));
-                    System.out.println("Sending Chunk!");
                 }
             }
         }
@@ -118,6 +121,12 @@ public class ReplayRunnerHandler {
         ReplayChunkData chunkData = getChunk(pos);
         if (chunkData != null) {
             this.user.sendSilent(chunkData.getPackets());
+            System.out.println(chunkData.getLightData());
+            if (chunkData.getLightData() != null && chunkData.getServerVersion().isOlderThan(ServerVersion.V_1_18)) {
+                System.out.println("Sending Light");
+                System.out.println(chunkData.getLightData().getEmptySkyLightMask());
+                this.user.sendSilent(new WrapperPlayServerUpdateLight(chunkData.getX(), chunkData.getZ(), chunkData.getLightData()));
+            }
             this.sentChunks.add(pos);
         }
     }
@@ -147,7 +156,6 @@ public class ReplayRunnerHandler {
 
     public void updateChunkPos(ChunkCache.ChunkPos pos) {
         this.lastChunkPos = pos;
-        System.out.println("Updating Chunk Pos!");
         this.user.sendSilent(new WrapperPlayServerUpdateViewPosition(pos.getX(), pos.getZ()));
     }
 

@@ -14,6 +14,7 @@ import me.koutachan.replay.replay.user.replay.chain.ReplayChain;
 import me.koutachan.replay.replay.user.replay.chain.ReplayChainFactory;
 import me.koutachan.replay.replay.user.replay.chain.ReplayRunnerHandler;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,6 +41,7 @@ public class ReplayRunner {
         ReplayChainFactory factory = ReplayChain.toContainer(container);
         this.lastChain = factory.currentChain;
         this.firstChain = factory.firstChain;
+        Bukkit.getLogger().info(factory.count + " Replay Chain('s) loaded. Starting replay runner now.");
         this.handler = new ReplayRunnerHandler(user, this.firstChain);
     }
 

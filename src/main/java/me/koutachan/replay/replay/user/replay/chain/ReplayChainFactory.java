@@ -12,6 +12,8 @@ public class ReplayChainFactory {
     public ReplayChain firstChain;
     public ReplayChain currentChain;
 
+    public int count;
+
     private static final Map<Class<? extends ReplayWrapper<?>>, Class<? extends ReplayChain>> TO_REPLAY_CHAIN = new HashMap<>();
     static {
         TO_REPLAY_CHAIN.put(ReplayStartData.class, ReplayStartDataChain.class);
@@ -51,6 +53,7 @@ public class ReplayChainFactory {
         } else {
             this.firstChain = nextChain;
         }
+        this.count++;
         this.currentChain = nextChain;
     }
 

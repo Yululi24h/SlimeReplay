@@ -19,5 +19,6 @@ public class SlimeReplayAPI {
         PacketEvents.getAPI().init();*/
 
         PacketEvents.getAPI().getEventManager().registerListener(new PacketListener());
+        PacketEvents.getAPI().getSettings().fullStackTrace(true);
     }
 }

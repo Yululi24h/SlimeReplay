@@ -23,7 +23,7 @@ public class ReplayStartDataChain extends ReplayChainImpl<ReplayStartData> {
     @Override
     public List<PacketWrapper<?>> send(ReplayRunnerHandler handler) {
         handler.onSpawn(this.packet.getDimension(), this.packet.getLocation(), GameMode.CREATIVE);
-        for (ReplayChunkData chunkData : packet.getChunkData()) {
+        for (ReplayChunkData chunkData : this.packet.getChunkData()) {
             handler.handleChunk(chunkData);
         }
         return null;
