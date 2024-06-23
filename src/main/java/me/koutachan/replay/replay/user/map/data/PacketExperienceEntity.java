@@ -3,11 +3,8 @@ package me.koutachan.replay.replay.user.map.data;
 import com.github.retrooper.packetevents.protocol.world.Location;
 import com.github.retrooper.packetevents.util.Vector3d;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnExperienceOrb;
-import me.koutachan.replay.replay.packet.ReplayPacket;
+import me.koutachan.replay.replay.packet.in.ReplayEntityAbstract;
 import me.koutachan.replay.replay.user.ReplayUser;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class PacketExperienceEntity extends BasePacketEntity {
     protected Vector3d pos;
@@ -37,9 +34,7 @@ public class PacketExperienceEntity extends BasePacketEntity {
     }
 
     @Override
-    public List<ReplayPacket> toPacket() {
-        List<ReplayPacket> packets = new ArrayList<>();
-        //packets.add(new ReplayPacketImpl(new WrapperPlayServerSpawnExperienceOrb(entityId, pos.getX(), pos.getY(), pos.getZ(), count)));
-        return packets;
+    public ReplayEntityAbstract toPacket() {
+        return null;
     }
 }

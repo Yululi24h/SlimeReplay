@@ -116,6 +116,10 @@ public class ReplayUser {
         }
     }
 
+    public void closeConnection() {
+        this.user.closeConnection();
+    }
+
     public RecordRunner getRecordRunner() {
         return recordRunner;
     }

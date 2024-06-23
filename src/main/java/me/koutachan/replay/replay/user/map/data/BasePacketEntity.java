@@ -3,7 +3,7 @@ package me.koutachan.replay.replay.user.map.data;
 import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
 import com.github.retrooper.packetevents.protocol.player.Equipment;
 import com.github.retrooper.packetevents.protocol.world.Location;
-import me.koutachan.replay.replay.packet.ReplayPacket;
+import me.koutachan.replay.replay.packet.in.ReplayEntityAbstract;
 import me.koutachan.replay.replay.user.ReplayUser;
 
 import java.util.List;
@@ -53,5 +53,5 @@ public abstract class BasePacketEntity {
         return entityId;
     }
 
-    public abstract List<ReplayPacket> toPacket();
+    public abstract ReplayEntityAbstract toPacket();
 }

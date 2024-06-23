@@ -17,6 +17,7 @@ import me.koutachan.replay.replay.user.ReplayUser;
 import me.koutachan.replay.replay.user.map.ChunkCache;
 import me.koutachan.replay.replay.user.map.data.PacketEntity;
 import me.koutachan.replay.replay.user.replay.chain.impl.ReplayStartDataChain;
+import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -137,15 +138,14 @@ public class ReplayRunnerHandler {
     }
 
     public void onCompleteTeleport(int teleportId) {
-        TeleportQueue teleportQueue = this.teleportQueues.stream()
-                .filter(queue -> queue.teleportId == teleportId)
-                .findFirst()
-                .orElse(null);
-        if (teleportQueue == null)
+        TeleportQueue predictedQueue = this.teleportQueues.remove(0);
+        if (predictedQueue == null || predictedQueue.teleportId != teleportId) {
+            this.user.sendSilent(new WrapperPlayServerDisconnect(Component.text("The observed teleport ID is inconsistent with the predicted value (potential cheating?)")));
+            this.user.closeConnection();
             return;
-        this.teleportQueues.remove(teleportQueue);
+        }
         if (canSendChunks()) {
-            onMove(teleportQueue.getPlayerPos());
+            onMove(predictedQueue.getPlayerPos());
         }
     }
 
@@ -177,7 +177,11 @@ public class ReplayRunnerHandler {
                 null,
                 null
         ));
-        //double x, double y, double z, float yaw, float pitch, byte flags, int teleportId, boolean dismountVehicle)
+        teleportTo(location);
+        this.dimension = dimension;
+    }
+
+    public void teleportTo(Location location) {
         this.user.sendSilent(new WrapperPlayServerPlayerPositionAndLook(
                 location.getX(),
                 location.getY(),
@@ -185,11 +189,10 @@ public class ReplayRunnerHandler {
                 location.getYaw(),
                 location.getPitch(),
                 (byte) 0,
-                -1,
+                this.localId++,
                 true
         ));
-        this.teleportQueues.add(new TeleportQueue(-1, location));
-        this.dimension = dimension;
+        this.teleportQueues.add(new TeleportQueue(this.localId, location));
     }
 
     public BlockChangesData setBlocks(ReplayUpdateMultipleBlock blockData) {

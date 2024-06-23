@@ -3,7 +3,6 @@ package me.koutachan.replay.replay.user.map;
 import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes;
 import com.github.retrooper.packetevents.util.Vector3d;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
-import me.koutachan.replay.replay.packet.ReplayPacket;
 import me.koutachan.replay.replay.packet.in.*;
 import me.koutachan.replay.replay.user.ReplayUser;
 import me.koutachan.replay.replay.user.map.data.BasePacketEntity;
@@ -94,6 +93,7 @@ public class EntitiesCache {
 
     public BasePacketEntity getEntity(int entityId) {
         if (entityId == this.self.getEntityId()) {
+            System.out.println("Self Entity was accessed!");
             return this.self;
         }
         return this.entities.get(entityId);
@@ -103,10 +103,10 @@ public class EntitiesCache {
         this.entities.clear();
     }
 
-    public List<ReplayPacket> toPacket() {
+    public List<ReplayEntityAbstract> toPacket() {
         return this.entities.values()
                 .stream()
-                .flatMap(entity -> entity.toPacket().stream())
+                .map(BasePacketEntity::toPacket)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }

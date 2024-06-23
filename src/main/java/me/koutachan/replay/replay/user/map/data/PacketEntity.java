@@ -10,6 +10,7 @@ import com.github.retrooper.packetevents.util.Vector3d;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnEntity;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import me.koutachan.replay.replay.packet.ReplayPacket;
+import me.koutachan.replay.replay.packet.in.ReplayEntityAbstract;
 import me.koutachan.replay.replay.user.ReplayUser;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
@@ -90,8 +91,8 @@ public class PacketEntity extends BasePacketEntity {
         }
     }
 
-    public List<ReplayPacket> toPacket() {
-        List<ReplayPacket> packets = new ArrayList<>();
+    public ReplayEntityAbstract toPacket() {
+        /*List<ReplayPacket> packets = new ArrayList<>();
         Vector3d velocity = Vector3d.zero();
         if (flag && VELOCITY_FETCH) {
             Entity entity = fromId(entityId);
@@ -103,7 +104,8 @@ public class PacketEntity extends BasePacketEntity {
             }
         }
         //packets.add(new ReplayPacketImpl(new WrapperPlayServerSpawnEntity(entityId, uuid, entityType, location, headYaw, data, velocity)));
-        return addEntityPacket(packets);
+        return addEntityPacket(packets);*/
+        return null;
     }
 
     protected List<ReplayPacket> addEntityPacket(List<ReplayPacket> packets) {

@@ -1,11 +1,8 @@
 package me.koutachan.replay.replay.user.map.data;
 
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnPainting;
-import me.koutachan.replay.replay.packet.ReplayPacket;
+import me.koutachan.replay.replay.packet.in.ReplayEntityAbstract;
 import me.koutachan.replay.replay.user.ReplayUser;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class PacketPaintingEntity extends BasePacketEntity {
     public PacketPaintingEntity(ReplayUser user, WrapperPlayServerSpawnPainting painting) {
@@ -13,8 +10,7 @@ public class PacketPaintingEntity extends BasePacketEntity {
     }
 
     @Override
-    public List<ReplayPacket> toPacket() {
-        List<ReplayPacket> packets = new ArrayList<>();
-        return packets;
+    public ReplayEntityAbstract toPacket() {
+        return null;
     }
 }

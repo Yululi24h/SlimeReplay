@@ -9,11 +9,9 @@ import com.github.retrooper.packetevents.util.Vector3d;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 
 import java.util.List;
-import java.util.UUID;
 
 public class ReplaySpawnLivingEntity extends ReplayEntityAbstract {
     private EntityType entityType;
-    private UUID uuid;
     private float yaw;
     private float pitch;
     private float headPitch;
@@ -29,7 +27,6 @@ public class ReplaySpawnLivingEntity extends ReplayEntityAbstract {
     public void read() {
         super.read();
         this.entityType = EntityTypes.getById(this.serverVersion.toClientVersion(), readVarInt());
-        this.uuid = readUUID();
         this.yaw = readFloat();
         this.pitch = readFloat();
         this.headPitch = readFloat();
@@ -45,7 +42,6 @@ public class ReplaySpawnLivingEntity extends ReplayEntityAbstract {
     public void write() {
         super.write();
         writeVarInt(this.entityType.getId(this.serverVersion.toClientVersion()));
-        writeUUID(this.uuid);
         writeFloat(this.yaw);
         writeFloat(this.pitch);
         writeFloat(this.headPitch);

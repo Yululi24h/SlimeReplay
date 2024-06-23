@@ -7,8 +7,6 @@ import me.koutachan.replay.replay.packet.in.ReplayStartData;
 import me.koutachan.replay.replay.packet.in.ReplayWrapper;
 import me.koutachan.replay.replay.user.ReplayUser;
 
-import java.util.ArrayList;
-
 public class RecordHookImpl implements RecordHook {
     private final ReplayUser user;
     private final ReplayPacketContainer container = new ReplayPacketContainer();
@@ -20,7 +18,7 @@ public class RecordHookImpl implements RecordHook {
         this.container.addPacket(
                 ReplayPacket.of(new ReplayStartData(
                         this.user.getChunk().toPacket(),
-                        new ArrayList<>(),
+                        this.user.getEntities().toPacket(),
                         this.user.getDimension(),
                         SpigotConversionUtil.fromBukkitLocation(this.user.getPlayer().getLocation())
                 ), 0L)

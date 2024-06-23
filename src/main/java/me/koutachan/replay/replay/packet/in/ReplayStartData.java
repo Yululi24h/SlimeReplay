@@ -84,7 +84,7 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
             }
         }
         writeVarInt(this.entityData.size());
-        for (ReplayLivingEntitySpawnData entityData : this.entityData) {
+        for (ReplayEntityAbstract entityData : this.entityData) {
             writeWrapper(entityData);
         }
         writeDimension(this.dimension);
@@ -103,7 +103,7 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
         return lightData;
     }
 
-    public List<ReplayLivingEntitySpawnData> getEntityData() {
+    public List<ReplayEntityAbstract> getEntityData() {
         return entityData;
     }
 
