@@ -12,8 +12,9 @@ import java.util.List;
 public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
     private List<ReplayChunkData> chunkData;
     private List<ReplayUpdateLightData> lightData;
-    private List<ReplayLivingEntitySpawnData> entityData;
+    private List<ReplayEntityAbstract> entityData;
 
+    private int entityId; //TODO: Renaem to Source Id.
     private Dimension dimension;
     private Location location;
 
@@ -24,7 +25,7 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
         super(version, byteBuf);
     }
 
-    public ReplayStartData(List<ReplayChunkData> chunkData, List<ReplayLivingEntitySpawnData> entityData, Dimension dimension, Location location) {
+    public ReplayStartData(List<ReplayChunkData> chunkData, List<ReplayEntityAbstract> entityData, Dimension dimension, Location location) {
         this.chunkData = chunkData;
         if (this.serverVersion.isNewerThanOrEquals(ServerVersion.V_1_14) && this.serverVersion.isOlderThanOrEquals(ServerVersion.V_1_17)) {
             this.lightData = new ArrayList<>();
@@ -56,7 +57,7 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
         int entitySize = readVarInt();
         this.entityData = new ArrayList<>();
         for (int i = 0; i < entitySize; i++) {
-            this.entityData.add(new ReplayLivingEntitySpawnData(this.serverVersion, this.buffer));
+            this.entityData.add(ReplayEntityAbstract.of(this.serverVersion, this.buffer));
         }
         //this.playerSelf = new ReplayPlayerSelfData(this.serverVersion, this.buffer);
         this.dimension = readDimension();

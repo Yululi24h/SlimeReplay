@@ -82,7 +82,7 @@ public class PacketListener extends PacketListenerAbstract {
                 }
                 case SPAWN_LIVING_ENTITY:
                 case SPAWN_ENTITY: {
-                    packet = new ReplayLivingEntitySpawnData(event);
+                    //packet = new ReplayLivingEntitySpawnData(event); / TODO:
                     break;
                 }
                 case SPAWN_PAINTING: { //TODO:
@@ -99,10 +99,6 @@ public class PacketListener extends PacketListenerAbstract {
                 }
                 case ENTITY_EQUIPMENT: {
                     packet = new ReplayEntityEquipment(event);
-                    break;
-                }
-                case UPDATE_ENTITY_NBT: { //TODO: IDk what is that. using in 1.8
-                    //packet = new ReplayPacketImpl(new WrapperPlayServerUpdateEntityNBT(event));
                     break;
                 }
                 case ENTITY_METADATA: {

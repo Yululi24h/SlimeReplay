@@ -1,12 +1,29 @@
 package me.koutachan.replay.replay.packet.in;
 
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
+import com.github.retrooper.packetevents.netty.buffer.ByteBufHelper;
 import com.github.retrooper.packetevents.protocol.world.Location;
 import com.github.retrooper.packetevents.util.Vector3d;
 
-public abstract class ReplayEntityAbstract extends ReplayWrapper<ReplayEntityAbstract>{
+public abstract class ReplayEntityAbstract extends ReplayWrapper<ReplayEntityAbstract> {
+    protected ClassType classType;
+
     protected int entityId;
     protected Vector3d position;
+
+    public ReplayEntityAbstract() {
+
+    }
+
+    public ReplayEntityAbstract(ServerVersion version, Object byteBuf) {
+        super(version, byteBuf);
+    }
+
+    public ReplayEntityAbstract(ClassType classType, int entityId, Vector3d position) {
+        this.classType = classType;
+        this.entityId = entityId;
+        this.position = position;
+    }
 
     @Override
     public boolean isSupportedVersion(ServerVersion version) {
@@ -25,6 +42,7 @@ public abstract class ReplayEntityAbstract extends ReplayWrapper<ReplayEntityAbs
 
     @Override
     public void write() {
+        writeByte(this.classType.ordinal());
         writeVarInt(this.entityId);
         writeDouble(this.position.getX());
         writeDouble(this.position.getY());
@@ -46,4 +64,27 @@ public abstract class ReplayEntityAbstract extends ReplayWrapper<ReplayEntityAbs
     public abstract Location getLocation();
 
     public abstract void setLocation(Location location);
+
+    public static ReplayEntityAbstract of(ServerVersion version, Object byteBuf) {
+        ClassType classType = ClassType.getByOrdinal(ByteBufHelper.readByte(byteBuf));
+        if (classType == ClassType.OBJECT) {
+            return new ReplaySpawnEntity(version, byteBuf);
+        } else if (classType == ClassType.LIVING) {
+            return new ReplaySpawnLivingEntity(version, byteBuf);
+        }
+        return null;
+    }
+
+    public enum ClassType {
+        OBJECT,
+        LIVING,
+        PLAYER,
+        PAINTING;
+
+        public final static ClassType[] CLASS_TYPE = values();
+
+        public static ClassType getByOrdinal(byte l) {
+            return CLASS_TYPE[l];
+        }
+    }
 }

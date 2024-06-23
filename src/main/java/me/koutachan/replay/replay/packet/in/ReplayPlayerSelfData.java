@@ -11,14 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Deprecated
 public class ReplayPlayerSelfData extends ReplayWrapper<ReplayPlayerSelfData> {
     private int entityId;
     private Location pos;
     private UUID uuid;
     private float headYaw;
-    //private UserProfile userProfile;
-    //private ItemStack itemUse;
-    //private List<PotionType> potionTypes = new ArrayList<>();
     private List<EntityData> entityData;
     private Dimension dimension;
 

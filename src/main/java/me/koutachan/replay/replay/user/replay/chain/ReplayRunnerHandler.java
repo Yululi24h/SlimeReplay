@@ -29,6 +29,7 @@ public class ReplayRunnerHandler {
 
     private final Set<ChunkCache.ChunkPos> sentChunks = new HashSet<>();
     private final List<ReplayChunkData> currentChunks = new ArrayList<>();
+    private final List<PacketEntity> currentEntities = new ArrayList<>();
     private final List<PacketEntity> sentEntities = new ArrayList<>();
     private ReplayChain current;
 
@@ -38,8 +39,6 @@ public class ReplayRunnerHandler {
     private int chunkRadius;
     private final List<TeleportQueue> teleportQueues = new ArrayList<>();
     private int localId; //Uses in teleport
-
-    private boolean centerChunk;
 
     private long millis;
 
@@ -102,7 +101,6 @@ public class ReplayRunnerHandler {
     public void move() {
         if (!canSendChunks())
             return;
-        //Set<ChunkMap.ChunkPos> chunkPosSet = new HashSet<>(this.loadedChunks.keySet());
         int chunkX = floor(this.playerPos.getX()) >> 4;
         int chunkZ = floor(this.playerPos.getZ()) >> 4;
         ChunkCache.ChunkPos chunkPos = new ChunkCache.ChunkPos(chunkX, chunkZ);
@@ -125,10 +123,7 @@ public class ReplayRunnerHandler {
         ReplayChunkData chunkData = getChunk(pos);
         if (chunkData != null) {
             this.user.sendSilent(chunkData.getPackets());
-            System.out.println(chunkData.getLightData());
             if (chunkData.getLightData() != null && chunkData.getServerVersion().isOlderThan(ServerVersion.V_1_18)) {
-                System.out.println("Sending Light");
-                System.out.println(chunkData.getLightData().getEmptySkyLightMask());
                 this.user.sendSilent(new WrapperPlayServerUpdateLight(chunkData.getX(), chunkData.getZ(), chunkData.getLightData()));
             }
             this.sentChunks.add(pos);

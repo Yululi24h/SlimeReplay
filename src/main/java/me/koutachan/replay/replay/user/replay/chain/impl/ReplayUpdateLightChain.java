@@ -43,18 +43,6 @@ public class ReplayUpdateLightChain extends ReplayChainImpl<ReplayUpdateLightDat
         return super.send(handler);
     }
 
-    public static boolean mergeLightMask(int pos, BitSet fromLight, BitSet empty, BitSet light) {
-        boolean hasLight = fromLight.get(pos);
-        if (hasLight) {
-            light.set(pos, true);
-            empty.set(pos, false);
-        } else {
-            empty.set(pos, true);
-            light.set(pos, false);
-        }
-        return hasLight;
-    }
-
     @Override
     public List<PacketWrapper<?>> inverted(ReplayRunnerHandler handler) {
         ReplayChunkData chunkData = handler.getChunk(this.packet.getChunkPos());

@@ -35,15 +35,6 @@ public class PacketTestCommand implements CommandExecutor {
                         break;
                 }
             }
-        /*if (args.length > 1) {
-            replayUser.startReplay();
-        } else if (replayUser != null) {
-            replayUser.getEntities().remove();
-            sender.sendMessage("Completed! ");
-            replayUser.getEntities().spawn();
-            sender.sendMessage("Completed!.. ");
-            replayUser.startRecord(new File("C:\\Users\\rin11\\Desktop\\monopoly - コピー (2)\\test.slime"));
-        }*/
         } catch (Exception ex) {
             ex.printStackTrace();
         }

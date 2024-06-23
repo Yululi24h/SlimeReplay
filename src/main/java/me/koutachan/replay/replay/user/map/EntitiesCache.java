@@ -35,10 +35,7 @@ public class EntitiesCache {
     }
 
     public void onPacket(ReplayWrapper<?> packet) {
-        if (packet instanceof ReplayLivingEntitySpawnData) {
-            ReplayLivingEntitySpawnData spawnData = (ReplayLivingEntitySpawnData) packet;
-            //entities.put(spawnData.getEntityId(), new PacketEntity(this.user, ))
-        } else if (packet instanceof ReplayEntityPos) {
+        if (packet instanceof ReplayEntityPos) {
             ReplayEntityPos entityPos = (ReplayEntityPos) packet;
             BasePacketEntity entity = getEntity(entityPos.getEntityId());
             if (entity != null) {

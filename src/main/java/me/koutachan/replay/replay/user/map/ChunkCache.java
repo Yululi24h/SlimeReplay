@@ -28,18 +28,10 @@ public class ChunkCache {
             if (this.lastLightData != null) { // Minecraft will send light data ahead...
                 if (chunkData.getX() == this.lastLightData.getX() && chunkData.getZ() == this.lastLightData.getZ()) {
                     chunkData.setLightData(this.lastLightData.getLightData());
-                    System.out.println("Congrats! we replaced lightdata!");
-                } else {
-                    System.out.println("Not = " + this.lastLightData.getChunkPos() + " chunk=" + chunkData.toChunkPos());
                 }
-
                 this.lastLightData = null;
-
             }
-
             this.chunks.put(chunkData.toChunkPos(), new ChunkWrapper(chunkData));
-
-
         } else if (packet instanceof ReplayChunkBulkData) {
             ReplayChunkBulkData chunkDataBulk = (ReplayChunkBulkData) packet;
             for (ReplayChunkData chunkData : chunkDataBulk.getChunks()) {
@@ -74,7 +66,6 @@ public class ChunkCache {
     }
 
     public void clearCache() {
-        System.err.println("== Chunk cleared! ==");
         this.chunks.clear();
     }
 

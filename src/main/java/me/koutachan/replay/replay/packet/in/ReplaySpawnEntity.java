@@ -7,6 +7,7 @@ import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes;
 import com.github.retrooper.packetevents.protocol.world.Location;
 import com.github.retrooper.packetevents.util.Vector3d;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityVelocity;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnEntity;
 
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class ReplaySpawnEntityData extends ReplayEntityAbstract{
+public class ReplaySpawnEntity extends ReplayEntityAbstract {
     protected EntityType entityType;
     protected float yaw;
     protected float pitch;
@@ -24,14 +25,27 @@ public class ReplaySpawnEntityData extends ReplayEntityAbstract{
     private int data;
     private List<EntityData> entityData;
 
-    public ReplaySpawnEntityData() {
+    public ReplaySpawnEntity(ServerVersion version, Object byteBuf) {
+        super(version, byteBuf);
+    }
 
+    public ReplaySpawnEntity(int entityId, EntityType entityType, Location location, float headYaw, Vector3d velocity, int data, List<EntityData> entityData) {
+        super(ClassType.OBJECT, entityId, location.getPosition());
+        this.entityType = entityType;
+        this.yaw = location.getYaw();
+        this.pitch = location.getPitch();
+        this.headYaw = headYaw;
+        this.velocity = velocity;
+        this.data = data;
+        this.entityData = entityData;
     }
 
     @Override
     public void read() {
         super.read();
         this.entityType = EntityTypes.getById(this.serverVersion.toClientVersion(), readVarInt());
+        this.yaw = readFloat();
+        this.pitch = readFloat();
         this.headYaw = readFloat();
         this.velocity = new Vector3d(
                 readDouble(),
@@ -49,6 +63,9 @@ public class ReplaySpawnEntityData extends ReplayEntityAbstract{
         writeFloat(this.yaw);
         writeFloat(this.pitch);
         writeFloat(this.headYaw);
+        writeDouble(this.velocity.getX());
+        writeDouble(this.velocity.getY());
+        writeDouble(this.velocity.getZ());
         writeVarInt(this.data);
         writeEntityMetadata(this.entityData);
     }
@@ -68,7 +85,6 @@ public class ReplaySpawnEntityData extends ReplayEntityAbstract{
     @Override
     public List<PacketWrapper<?>> getPackets() {
         List<PacketWrapper<?>> packets = new ArrayList<>();
-        //int entityID, Optional<UUID> uuid, EntityType entityType, Vector3d position, float pitch, float yaw, float headYaw, int data, Optional<Vector3d> velocity
         packets.add(new WrapperPlayServerSpawnEntity(
                 this.entityId,
                 Optional.of(UUID.randomUUID()),
@@ -82,6 +98,9 @@ public class ReplaySpawnEntityData extends ReplayEntityAbstract{
         ));
         if (this.serverVersion.isOlderThan(ServerVersion.V_1_9)) {
             packets.add(new WrapperPlayServerEntityVelocity(this.entityId, this.velocity));
+        }
+        if (!this.entityData.isEmpty()) {
+            packets.add(new WrapperPlayServerEntityMetadata(this.entityId, this.entityData));
         }
         return packets;
     }
