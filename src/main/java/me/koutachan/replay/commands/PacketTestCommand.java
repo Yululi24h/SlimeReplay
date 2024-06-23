@@ -17,8 +17,9 @@ public class PacketTestCommand implements CommandExecutor {
         try {
             sender.sendMessage("Recording...! processing...");
             ReplayUser replayUser = ReplayUserContainer.getUser(((Player) sender).getUniqueId());
-            String argT = args[0];
-            if (args.length > 1) {
+
+            if (args.length > 0) {
+                String argT = args[0];
                 switch (argT) {
                     case "stop":
                         replayUser.stopRecord();
@@ -33,9 +34,7 @@ public class PacketTestCommand implements CommandExecutor {
                         replayUser.getChunk().sentPacket(replayUser);
                         break;
                 }
-
             }
-
         /*if (args.length > 1) {
             replayUser.startReplay();
         } else if (replayUser != null) {
@@ -48,7 +47,6 @@ public class PacketTestCommand implements CommandExecutor {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-
         return true;
     }
 }

@@ -14,6 +14,7 @@ public class RecordRunner {
 
     private boolean enabled;
     private Thread saveThread;
+    private Long nextSave;
 
     public RecordRunner(ReplayUser user) {
         this(user, 1000L);
@@ -31,33 +32,50 @@ public class RecordRunner {
 
     public void start() {
         this.enabled = true;
+        calculateNextSleep();
         this.saveThread = new Thread(() -> {
-            while (enabled) {
+            while (this.enabled) {
                 try {
-                    Thread.sleep(sleep);
-                    save();
+                    Thread.sleep(1L);
+                    if (System.currentTimeMillis() > this.nextSave) {
+                        save();
+                        calculateNextSleep();
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-
         });
         this.saveThread.setName("SlimeReplay-Save-Thread");
         this.saveThread.start();
         this.hook.start();
     }
 
+    private void calculateNextSleep() {
+        this.nextSave = System.currentTimeMillis() + this.sleep;
+    }
+
     public void stop() {
         try {
-            //this.onSave();
-            /* this.onSave(); */
             this.enabled = false;
             if (this.saveThread != null) {
                 this.saveThread = null;
             }
+            asyncSave();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void asyncSave() {
+        Thread thread = new Thread(() -> {
+            try {
+                save();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        thread.start();
     }
 
     public synchronized void save() throws Exception {
@@ -65,7 +83,7 @@ public class RecordRunner {
 
     public void onPacket(ReplayWrapper<?> packet) {
         if (isRecording()) {
-            hook.onPacket(packet);
+            this.hook.onPacket(packet);
         }
     }
 

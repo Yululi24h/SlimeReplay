@@ -5,32 +5,25 @@ import me.koutachan.replay.replay.packet.in.packetevents.LightData;
 import java.util.BitSet;
 
 public class LightDataUtils {
-    public static void merge(LightData original, LightData from) {
-        for (int i = 0; i < from.getSkyLightCount(); i++) {
-            if (mergeLightMask(i, from.getSkyLightMask(), original.getSkyLightMask(), original.getEmptySkyLightMask())) {
-                original.getSkyLightArray()[i] = from.getSkyLightArray()[i];
-            } else {
-                original.getSkyLightArray()[i] = null;
-            }
-        }
-        for (int i = 0; i < from.getBlockLightCount(); i++) {
-            if (mergeLightMask(i, from.getBlockLightMask(), original.getBlockLightMask(), original.getEmptyBlockLightMask())) {
-                original.getBlockLightArray()[i] = from.getBlockLightArray()[i];
-            } else {
-                original.getBlockLightArray()[i] = null;
+    public static void appendLightData(LightData lightData, LightData from) {
+        append(from.getSkyLightCount(), lightData.getSkyLightArray(), from.getSkyLightArray(), lightData.getSkyLightMask(), lightData.getEmptySkyLightMask(), from.getSkyLightMask(), from.getEmptySkyLightMask());
+        append(from.getBlockLightCount(), lightData.getBlockLightArray(), from.getBlockLightArray(), lightData.getBlockLightMask(), lightData.getEmptyBlockLightMask(), from.getBlockLightMask(), from.getEmptyBlockLightMask());
+    }
+
+    private static void append(int length, byte[][] sourceArray, byte[][] fromArray, BitSet sourceLightMask, BitSet sourceEmptyMask, BitSet fromLightMask, BitSet fromEmptyMask) {
+        for (int i = 0; i < length; i++) {
+            if (fromLightMask.get(i)) {
+                sourceArray[i] = fromArray[i];
+                updateMask(i, sourceLightMask, sourceEmptyMask);
+            } else if (fromEmptyMask.get(i)) {
+                sourceArray[i] = null;
+                updateMask(i, sourceEmptyMask, sourceLightMask);
             }
         }
     }
 
-    public static boolean mergeLightMask(int pos, BitSet fromLight, BitSet empty, BitSet light) {
-        boolean hasLight = fromLight.get(pos);
-        if (hasLight) {
-            light.set(pos, true);
-            empty.set(pos, false);
-        } else {
-            empty.set(pos, true);
-            light.set(pos, false);
-        }
-        return hasLight;
+    private static void updateMask(int i, BitSet bitSet1, BitSet bitSet2) {
+        bitSet1.set(i, true);
+        bitSet2.set(i, false);
     }
 }

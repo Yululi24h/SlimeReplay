@@ -26,6 +26,14 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
 
     public ReplayStartData(List<ReplayChunkData> chunkData, List<ReplayLivingEntitySpawnData> entityData, Dimension dimension, Location location) {
         this.chunkData = chunkData;
+        if (this.serverVersion.isNewerThanOrEquals(ServerVersion.V_1_14) && this.serverVersion.isOlderThanOrEquals(ServerVersion.V_1_17)) {
+            this.lightData = new ArrayList<>();
+            for (ReplayChunkData val : this.chunkData) {
+                if (val.getLightData() != null) {
+                    this.lightData.add(new ReplayUpdateLightData(val.getX(), val.getZ(), val.getLightData()));
+                }
+            }
+        }
         this.entityData = entityData;
         this.dimension = dimension;
         this.location = location;
@@ -38,9 +46,12 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
         for (int i = 0; i < chunkSize; i++) {
             this.chunkData.add(new ReplayChunkData(this.serverVersion, this.buffer));
         }
-        int lightSize = readVarInt();
-        for (int i = 0; i < lightSize; i++) {
-            this.lightData.add(new ReplayUpdateLightData(this.serverVersion, this.buffer));
+        if (this.serverVersion.isNewerThanOrEquals(ServerVersion.V_1_14) && this.serverVersion.isOlderThanOrEquals(ServerVersion.V_1_17)) {
+            this.lightData = new ArrayList<>();
+            int lightSize = readVarInt();
+            for (int i = 0; i < lightSize; i++) {
+                this.lightData.add(new ReplayUpdateLightData(this.serverVersion, this.buffer));
+            }
         }
         int entitySize = readVarInt();
         this.entityData = new ArrayList<>();
@@ -65,9 +76,11 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
         for (ReplayChunkData chunkData : this.chunkData) {
             writeWrapper(chunkData);
         }
-        writeVarInt(this.lightData.size());
-        for (ReplayUpdateLightData lightData : this.lightData) {
-            writeWrapper(lightData);
+        if (this.serverVersion.isNewerThanOrEquals(ServerVersion.V_1_14) && this.serverVersion.isOlderThanOrEquals(ServerVersion.V_1_17)) {
+            writeVarInt(this.lightData.size());
+            for (ReplayUpdateLightData lightData : this.lightData) {
+                writeWrapper(lightData);
+            }
         }
         writeVarInt(this.entityData.size());
         for (ReplayLivingEntitySpawnData entityData : this.entityData) {
@@ -83,6 +96,10 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
 
     public List<ReplayChunkData> getChunkData() {
         return chunkData;
+    }
+
+    public List<ReplayUpdateLightData> getLightData() {
+        return lightData;
     }
 
     public List<ReplayLivingEntitySpawnData> getEntityData() {

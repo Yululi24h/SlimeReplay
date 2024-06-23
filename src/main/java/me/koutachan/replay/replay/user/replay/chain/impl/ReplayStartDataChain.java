@@ -4,6 +4,7 @@ import com.github.retrooper.packetevents.protocol.player.GameMode;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import me.koutachan.replay.replay.packet.in.ReplayChunkData;
 import me.koutachan.replay.replay.packet.in.ReplayStartData;
+import me.koutachan.replay.replay.packet.in.ReplayUpdateLightData;
 import me.koutachan.replay.replay.user.replay.chain.ReplayChain;
 import me.koutachan.replay.replay.user.replay.chain.ReplayChainType;
 import me.koutachan.replay.replay.user.replay.chain.ReplayRunnerHandler;
@@ -26,11 +27,16 @@ public class ReplayStartDataChain extends ReplayChainImpl<ReplayStartData> {
         for (ReplayChunkData chunkData : this.packet.getChunkData()) {
             handler.handleChunk(chunkData);
         }
+        if (this.packet.getLightData() != null) {
+            for (ReplayUpdateLightData lightData : this.packet.getLightData()) {
+                handler.getChunk(lightData.getChunkPos()).setLightData(lightData.getLightData());
+            }
+        }
         return null;
     }
 
     @Override
     public List<PacketWrapper<?>> inverted(ReplayRunnerHandler handler) {
-        return null; //Cannot invertable
+        return null; //Cannot invertible
     }
 }

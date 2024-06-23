@@ -1,5 +1,6 @@
 package me.koutachan.replay.replay.user.map;
 
+import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.world.chunk.BaseChunk;
 import com.github.retrooper.packetevents.protocol.world.chunk.Column;
 import com.github.retrooper.packetevents.util.Vector3i;
@@ -8,15 +9,14 @@ import me.koutachan.replay.replay.packet.in.packetevents.LightData;
 import me.koutachan.replay.replay.user.ReplayUser;
 import me.koutachan.replay.utils.LightDataUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ChunkCache {
     private final Map<ChunkPos, IChunkWrapper> chunks = new HashMap<>();
     private final ReplayUser user;
+
+    private ReplayUpdateLightData lastLightData;
 
     public ChunkCache(ReplayUser user) {
         this.user = user;
@@ -25,7 +25,21 @@ public class ChunkCache {
     public void onPacket(ReplayWrapper<?> packet) {
         if (packet instanceof ReplayChunkData) {
             ReplayChunkData chunkData = (ReplayChunkData) packet;
-            this.chunks.put(new ChunkPos(chunkData.getX(), chunkData.getZ()), new ChunkWrapper(chunkData));
+            if (this.lastLightData != null) { // Minecraft will send light data ahead...
+                if (chunkData.getX() == this.lastLightData.getX() && chunkData.getZ() == this.lastLightData.getZ()) {
+                    chunkData.setLightData(this.lastLightData.getLightData());
+                    System.out.println("Congrats! we replaced lightdata!");
+                } else {
+                    System.out.println("Not = " + this.lastLightData.getChunkPos() + " chunk=" + chunkData.toChunkPos());
+                }
+
+                this.lastLightData = null;
+
+            }
+
+            this.chunks.put(chunkData.toChunkPos(), new ChunkWrapper(chunkData));
+
+
         } else if (packet instanceof ReplayChunkBulkData) {
             ReplayChunkBulkData chunkDataBulk = (ReplayChunkBulkData) packet;
             for (ReplayChunkData chunkData : chunkDataBulk.getChunks()) {
@@ -33,9 +47,11 @@ public class ChunkCache {
             }
         } else if (packet instanceof ReplayUpdateLightData) {
             ReplayUpdateLightData lightData = (ReplayUpdateLightData) packet;
-            IChunkWrapper wrapper = this.chunks.get(new ChunkPos(lightData.getX(), lightData.getZ()));
+            IChunkWrapper wrapper = this.chunks.get(lightData.getChunkPos());
             if (wrapper != null) {
                 wrapper.setLightData(lightData.getLightData());
+            } else {
+                this.lastLightData = lightData; // Minecraft will send light data ahead...
             }
         } else if (packet instanceof ReplayUpdateMultipleBlock) {
             ReplayUpdateMultipleBlock blocks = (ReplayUpdateMultipleBlock) packet;
@@ -58,6 +74,7 @@ public class ChunkCache {
     }
 
     public void clearCache() {
+        System.err.println("== Chunk cleared! ==");
         this.chunks.clear();
     }
 
@@ -75,14 +92,11 @@ public class ChunkCache {
 
         @Override
         public void setLightData(LightData lightData) {
-            if (chunk.getLightData() == null) {
-                chunk.setLightData(lightData.clone());
+            if (this.chunk.getLightData() == null || this.chunk.getServerVersion().isNewerThanOrEquals(ServerVersion.V_1_17)) { // v 1.17+
+                this.chunk.setLightData(lightData);
                 return;
             }
-            LightData chunkLightData = chunk.getLightData().clone();
-            LightDataUtils.merge(chunkLightData, lightData.clone());
-            chunk.setLightData(chunkLightData);
-            //LightDataUtils.merge(chunk.getLightData(), lightData.clone());
+            LightDataUtils.appendLightData(this.chunk.getLightData(), lightData);
         }
 
         @Override
@@ -141,6 +155,14 @@ public class ChunkCache {
         @Override
         public int hashCode() {
             return Objects.hash(x, z);
+        }
+
+        @Override
+        public String toString() {
+            return "ChunkPos{" +
+                    "x=" + x +
+                    ", z=" + z +
+                    '}';
         }
     }
 

@@ -8,6 +8,7 @@ import me.koutachan.replay.replay.packet.in.packetevents.WrapperPlayServerUpdate
 import me.koutachan.replay.replay.user.replay.chain.ReplayChain;
 import me.koutachan.replay.replay.user.replay.chain.ReplayChainType;
 import me.koutachan.replay.replay.user.replay.chain.ReplayRunnerHandler;
+import me.koutachan.replay.utils.LightDataUtils;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -33,21 +34,11 @@ public class ReplayUpdateLightChain extends ReplayChainImpl<ReplayUpdateLightDat
             LightData lightData = chunkData.getLightData();
             LightData packetLight = this.packet.getLightData();
             if (lightData == null) {
-                this.lightData = new LightData(EMPTY, EMPTY, EMPTY, EMPTY);
                 chunkData.setLightData(packetLight);
                 return super.send(handler);
             }
             this.lightData = lightData.clone();
-            for (int i = 0; i < packetLight.getSkyLightCount(); i++) {
-                if (mergeLightMask(i, packetLight.getSkyLightMask(), lightData.getSkyLightMask(), lightData.getEmptySkyLightMask())) {
-                    lightData.getSkyLightArray()[i] = packetLight.getSkyLightArray()[i];
-                }
-            }
-            for (int i = 0; i < packetLight.getBlockLightCount(); i++) {
-                if (mergeLightMask(i, packetLight.getBlockLightMask(), lightData.getBlockLightMask(), lightData.getEmptyBlockLightMask())) {
-                    lightData.getBlockLightArray()[i] = packetLight.getBlockLightArray()[i];
-                }
-            }
+            LightDataUtils.appendLightData(lightData, packetLight);
         }
         return super.send(handler);
     }
@@ -67,11 +58,14 @@ public class ReplayUpdateLightChain extends ReplayChainImpl<ReplayUpdateLightDat
     @Override
     public List<PacketWrapper<?>> inverted(ReplayRunnerHandler handler) {
         ReplayChunkData chunkData = handler.getChunk(this.packet.getChunkPos());
-        if (chunkData != null) {
+        if (chunkData != null && this.lightData != null) {
             chunkData.setLightData(this.lightData);
+            if (handler.hasSentChunk(chunkData.getX(), chunkData.getZ())) {
+                List<PacketWrapper<?>> packets = new ArrayList<>();
+                packets.add(new WrapperPlayServerUpdateLight(this.packet.getX(), this.packet.getZ(), this.lightData));
+                return packets;
+            }
         }
-        List<PacketWrapper<?>> packets = new ArrayList<>();
-        packets.add(new WrapperPlayServerUpdateLight(this.packet.getX(), this.packet.getZ(), this.lightData));
-        return packets;
+        return null;
     }
 }

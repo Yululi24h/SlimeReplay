@@ -81,6 +81,10 @@ public class ReplayRunnerHandler {
         return this.currentChunks.stream().anyMatch(chunk -> chunk.getX() == x && chunk.getZ() == z);
     }
 
+    public boolean hasSentChunk(int x, int z) {
+        return this.sentChunks.stream().anyMatch(chunk -> chunk.getX() == x && chunk.getZ() == z);
+    }
+
     public ReplayChunkData getChunk(ChunkCache.ChunkPos pos) {
         return this.currentChunks.stream()
                 .filter(chunk -> chunk.getX() == pos.getX() && chunk.getZ() == pos.getZ())
