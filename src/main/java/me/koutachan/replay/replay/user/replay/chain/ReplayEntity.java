@@ -5,9 +5,8 @@ import me.koutachan.replay.replay.packet.in.ReplayEntityAbstract;
 import me.koutachan.replay.replay.user.ReplayUser;
 
 public class ReplayEntity {
-    private ReplayUser replayUser;
-
-    private ReplayEntityAbstract spawnPacket; //TODO:
+    private final ReplayUser replayUser;
+    private final ReplayEntityAbstract spawnPacket; //TODO:
     private ReplayChunk replayChunk;
     private Location currentPos;
 
@@ -34,6 +33,10 @@ public class ReplayEntity {
         this.currentPos = currentPos;
     }
 
+    public ReplayChunk getReplayChunk() {
+        return replayChunk;
+    }
+
     public void setReplayChunk(ReplayChunk replayChunk) {
         this.replayChunk = replayChunk;
     }
@@ -44,5 +47,10 @@ public class ReplayEntity {
 
     public int cacheUpEntityId(int entityId) {
         return this.replayUser.getEntityId() >= entityId ? entityId + 1 : entityId;
+    }
+
+    public enum UnloadReason {
+        CHUNK,
+        REMOVE
     }
 }

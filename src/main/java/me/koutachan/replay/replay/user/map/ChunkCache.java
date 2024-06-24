@@ -9,7 +9,10 @@ import me.koutachan.replay.replay.packet.in.packetevents.LightData;
 import me.koutachan.replay.replay.user.ReplayUser;
 import me.koutachan.replay.utils.LightDataUtils;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ChunkCache {
@@ -87,7 +90,7 @@ public class ChunkCache {
                 this.chunk.setLightData(lightData);
                 return;
             }
-            LightDataUtils.appendLightData(this.chunk.getLightData(), lightData);
+            LightDataUtils.appendLightData(this.chunk.getLightData(), lightData); //TODO: Really this is need?
         }
 
         @Override

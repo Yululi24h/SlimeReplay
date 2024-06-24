@@ -68,17 +68,15 @@ public class RecordRunner {
     }
 
     private void asyncSave() {
-        Thread thread = new Thread(() -> {
-            try {
-                save();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+        Thread thread = new Thread(this::forceSave);
         thread.start();
     }
 
-    public synchronized void save() throws Exception {
+    public void save() {
+    }
+
+    public void forceSave() {
+
     }
 
     public void onPacket(ReplayWrapper<?> packet) {
@@ -119,16 +117,25 @@ public class RecordRunner {
         }
 
         @Override
-        public synchronized void save() throws Exception {
+        public void save() {
             if (!isRecording())
                 return;
-            ReplayPacketContainer container = hook.getContainer();
-            if (container != null) {
-                ReplayPacketContainer copied = container.copy();
-                container.clear();
-                try (FileOutputStream stream = new FileOutputStream(to, true)) {
-                    copied.write(stream);
+            forceSave();
+        }
+
+        @Override
+        public synchronized void forceSave() {
+            try {
+                ReplayPacketContainer container = hook.getContainer();
+                if (container != null) {
+                    ReplayPacketContainer copied = container.copy();
+                    container.clear();
+                    try (FileOutputStream stream = new FileOutputStream(to, true)) {
+                        copied.write(stream);
+                    }
                 }
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }
     }

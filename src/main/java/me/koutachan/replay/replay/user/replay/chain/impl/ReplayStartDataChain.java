@@ -37,6 +37,6 @@ public class ReplayStartDataChain extends ReplayChainImpl<ReplayStartData> {
 
     @Override
     public List<PacketWrapper<?>> inverted(ReplayRunnerHandler handler) {
-        return null; //Cannot invertible
+        throw new IllegalStateException();
     }
 }
