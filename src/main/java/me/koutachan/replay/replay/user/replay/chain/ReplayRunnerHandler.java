@@ -8,6 +8,7 @@ import com.github.retrooper.packetevents.protocol.world.Location;
 import com.github.retrooper.packetevents.protocol.world.chunk.BaseChunk;
 import com.github.retrooper.packetevents.protocol.world.states.WrappedBlockState;
 import com.github.retrooper.packetevents.util.Vector3i;
+import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.server.*;
 import me.koutachan.replay.replay.packet.in.ReplayChunkData;
 import me.koutachan.replay.replay.packet.in.ReplayUpdateBlock;
@@ -68,7 +69,7 @@ public class ReplayRunnerHandler {
 
     public void handleChunk(ReplayChunkData data) {
         this.currentChunks.add(data);
-        if (canSendChunks() && this.lastChunkPos != null && this.chunkRadius >= getChunkDistance(this.lastChunkPos, data.getX(), data.getZ()) ) {
+        if (canSendChunks() && this.lastChunkPos != null && this.chunkRadius >= getChunkDistance(this.lastChunkPos, data.getX(), data.getZ())) {
             loadChunk(data.toChunkPos());
         }
     }
@@ -90,6 +91,14 @@ public class ReplayRunnerHandler {
                 .filter(chunk -> chunk.getX() == pos.getX() && chunk.getZ() == pos.getZ())
                 .findFirst()
                 .orElse(null);
+    }
+
+    public boolean removeChunk(int x, int z) {
+        boolean removed = this.currentChunks.removeIf(chunkData -> chunkData.getX() == x && chunkData.getZ() == z);
+        if (removed && hasSentChunk(x, z)) {
+            unloadChunk(new ChunkCache.ChunkPos(x, z));
+        }
+        return removed;
     }
 
     public void onMove(Location location) {
@@ -158,9 +167,9 @@ public class ReplayRunnerHandler {
         this.user.sendSilent(new WrapperPlayServerUpdateViewPosition(pos.getX(), pos.getZ()));
     }
 
-    public static int floor(double p_76128_0_) {
-        int i = (int)p_76128_0_;
-        return p_76128_0_ < (double)i ? i - 1 : i;
+    public static int floor(double value) {
+        int i = (int) value;
+        return value < (double) i ? i - 1 : i;
     }
 
     public void onSpawn(Dimension dimension, Location location, GameMode gameMode) {
@@ -238,7 +247,6 @@ public class ReplayRunnerHandler {
     }
 
 
-
     public void sentEntity() {
 
     }
@@ -247,7 +255,10 @@ public class ReplayRunnerHandler {
         this.millis += millis;
         while (loopNext()) {
             this.current = this.current.next();
-            this.current.send(this);
+            List<PacketWrapper<?>> packetWrappers = this.current.send(this);
+            if (packetWrappers != null) {
+                this.user.sendSilent(packetWrappers);
+            }
         }
         if (this.current != null && !this.current.hasNext()) { // Last millis
             this.millis = this.current.getMillis();

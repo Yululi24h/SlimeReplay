@@ -21,6 +21,7 @@ public class ReplayChainFactory {
         TO_REPLAY_CHAIN.put(ReplayUpdateBlock.class, ReplayUpdateBlockChain.class);
         TO_REPLAY_CHAIN.put(ReplayUpdateMultipleBlock.class, ReplayUpdateMultipleBlockChain.class);
         TO_REPLAY_CHAIN.put(ReplayUpdateLightData.class, ReplayUpdateLightChain.class);
+        TO_REPLAY_CHAIN.put(ReplayUnloadChunkData.class, ReplayUnloadChunkChain.class);
     }
 
     public ReplayChainFactory() {

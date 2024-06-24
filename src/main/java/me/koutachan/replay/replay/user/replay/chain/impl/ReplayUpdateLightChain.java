@@ -35,12 +35,12 @@ public class ReplayUpdateLightChain extends ReplayChainImpl<ReplayUpdateLightDat
             LightData packetLight = this.packet.getLightData();
             if (lightData == null) {
                 chunkData.setLightData(packetLight);
-                return super.send(handler);
+                return handler.hasSentChunk(this.packet.getX(), this.packet.getZ()) ? super.send(handler) : null;
             }
             this.lightData = lightData.clone();
             LightDataUtils.appendLightData(lightData, packetLight);
         }
-        return super.send(handler);
+        return handler.hasSentChunk(this.packet.getX(), this.packet.getZ()) ? super.send(handler) : null;
     }
 
     @Override

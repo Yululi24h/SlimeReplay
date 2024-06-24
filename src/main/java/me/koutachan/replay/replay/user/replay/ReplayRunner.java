@@ -39,8 +39,8 @@ public class ReplayRunner {
     public ReplayRunner(ReplayUser user, ReplayPacketContainer container) {
         this.user = user;
         ReplayChainFactory factory = ReplayChain.toContainer(container);
-        this.lastChain = factory.currentChain;
         this.firstChain = factory.firstChain;
+        this.lastChain = factory.currentChain;
         Bukkit.getLogger().info(factory.count + " Replay Chain('s) loaded. Starting replay runner now.");
         this.handler = new ReplayRunnerHandler(user, this.firstChain);
     }

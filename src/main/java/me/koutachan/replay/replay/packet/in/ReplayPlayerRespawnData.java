@@ -69,7 +69,7 @@ public class ReplayPlayerRespawnData extends ReplayWrapper<ReplayPlayerRespawnDa
         List<PacketWrapper<?>> packets = new ArrayList<>();
         packets.add(new WrapperPlayServerRespawn(
                 this.dimension,
-                "Slime-Replay-InDev",
+                "slime-replay-in-dev",
                 Difficulty.NORMAL, //TODO: I don't think we need to set up a difficulty here,
                 0L,
                 this.gameMode,
