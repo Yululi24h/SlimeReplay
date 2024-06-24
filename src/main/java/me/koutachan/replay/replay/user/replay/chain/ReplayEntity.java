@@ -8,6 +8,7 @@ public class ReplayEntity {
     private ReplayUser replayUser;
 
     private ReplayEntityAbstract spawnPacket; //TODO:
+    private ReplayChunk replayChunk;
     private Location currentPos;
 
     public ReplayEntity(ReplayUser replayUser, ReplayEntityAbstract replayWrapper) {
@@ -25,8 +26,16 @@ public class ReplayEntity {
         this.replayUser.sendSilent(this.spawnPacket.getPackets());
     }
 
+    public void unload() {
+
+    }
+
     public void setCurrentPos(Location currentPos) {
         this.currentPos = currentPos;
+    }
+
+    public void setReplayChunk(ReplayChunk replayChunk) {
+        this.replayChunk = replayChunk;
     }
 
     public int getEntityId() {

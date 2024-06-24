@@ -72,16 +72,4 @@ public class ReplaySpawnLivingEntity extends ReplayEntityAbstract {
     public List<PacketWrapper<?>> getInvertedPackets() {
         return null;
     }
-    //    private int entityID;
-    //    private UUID entityUUID;
-    //    private EntityType entityType;
-    //    private Vector3d position;
-    //    private float yaw;
-    //    private float pitch;
-    //    private float headPitch;
-    //    private Vector3d velocity;
-    //    private List<EntityData> entityMetadata;
-
-
-
 }
