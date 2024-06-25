@@ -1,6 +1,5 @@
 package me.koutachan.replay.replay.user.replay.chain;
 
-import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.player.GameMode;
 import com.github.retrooper.packetevents.protocol.world.Difficulty;
 import com.github.retrooper.packetevents.protocol.world.Dimension;
@@ -13,7 +12,6 @@ import com.github.retrooper.packetevents.wrapper.play.server.*;
 import me.koutachan.replay.replay.packet.in.ReplayChunkData;
 import me.koutachan.replay.replay.packet.in.ReplayUpdateBlock;
 import me.koutachan.replay.replay.packet.in.ReplayUpdateMultipleBlock;
-import me.koutachan.replay.replay.packet.in.packetevents.WrapperPlayServerUpdateLight;
 import me.koutachan.replay.replay.user.ReplayUser;
 import me.koutachan.replay.replay.user.map.ChunkCache;
 import me.koutachan.replay.replay.user.map.data.PacketEntity;
@@ -30,9 +28,8 @@ public class ReplayRunnerHandler {
     private final ReplayUser user;
 
     private final Set<ChunkCache.ChunkPos> sentChunks = new HashSet<>();
-    private final List<ReplayChunkData> currentChunks = new ArrayList<>();
+    private final List<ReplayChunk> currentChunks = new ArrayList<>();
     private final List<PacketEntity> currentEntities = new ArrayList<>();
-    private final List<PacketEntity> sentEntities = new ArrayList<>();
     private ReplayChain current;
 
     private Location playerPos;
@@ -57,7 +54,7 @@ public class ReplayRunnerHandler {
 
     @Nullable
     public PacketEntity getEntity(int entityId) {
-        return this.sentEntities.stream()
+        return this.currentEntities.stream()
                 .filter(entity -> entity.getEntityId() == entityId)
                 .findFirst()
                 .orElse(null);
@@ -67,10 +64,14 @@ public class ReplayRunnerHandler {
         this.chunkRadius = chunkRadius;
     }
 
-    public void handleChunk(ReplayChunkData data) {
-        this.currentChunks.add(data);
-        if (canSendChunks() && this.lastChunkPos != null && this.chunkRadius >= getChunkDistance(this.lastChunkPos, data.getX(), data.getZ())) {
-            loadChunk(data.toChunkPos());
+    public void handleChunk(ReplayChunkData chunkData) {
+        handleChunk(new ReplayChunk(chunkData));
+    }
+
+    public void handleChunk(ReplayChunk chunk) {
+        this.currentChunks.add(chunk);
+        if (canSendChunks() && this.lastChunkPos != null && this.chunkRadius >= getChunkDistance(this.lastChunkPos, chunk.getX(), chunk.getZ())) {
+            loadChunk(chunk.getChunkPos());
         }
     }
 
@@ -86,7 +87,7 @@ public class ReplayRunnerHandler {
         return this.sentChunks.stream().anyMatch(chunk -> chunk.getX() == x && chunk.getZ() == z);
     }
 
-    public ReplayChunkData getChunk(ChunkCache.ChunkPos pos) {
+    public ReplayChunk getChunk(ChunkCache.ChunkPos pos) {
         return this.currentChunks.stream()
                 .filter(chunk -> chunk.getX() == pos.getX() && chunk.getZ() == pos.getZ())
                 .findFirst()
@@ -106,6 +107,10 @@ public class ReplayRunnerHandler {
             this.playerPos = location;
             this.move();
         }
+    }
+
+    public ChunkCache.ChunkPos getChunkPos(Location location) {
+        return new ChunkCache.ChunkPos(floor(location.getX()) >> 4, floor(location.getZ()) >> 4);
     }
 
     public void move() {
@@ -130,14 +135,14 @@ public class ReplayRunnerHandler {
     }
 
     public void loadChunk(ChunkCache.ChunkPos pos) {
-        ReplayChunkData chunkData = getChunk(pos);
-        if (chunkData != null) {
-            this.user.sendSilent(chunkData.getPackets());
-            if (chunkData.getLightData() != null && chunkData.getServerVersion().isOlderThan(ServerVersion.V_1_18)) {
-                this.user.sendSilent(new WrapperPlayServerUpdateLight(chunkData.getX(), chunkData.getZ(), chunkData.getLightData()));
-            }
-            this.sentChunks.add(pos);
-        }
+        loadChunk(getChunk(pos));
+    }
+
+    public void loadChunk(ReplayChunk chunk) {
+        if (chunk == null)
+            return;
+        this.user.sendSilent(chunk.getPackets());
+        this.sentChunks.add(chunk.getChunkPos());
     }
 
     public void unloadChunk(ChunkCache.ChunkPos pos) {
@@ -230,10 +235,10 @@ public class ReplayRunnerHandler {
     }
 
     public WrappedBlockState localSetBlock(Vector3i blockPos, int blockId) {
-        ReplayChunkData chunkData = getChunk(new ChunkCache.ChunkPos(blockPos.getX() >> 4, blockPos.getZ() >> 4));
+        ReplayChunk chunkData = getChunk(new ChunkCache.ChunkPos(blockPos.getX() >> 4, blockPos.getZ() >> 4));
         if (chunkData == null)
             return null;
-        BaseChunk[] baseChunks = chunkData.getColumn().getChunks();
+        BaseChunk[] baseChunks = chunkData.getBaseChunk();
         int y = blockPos.getY() >> 4;
         if (baseChunks.length <= y || y < 0)
             return null;

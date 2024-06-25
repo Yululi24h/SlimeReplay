@@ -5,6 +5,7 @@ import com.github.retrooper.packetevents.protocol.world.Location;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
 import me.koutachan.replay.replay.packet.in.ReplayEntityAbstract;
 import me.koutachan.replay.replay.user.ReplayUser;
+import me.koutachan.replay.replay.user.map.ChunkCache;
 
 import java.util.List;
 
@@ -40,8 +41,17 @@ public class ReplayEntity {
         }
     }
 
-    public void move(Location location) {
+    public void move(ReplayRunnerHandler handler, Location location) {
+        final ChunkCache.ChunkPos pos = handler.getChunkPos(location);
+        if (this.replayChunk == null) {
+            this.replayChunk = handler.getChunk(pos);
+        } else {
 
+        }
+
+        if (this.replayUser != null) {
+
+        }
 
     }
 
