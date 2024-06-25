@@ -90,17 +90,17 @@ public class RecordRunner {
     }
 
     public static RecordRunner ofFile(ReplayUser user, File file) {
-        return new FileRunner(user, file);
+        return new OptimizedFileRunner(user, file);
     }
 
     public static RecordRunner ofFile(ReplayUser user, File file, long sleep) {
-        return new FileRunner(user, file, sleep);
+        return new OptimizedFileRunner(user, file, sleep);
     }
 
-    public static class FileRunner extends RecordRunner {
+    public static class OptimizedFileRunner extends RecordRunner {
         private final File to;
 
-        public FileRunner(ReplayUser user, File to) {
+        public OptimizedFileRunner(ReplayUser user, File to) {
             super(user);
             this.to = to;
             if (to.exists() && !to.delete()) {
@@ -108,7 +108,7 @@ public class RecordRunner {
             }
         }
 
-        public FileRunner(ReplayUser user, File to, long sleep) {
+        public OptimizedFileRunner(ReplayUser user, File to, long sleep) {
             super(user, sleep);
             this.to = to;
             if (to.exists() && !to.delete()) {
@@ -117,7 +117,7 @@ public class RecordRunner {
         }
 
         @Override
-        public void save() {
+        public synchronized void save() {
             if (!isRecording())
                 return;
             forceSave();
@@ -126,12 +126,15 @@ public class RecordRunner {
         @Override
         public synchronized void forceSave() {
             try {
-                ReplayPacketContainer container = hook.getContainer();
-                if (container != null) {
+                ReplayPacketContainer container = this.hook.getContainer();
+                if (container != null && !container.isEmpty()) {
                     ReplayPacketContainer copied = container.copy();
                     container.clear();
                     try (FileOutputStream stream = new FileOutputStream(to, true)) {
                         copied.write(stream);
+                        if (!container.isVersionFlag() && copied.isVersionFlag()) {
+                            container.setVersionFlag(true, copied.getServerVersion());
+                        }
                     }
                 }
             } catch (Exception ex) {

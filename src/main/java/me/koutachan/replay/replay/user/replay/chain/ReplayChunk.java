@@ -34,4 +34,12 @@ public class ReplayChunk {
         }
         this.currentChunkEntities.clear();
     }
+
+    public int getX() {
+        return chunkData.getX();
+    }
+
+    public int getZ() {
+        return chunkData.getZ();
+    }
 }

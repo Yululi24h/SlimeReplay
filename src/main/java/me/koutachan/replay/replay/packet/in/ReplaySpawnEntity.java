@@ -83,6 +83,11 @@ public class ReplaySpawnEntity extends ReplayEntityAbstract {
     }
 
     @Override
+    public void setEntityMeta(List<EntityData> entityData) {
+        this.entityData = entityData;
+    }
+
+    @Override
     public List<PacketWrapper<?>> getPackets() {
         List<PacketWrapper<?>> packets = new ArrayList<>();
         packets.add(new WrapperPlayServerSpawnEntity(

@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class ReplayPacketImpl implements ReplayPacket {
+    private ServerVersion version;
     private long millis;
     private ReplayWrapper<?> packet;
     private boolean generated;
@@ -25,20 +26,19 @@ public class ReplayPacketImpl implements ReplayPacket {
         this.millis = millis;
     }
 
-    public ReplayPacketImpl() {
-
+    public ReplayPacketImpl(ServerVersion version) {
+        this.version = version;
     }
 
     @Override
     public void read(DataInputStream stream) throws IOException {
         this.generated = true;
-        this.packet = createFakeWrapper(stream);
+        this.packet = createFakeWrapper(stream, this.version);
         this.millis = stream.readLong();
     }
 
     @Override
     public void write(DataOutputStream stream) throws IOException {
-        stream.writeInt(this.packet.getServerVersion().getProtocolVersion());
         stream.writeUTF(this.packet.getClass().getName());
         this.packet.buffer = PacketEvents.getAPI().getNettyManager().getByteBufAllocationOperator().buffer();
         this.packet.write();
@@ -63,17 +63,20 @@ public class ReplayPacketImpl implements ReplayPacket {
     }
 
     @Override
+    public ServerVersion getServerVersion() {
+        return version;
+    }
+
+    @Override
     public long getMillis() {
         return millis;
     }
 
-    public static ReplayWrapper<?> createFakeWrapper(DataInputStream stream) throws IOException {
+    public static ReplayWrapper<?> createFakeWrapper(DataInputStream stream, ServerVersion version) throws IOException {
         try {
-            ServerVersion protocolVersion = ServerVersion.getById(stream.readInt());
-            String  str = stream.readUTF();
-            Class<?> clazz = Class.forName(str);
+            Class<?> clazz = Class.forName(stream.readUTF());
             Object byteBuf = readByteBuf(stream);
-            return (ReplayWrapper<?>) clazz.getConstructor(ServerVersion.class, Object.class).newInstance(protocolVersion, byteBuf);
+            return (ReplayWrapper<?>) clazz.getConstructor(ServerVersion.class, Object.class).newInstance(version, byteBuf);
         } catch (Exception ex) {
             throw new IOException(ex);
         }

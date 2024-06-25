@@ -1,8 +1,12 @@
 package me.koutachan.replay.replay.user.replay.chain;
 
+import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
 import com.github.retrooper.packetevents.protocol.world.Location;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
 import me.koutachan.replay.replay.packet.in.ReplayEntityAbstract;
 import me.koutachan.replay.replay.user.ReplayUser;
+
+import java.util.List;
 
 public class ReplayEntity {
     private final ReplayUser replayUser;
@@ -26,6 +30,18 @@ public class ReplayEntity {
     }
 
     public void unload() {
+
+    }
+
+    public void setEntityMeta(ReplayRunnerHandler handler, List<EntityData> entityData) {
+        this.spawnPacket.setEntityMeta(entityData);
+        if (this.replayChunk != null && handler.hasSentChunk(this.replayChunk.getX(), this.replayChunk.getZ())) {
+            this.replayUser.sendSilent(new WrapperPlayServerEntityMetadata(getEntityId(), entityData));
+        }
+    }
+
+    public void move(Location location) {
+
 
     }
 

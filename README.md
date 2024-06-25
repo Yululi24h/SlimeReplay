@@ -10,7 +10,7 @@ A lightweight replay API (plugin) compatible with versions 1.8 to 1.20.4.
 SlimeReplay uses ViaVersion and ViaBackwards to make sure you can watch replays on different versions of Minecraft. This means you can record your gameplay on one version and watch it on another, making it easy to use on different servers.
 
 ## Installation
-1. Download the latest version of SlimeReplay from the [releases page](#).
+1. Download the latest version of SlimeReplay from the [releases page](#TODO:).
 2. Place the SlimeReplay.jar file into your server's `plugins` folder.
 3. Restart your server to load the plugin.
 
@@ -19,21 +19,15 @@ After installation, a configuration file will be generated in the `plugins/Slime
 
 ## Usage
 To start recording a replay, use the following command:
-``
-/slimereplay start <player>
-``
+``/slimereplay start <player> <replay-file>``
 
-To stop recording, use:
-``
-/slimereplay stop <player>
-``
+To stop recording, use the following command:
+``/slimereplay stop <player>``
 
-To replay a recorded session, use:
-``
-/slimereplay play <replay_file>
-``
+To replay a recorded session, use the following command:
+``/slimereplay play <replay-file>``
 
-## Optional Addons:
+## Optional Dependency
 To get the most out of SlimeReplay, consider installing these plugins:
 
 - [ViaVersion](https://www.spigotmc.org/resources/viaversion.19254/)

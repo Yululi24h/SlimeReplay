@@ -1,6 +1,7 @@
 
 package me.koutachan.replay.replay.packet;
 
+import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import me.koutachan.replay.replay.packet.impl.ReplayPacketImpl;
 import me.koutachan.replay.replay.packet.in.ReplayWrapper;
@@ -19,6 +20,8 @@ public interface ReplayPacket extends Serializable {
     List<PacketWrapper<?>> toPacket();
 
     ReplayWrapper<?> getReplayWrapper();
+
+    ServerVersion getServerVersion();
 
     long getMillis();
 

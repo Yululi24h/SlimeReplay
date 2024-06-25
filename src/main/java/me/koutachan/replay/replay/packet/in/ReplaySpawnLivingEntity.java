@@ -64,6 +64,11 @@ public class ReplaySpawnLivingEntity extends ReplayEntityAbstract {
     }
 
     @Override
+    public void setEntityMeta(List<EntityData> entityData) {
+        this.entityData = entityData;
+    }
+
+    @Override
     public List<PacketWrapper<?>> getPackets() {
         return null;
     }

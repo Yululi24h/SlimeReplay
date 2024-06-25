@@ -1,5 +1,6 @@
 package me.koutachan.replay.replay.packet.in;
 
+import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
 import com.github.retrooper.packetevents.protocol.world.Location;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
@@ -10,6 +11,10 @@ public class ReplaySpawnPlayer extends ReplayEntityAbstract {
     private float yaw;
     private float pitch;
     private List<EntityData> entityData;
+
+    public ReplaySpawnPlayer(ServerVersion version, Object byteBuf) {
+        super(version, byteBuf);
+    }
 
     public ReplaySpawnPlayer(int entityId, Location location, List<EntityData> entityData) {
         super(ClassType.PLAYER, entityId, location.getPosition());
@@ -44,6 +49,11 @@ public class ReplaySpawnPlayer extends ReplayEntityAbstract {
         this.position = location.getPosition();
         this.yaw = location.getYaw();
         this.pitch = location.getPitch();
+    }
+
+    @Override
+    public void setEntityMeta(List<EntityData> entityData) {
+        this.entityData = entityData;
     }
 
     @Override
