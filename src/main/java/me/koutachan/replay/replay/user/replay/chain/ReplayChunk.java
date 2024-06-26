@@ -36,7 +36,7 @@ public class ReplayChunk {
 
     public void unloadEntities() {
         for (ReplayEntity replayEntity : this.currentChunkEntities) {
-            replayEntity.unload();
+            replayEntity.unload(ReplayEntity.UnloadReason.CHUNK);
         }
         this.currentChunkEntities.clear();
     }

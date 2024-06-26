@@ -2,6 +2,7 @@ package me.koutachan.replay.replay.user.replay.chain;
 
 import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
 import com.github.retrooper.packetevents.protocol.world.Location;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDestroyEntities;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
 import me.koutachan.replay.replay.packet.in.ReplayEntityAbstract;
 import me.koutachan.replay.replay.user.ReplayUser;
@@ -15,6 +16,8 @@ public class ReplayEntity {
     private ReplayChunk replayChunk;
     private Location currentPos;
 
+    private boolean loaded;
+
     public ReplayEntity(ReplayUser replayUser, ReplayEntityAbstract replayWrapper) {
         this(replayUser, replayWrapper, replayWrapper.getLocation());
     }
@@ -22,16 +25,29 @@ public class ReplayEntity {
     public ReplayEntity(ReplayUser replayUser, ReplayEntityAbstract replayWrapper, Location currentPos) {
         this.replayUser = replayUser;
         this.spawnPacket = replayWrapper;
+
         this.currentPos = currentPos;
     }
 
     public void send() {
+        if (this.loaded)
+            return;
         this.spawnPacket.setLocation(this.currentPos);
         this.replayUser.sendSilent(this.spawnPacket.getPackets());
+        this.loaded = true;
     }
 
-    public void unload() {
+    public void unload(UnloadReason reason) {
+        if (!this.loaded)
+            return;
+        this.replayUser.sendSilent(new WrapperPlayServerDestroyEntities(getEntityId()));
+    }
 
+    public void remove() {
+        unload(UnloadReason.REMOVE);
+        if (this.replayChunk != null) {
+            this.replayChunk.removeEntity(this);
+        }
     }
 
     public void setEntityMeta(ReplayRunnerHandler handler, List<EntityData> entityData) {
@@ -46,13 +62,19 @@ public class ReplayEntity {
         if (this.replayChunk == null) {
             this.replayChunk = handler.getChunk(pos);
         } else {
-
+            if (!this.replayChunk.getChunkPos().equals(pos)) {
+                this.replayChunk.removeEntity(this);
+                this.replayChunk = handler.getChunk(pos);
+            } else {
+                return; // This entity is not moving chunk, so no processing is required
+            }
         }
+        if (this.replayChunk != null) {
+            this.replayChunk.addEntity(this);
 
-        if (this.replayUser != null) {
-
+        } else {
+            unload(UnloadReason.CHUNK);
         }
-
     }
 
     public void setCurrentPos(Location currentPos) {
@@ -67,11 +89,15 @@ public class ReplayEntity {
         this.replayChunk = replayChunk;
     }
 
-    public int getEntityId() {
-        return cacheUpEntityId(this.replayUser.getEntityId());
+    public int getRealEntityId() {
+        return this.spawnPacket.getEntityId();
     }
 
-    public int cacheUpEntityId(int entityId) {
+    public int getEntityId() {
+        return getIncrementedEntityId(this.spawnPacket.getEntityId());
+    }
+
+    public int getIncrementedEntityId(int entityId) {
         return this.replayUser.getEntityId() >= entityId ? entityId + 1 : entityId;
     }
 
