@@ -127,7 +127,7 @@ public class ReplayRunnerHandler {
         if (this.lastChunkPos == null || !this.lastChunkPos.equals(chunkPos)) {
             updateChunkPos(chunkPos);
         }
-        List<ReplayChunk> loadedChunk = collectLoadedPos();
+        List<ReplayChunk> loadedChunk = collectLoadedChunk();
         for (int x = chunkX - this.chunkRadius; x <= chunkX + this.chunkRadius; ++x) {
             for (int z = chunkZ - this.chunkRadius; z <= chunkZ + this.chunkRadius; ++z) {
                 ReplayChunk chunk = getChunk(x, z);
@@ -139,7 +139,7 @@ public class ReplayRunnerHandler {
         loadedChunk.forEach(ReplayChunk::unload);
     }
 
-    private List<ReplayChunk> collectLoadedPos() {
+    private List<ReplayChunk> collectLoadedChunk() {
         return this.currentChunks.stream()
                 .filter(ReplayChunk::isLoaded)
                 .collect(Collectors.toList());
@@ -197,7 +197,7 @@ public class ReplayRunnerHandler {
                 location.getYaw(),
                 location.getPitch(),
                 (byte) 0,
-                this.localId++,
+                ++this.localId,
                 true
         ));
         this.teleportQueues.add(new TeleportQueue(this.localId, location));

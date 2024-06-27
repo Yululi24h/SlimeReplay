@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class ReplayUser {
     private final User user;
@@ -96,11 +97,13 @@ public class ReplayUser {
         this.replayRunner.start();
     }
 
-    public void stopRecord() {
+    public CompletableFuture<Void> stopRecord() {
+        CompletableFuture<Void> future = null;
         if (this.recordRunner != null) {
-            this.recordRunner.stop();
+            future = this.recordRunner.stop();
             this.recordRunner = null;
         }
+        return future;
     }
 
     public void sendMessage(String message) {

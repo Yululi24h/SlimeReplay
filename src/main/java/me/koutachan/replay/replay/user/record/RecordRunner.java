@@ -6,8 +6,10 @@ import me.koutachan.replay.replay.user.ReplayUser;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
-public class RecordRunner {
+public abstract class RecordRunner {
     private final ReplayUser user;
     private final long sleep;
     protected RecordHook hook;
@@ -55,29 +57,24 @@ public class RecordRunner {
         this.nextSave = System.currentTimeMillis() + this.sleep;
     }
 
-    public void stop() {
-        try {
-            this.enabled = false;
-            if (this.saveThread != null) {
-                this.saveThread = null;
-            }
-            asyncSave();
-        } catch (Exception e) {
-            e.printStackTrace();
+    public CompletableFuture<Void> stop() {
+        if (!this.enabled)
+            return null;
+        this.enabled = false;
+        if (this.saveThread != null) {
+            this.saveThread.interrupt();
+            this.saveThread = null;
         }
-    }
-
-    private void asyncSave() {
-        Thread thread = new Thread(this::forceSave);
-        thread.start();
+        return CompletableFuture.runAsync(this::save0);
     }
 
     public void save() {
+        if (isRecording()) {
+            save0();
+        }
     }
 
-    public void forceSave() {
-
-    }
+    protected abstract void save0();
 
     public void onPacket(ReplayWrapper<?> packet) {
         if (isRecording()) {
@@ -117,28 +114,19 @@ public class RecordRunner {
         }
 
         @Override
-        public synchronized void save() {
-            if (!isRecording())
-                return;
-            forceSave();
-        }
-
-        @Override
-        public synchronized void forceSave() {
-            try {
-                ReplayPacketContainer container = this.hook.getContainer();
-                if (container != null && !container.isEmpty()) {
-                    ReplayPacketContainer copied = container.copy();
-                    container.clear();
-                    try (FileOutputStream stream = new FileOutputStream(to, true)) {
-                        copied.write(stream);
-                        if (!container.isVersionFlag() && copied.isVersionFlag()) {
-                            container.setVersionFlag(true, copied.getServerVersion());
-                        }
+        protected void save0() {
+            ReplayPacketContainer container = this.hook.getContainer();
+            if (container != null && !container.isEmpty()) {
+                ReplayPacketContainer copied = container.copy();
+                container.clear();
+                try (FileOutputStream stream = new FileOutputStream(to, true)) {
+                    copied.write(stream);
+                    if (!container.isVersionFlag() && copied.isVersionFlag()) {
+                        container.setVersionFlag(true, copied.getServerVersion());
                     }
+                } catch (IOException ex) {
+                    ex.printStackTrace();
                 }
-            } catch (Exception ex) {
-                ex.printStackTrace();
             }
         }
     }

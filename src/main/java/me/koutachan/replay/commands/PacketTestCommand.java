@@ -22,12 +22,15 @@ public class PacketTestCommand implements CommandExecutor {
                 String argT = args[0];
                 switch (argT) {
                     case "stop":
-                        replayUser.stopRecord();
+                        replayUser.stopRecord()
+                                .thenRun(() -> {
+                                    replayUser.sendMessage("Save Completed!");
+                                });
                         break;
                     case "start":
                         replayUser.startRecord(new File("C:\\Users\\rin11\\Desktop\\monopoly - コピー (2)\\test.slime"));
                         break;
-                    case "FUCK":
+                    case "play":
                         replayUser.startReplay(new File("C:\\Users\\rin11\\Desktop\\monopoly - コピー (2)\\test.slime"));
                         break;
                     case "TEST":

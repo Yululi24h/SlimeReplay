@@ -1,5 +1,6 @@
 package me.koutachan.replay.replay.packet;
 
+import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import me.koutachan.replay.replay.packet.impl.ReplayPacketImpl;
 
@@ -31,13 +32,13 @@ public class ReplayPacketContainer {
 
     public void write(OutputStream stream, boolean append) throws IOException {
         DataOutputStream outputStream = new DataOutputStream(stream);
+        if (!this.versionFlag && !append) {
+            outputStream.writeInt(REPLAY_VERSION);
+            this.version = PacketEvents.getAPI().getServerManager().getVersion();
+            outputStream.writeInt(this.version.getProtocolVersion()); // For performance reasons, the server version will be saved only at the beginning.
+            this.versionFlag = true;
+        }
         for (ReplayPacket packet : this.packets) {
-            if (!this.versionFlag && !append) {
-                outputStream.write(REPLAY_VERSION);
-                this.version = packet.getServerVersion();
-                outputStream.writeInt(this.version.getProtocolVersion()); // For performance reasons, the server version will be saved only at the beginning.
-                this.versionFlag = true;
-            }
             outputStream.writeBoolean(true);
             packet.write(outputStream);
         }
