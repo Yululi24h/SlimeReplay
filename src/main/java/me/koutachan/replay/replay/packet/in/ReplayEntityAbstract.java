@@ -43,9 +43,13 @@ public abstract class ReplayEntityAbstract extends ReplayWrapper<ReplayEntityAbs
         );
     }
 
+    public void writeWithClassType() {
+        writeByte(this.classType.ordinal());
+        write();
+    }
+
     @Override
     public void write() {
-        writeByte(this.classType.ordinal());
         writeVarInt(this.entityId);
         writeDouble(this.position.getX());
         writeDouble(this.position.getY());
@@ -54,6 +58,10 @@ public abstract class ReplayEntityAbstract extends ReplayWrapper<ReplayEntityAbs
 
     public int getEntityId() {
         return entityId;
+    }
+
+    public void setEntityId(int entityId) {
+        this.entityId = entityId;
     }
 
     public Vector3d getPosition() {

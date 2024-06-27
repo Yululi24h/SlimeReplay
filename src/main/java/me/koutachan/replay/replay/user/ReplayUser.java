@@ -116,6 +116,10 @@ public class ReplayUser {
         }
     }
 
+    public int getMinHeight() {
+        return this.user.getMinWorldHeight();
+    }
+
     public void closeConnection() {
         this.user.closeConnection();
     }
@@ -130,5 +134,9 @@ public class ReplayUser {
 
     public int getEntityId() {
         return user.getEntityId();
+    }
+
+    public void shutdown() {
+
     }
 }

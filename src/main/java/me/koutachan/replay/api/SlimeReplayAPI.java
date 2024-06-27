@@ -5,6 +5,8 @@ import me.koutachan.replay.packetevents.PacketListener;
 import org.bukkit.plugin.Plugin;
 
 public class SlimeReplayAPI {
+    public static SlimeReplayAPI INSTANCE;
+
     public void start(Plugin plugin) {
         /*PacketEvents.setAPI(SpigotPacketEventsBuilder.build(plugin));
         PacketEvents.getAPI().getSettings()
@@ -20,5 +22,10 @@ public class SlimeReplayAPI {
 
         PacketEvents.getAPI().getEventManager().registerListener(new PacketListener());
         PacketEvents.getAPI().getSettings().fullStackTrace(true);
+        INSTANCE = this;
+    }
+
+    public static SlimeReplayAPI getInstance() {
+        return INSTANCE;
     }
 }

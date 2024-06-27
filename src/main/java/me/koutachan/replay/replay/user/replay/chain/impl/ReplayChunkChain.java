@@ -35,6 +35,7 @@ public class ReplayChunkChain extends ReplayChainImpl<ReplayChunkData> {
         } else if (handler.hasChunk(this.packet)) {
             return this.packet.getInvertedPackets();
         }
+        this.oldChunk = null;
         return null;
     }
 }

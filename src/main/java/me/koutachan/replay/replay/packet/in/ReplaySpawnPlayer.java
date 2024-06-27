@@ -1,5 +1,6 @@
 package me.koutachan.replay.replay.packet.in;
 
+import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
 import com.github.retrooper.packetevents.protocol.world.Location;
@@ -14,6 +15,10 @@ public class ReplaySpawnPlayer extends ReplayEntityAbstract {
 
     public ReplaySpawnPlayer(ServerVersion version, Object byteBuf) {
         super(version, byteBuf);
+    }
+
+    public ReplaySpawnPlayer(PacketSendEvent event) {
+
     }
 
     public ReplaySpawnPlayer(int entityId, Location location, List<EntityData> entityData) {

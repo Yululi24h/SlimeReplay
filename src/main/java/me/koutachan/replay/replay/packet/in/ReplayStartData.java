@@ -85,7 +85,8 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
         }
         writeVarInt(this.entityData.size());
         for (ReplayEntityAbstract entityData : this.entityData) {
-            writeWrapper(entityData);
+            entityData.buffer = this.buffer;
+            entityData.writeWithClassType();
         }
         writeDimension(this.dimension);
         writeDouble(this.location.getX());

@@ -34,11 +34,11 @@ public class ChunkCache {
                 }
                 this.lastLightData = null;
             }
-            this.chunks.put(chunkData.toChunkPos(), new ChunkWrapper(chunkData));
+            this.chunks.put(chunkData.toChunkPos(), new ChunkWrapper(this.user, chunkData));
         } else if (packet instanceof ReplayChunkBulkData) {
             ReplayChunkBulkData chunkDataBulk = (ReplayChunkBulkData) packet;
             for (ReplayChunkData chunkData : chunkDataBulk.getChunks()) {
-                this.chunks.put(chunkData.toChunkPos(), new ChunkWrapper(chunkData));
+                this.chunks.put(chunkData.toChunkPos(), new ChunkWrapper(this.user, chunkData));
             }
         } else if (packet instanceof ReplayUpdateLightData) {
             ReplayUpdateLightData lightData = (ReplayUpdateLightData) packet;
@@ -73,9 +73,11 @@ public class ChunkCache {
     }
 
     public static class ChunkWrapper implements IChunkWrapper {
+        private final ReplayUser user;
         private final ReplayChunkData chunk;
 
-        public ChunkWrapper(ReplayChunkData chunk) {
+        public ChunkWrapper(ReplayUser user, ReplayChunkData chunk) {
+            this.user = user;
             this.chunk = chunk;
         }
 
@@ -96,7 +98,7 @@ public class ChunkCache {
         @Override
         public void setBlock(Vector3i pos, int blockId) {
             BaseChunk[] baseChunks = chunk.getColumn().getChunks();
-            int y = pos.getY() >> 4;
+            int y = (pos.getY() - this.user.getMinHeight()) >> 4; // Not null
             if (baseChunks.length <= y || y < 0)
                 return;
             BaseChunk baseChunk = baseChunks[y];

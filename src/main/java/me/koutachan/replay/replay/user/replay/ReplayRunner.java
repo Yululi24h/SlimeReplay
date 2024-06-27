@@ -98,6 +98,7 @@ public class ReplayRunner {
             }
         }
         event.setCancelled(true);
+        //PacketEvents.getAPI().getProtocolManager().receivePacketSilently(); //Todo: Via* compatible
     }
 
     public void onSendPacket(ReplayUser user, PacketSendEvent event) {

@@ -90,7 +90,7 @@ public class PacketListener extends PacketListenerAbstract {
                     break;
                 }
                 case SPAWN_PLAYER: { //TODO:
-                    //packet = new ReplayPacketImpl(new WrapperPlayServerSpawnPlayer(event));
+                    packet = new ReplaySpawnPlayer(event);
                     break;
                 }
                 case SPAWN_EXPERIENCE_ORB: { //TODO:

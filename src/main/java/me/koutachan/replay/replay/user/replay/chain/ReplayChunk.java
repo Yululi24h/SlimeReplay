@@ -3,19 +3,25 @@ package me.koutachan.replay.replay.user.replay.chain;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.world.chunk.BaseChunk;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUnloadChunk;
 import me.koutachan.replay.replay.packet.in.ReplayChunkData;
 import me.koutachan.replay.replay.packet.in.packetevents.LightData;
 import me.koutachan.replay.replay.packet.in.packetevents.WrapperPlayServerUpdateLight;
+import me.koutachan.replay.replay.user.ReplayUser;
 import me.koutachan.replay.replay.user.map.ChunkCache;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ReplayChunk {
+    private final ReplayUser user;
     private final ReplayChunkData chunkData;
     private final List<ReplayEntity> currentChunkEntities = new ArrayList<>();
 
-    public ReplayChunk(ReplayChunkData chunkData) {
+    private boolean loaded;
+
+    public ReplayChunk(ReplayUser user, ReplayChunkData chunkData) {
+        this.user = user;
         this.chunkData = chunkData;
     }
 
@@ -25,7 +31,7 @@ public class ReplayChunk {
 
     public void addEntity(ReplayEntity replayEntity) {
         this.currentChunkEntities.add(replayEntity);
-        replayEntity.setReplayChunk(this);
+        // replayEntity.setReplayChunk(this);
     }
 
     public void removeEntity(ReplayEntity replayEntity) {
@@ -69,7 +75,15 @@ public class ReplayChunk {
         return chunkData.getServerVersion();
     }
 
-    public List<PacketWrapper<?>> getPackets() {
+    public boolean isLoaded() {
+        return loaded;
+    }
+
+    public void setLoaded(boolean loaded) {
+        this.loaded = loaded;
+    }
+
+    protected List<PacketWrapper<?>> getPackets() {
         List<PacketWrapper<?>> packetWrappers = chunkData.getPackets(); //TODO: Send Entities Packet.
         if (chunkData.getLightData() != null && chunkData.getServerVersion().isOlderThan(ServerVersion.V_1_18)) {
             packetWrappers.add(new WrapperPlayServerUpdateLight(getX(), getZ(), getLightData()));
@@ -77,8 +91,17 @@ public class ReplayChunk {
         return packetWrappers;
     }
 
+    public void load() {
+        if (this.loaded)
+            return;
+        this.user.sendSilent(getPackets());
+        this.loaded = true;
+    }
+
     public void unload() {
-
-
+        if (!this.loaded)
+            return;
+        this.user.sendSilent(new WrapperPlayServerUnloadChunk(getX(), getZ()));
+        this.loaded = false;
     }
 }

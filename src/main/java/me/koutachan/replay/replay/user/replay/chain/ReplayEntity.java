@@ -11,22 +11,27 @@ import me.koutachan.replay.replay.user.map.ChunkCache;
 import java.util.List;
 
 public class ReplayEntity {
+    private final ReplayRunnerHandler handler;
     private final ReplayUser replayUser;
+
     private final ReplayEntityAbstract spawnPacket; //TODO:
+    private final int entityId;
     private ReplayChunk replayChunk;
     private Location currentPos;
 
     private boolean loaded;
 
-    public ReplayEntity(ReplayUser replayUser, ReplayEntityAbstract replayWrapper) {
-        this(replayUser, replayWrapper, replayWrapper.getLocation());
+    public ReplayEntity(ReplayRunnerHandler handler, ReplayEntityAbstract replayWrapper) {
+        this(handler, replayWrapper, replayWrapper.getLocation());
     }
 
-    public ReplayEntity(ReplayUser replayUser, ReplayEntityAbstract replayWrapper, Location currentPos) {
-        this.replayUser = replayUser;
+    public ReplayEntity(ReplayRunnerHandler handler, ReplayEntityAbstract replayWrapper, Location currentPos) {
+        this.handler = handler;
+        this.replayUser = handler.getUser();
         this.spawnPacket = replayWrapper;
-
-        this.currentPos = currentPos;
+        this.entityId = replayWrapper.getEntityId();
+        this.spawnPacket.setEntityId(getIncrementedEntityId(this.entityId));
+        move(currentPos);
     }
 
     public void send() {
@@ -41,6 +46,7 @@ public class ReplayEntity {
         if (!this.loaded)
             return;
         this.replayUser.sendSilent(new WrapperPlayServerDestroyEntities(getEntityId()));
+        this.loaded = false;
     }
 
     public void remove() {
@@ -50,31 +56,34 @@ public class ReplayEntity {
         }
     }
 
-    public void setEntityMeta(ReplayRunnerHandler handler, List<EntityData> entityData) {
+    public void setEntityMeta(List<EntityData> entityData) {
         this.spawnPacket.setEntityMeta(entityData);
-        if (this.replayChunk != null && handler.hasSentChunk(this.replayChunk.getX(), this.replayChunk.getZ())) {
+        if (this.loaded) {
             this.replayUser.sendSilent(new WrapperPlayServerEntityMetadata(getEntityId(), entityData));
         }
     }
 
-    public void move(ReplayRunnerHandler handler, Location location) {
-        final ChunkCache.ChunkPos pos = handler.getChunkPos(location);
-        if (this.replayChunk == null) {
-            this.replayChunk = handler.getChunk(pos);
-        } else {
-            if (!this.replayChunk.getChunkPos().equals(pos)) {
-                this.replayChunk.removeEntity(this);
-                this.replayChunk = handler.getChunk(pos);
+    public void move(Location location) {
+        if (this.currentPos == null || !this.currentPos.getPosition().equals(location.getPosition())) {
+            final ChunkCache.ChunkPos pos = this.handler.getChunkPos(location);
+            if (this.replayChunk == null) {
+                this.replayChunk = this.handler.getChunk(pos);
             } else {
-                return; // This entity is not moving chunk, so no processing is required
+                if (!this.replayChunk.getChunkPos().equals(pos)) {
+                    this.replayChunk.removeEntity(this);
+                    this.replayChunk = this.handler.getChunk(pos);
+                } else {
+                    return; // This entity is not moving chunk, so no processing is required
+                }
+            }
+            if (this.replayChunk != null) {
+                this.replayChunk.addEntity(this);
+                send();
+            } else {
+                unload(UnloadReason.CHUNK);
             }
         }
-        if (this.replayChunk != null) {
-            this.replayChunk.addEntity(this);
-
-        } else {
-            unload(UnloadReason.CHUNK);
-        }
+        this.currentPos = location;
     }
 
     public void setCurrentPos(Location currentPos) {
@@ -90,11 +99,11 @@ public class ReplayEntity {
     }
 
     public int getRealEntityId() {
-        return this.spawnPacket.getEntityId();
+        return this.entityId;
     }
 
     public int getEntityId() {
-        return getIncrementedEntityId(this.spawnPacket.getEntityId());
+        return this.spawnPacket.getEntityId();
     }
 
     public int getIncrementedEntityId(int entityId) {
