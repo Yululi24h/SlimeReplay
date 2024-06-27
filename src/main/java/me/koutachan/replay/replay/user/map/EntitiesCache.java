@@ -93,7 +93,6 @@ public class EntitiesCache {
 
     public BasePacketEntity getEntity(int entityId) {
         if (entityId == this.self.getEntityId()) {
-            System.out.println("Self Entity was accessed!");
             return this.self;
         }
         return this.entities.get(entityId);

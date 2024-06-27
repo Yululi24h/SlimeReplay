@@ -83,6 +83,7 @@ public class ReplayStartData extends ReplayWrapper<ReplayStartData> {
                 writeWrapper(lightData);
             }
         }
+        this.entityData = new ArrayList<>(); //TODO: Probably entity bugged.
         writeVarInt(this.entityData.size());
         for (ReplayEntityAbstract entityData : this.entityData) {
             entityData.buffer = this.buffer;

@@ -39,10 +39,13 @@ public abstract class RecordRunner {
             while (this.enabled) {
                 try {
                     Thread.sleep(1L);
-                    if (System.currentTimeMillis() > this.nextSave) {
+                    long currentMillis = System.currentTimeMillis();
+                    if (currentMillis > this.nextSave) {
                         save();
                         calculateNextSleep();
                     }
+                } catch (InterruptedException e) {
+                    /* Ignored */
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -114,7 +117,7 @@ public abstract class RecordRunner {
         }
 
         @Override
-        protected void save0() {
+        protected synchronized void save0() {
             ReplayPacketContainer container = this.hook.getContainer();
             if (container != null && !container.isEmpty()) {
                 ReplayPacketContainer copied = container.copy();

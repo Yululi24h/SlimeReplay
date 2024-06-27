@@ -19,13 +19,15 @@ import me.koutachan.replay.replay.user.replay.chain.impl.ReplayStartDataChain;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class ReplayRunnerHandler {
     private final ReplayUser user;
 
-    private final List<ReplayChunk> currentChunks = new ArrayList<>();
+    private final List<ReplayChunk> currentChunks = Collections.synchronizedList(new ArrayList<>());
     private final List<PacketEntity> currentEntities = new ArrayList<>();
     private ReplayChain current;
 
@@ -97,14 +99,13 @@ public class ReplayRunnerHandler {
     }
 
     public void removeChunk(int x, int z) {
-        for (Iterator<ReplayChunk> it = this.currentChunks.iterator(); it.hasNext();) {
-            ReplayChunk chunk = it.next();
+        this.currentChunks.removeIf(chunk -> {
             if (chunk.getX() == x && chunk.getZ() == z) {
-                it.remove();
                 chunk.unload();
-                break;
+                return true;
             }
-        }
+            return false;
+        });
     }
 
     public void onMove(Location location) {
