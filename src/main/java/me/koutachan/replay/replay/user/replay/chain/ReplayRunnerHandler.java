@@ -11,23 +11,28 @@ import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.server.*;
 import me.koutachan.replay.replay.packet.in.ReplayChunkData;
 import me.koutachan.replay.replay.packet.in.ReplayUpdateBlock;
+import me.koutachan.replay.replay.packet.in.ReplayUpdateLightData;
 import me.koutachan.replay.replay.packet.in.ReplayUpdateMultipleBlock;
 import me.koutachan.replay.replay.user.ReplayUser;
 import me.koutachan.replay.replay.user.map.ChunkCache;
 import me.koutachan.replay.replay.user.map.data.PacketEntity;
 import me.koutachan.replay.replay.user.replay.chain.impl.ReplayStartDataChain;
+import me.koutachan.replay.utils.LightDataQueue;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class ReplayRunnerHandler {
     private final ReplayUser user;
 
-    private final List<ReplayChunk> currentChunks = Collections.synchronizedList(new ArrayList<>());
+    private final Map<ChunkCache.ChunkPos, ReplayChunk> currentChunks = new ConcurrentHashMap<>();
+    private final LightDataQueue lightQueue = new LightDataQueue();
+
     private final List<PacketEntity> currentEntities = new ArrayList<>();
     private ReplayChain current;
 
@@ -68,10 +73,14 @@ public class ReplayRunnerHandler {
     }
 
     public void handleChunk(ReplayChunk chunk) {
-        this.currentChunks.add(chunk);
+        this.currentChunks.put(chunk.getChunkPos(), this.lightQueue.newChunk(chunk));
         if (canSendChunks() && this.lastChunkPos != null && this.chunkRadius >= getChunkDistance(this.lastChunkPos, chunk.getX(), chunk.getZ())) {
             chunk.load();
         }
+    }
+
+    public void handleLightQueue(ReplayUpdateLightData lightData) {
+        this.lightQueue.newLight(lightData);
     }
 
     public boolean hasChunk(ReplayChunkData chunkData) {
@@ -79,7 +88,7 @@ public class ReplayRunnerHandler {
     }
 
     public boolean hasChunk(int x, int z) {
-        return this.currentChunks.stream().anyMatch(chunk -> chunk.getX() == x && chunk.getZ() == z);
+        return this.currentChunks.containsKey(new ChunkCache.ChunkPos(x, z));
     }
 
     public boolean hasSentChunk(int x, int z) {
@@ -88,24 +97,18 @@ public class ReplayRunnerHandler {
     }
 
     public ReplayChunk getChunk(ChunkCache.ChunkPos pos) {
-        return getChunk(pos.getX(), pos.getZ());
+        return this.currentChunks.get(pos);
     }
 
     public ReplayChunk getChunk(int x, int z) {
-        return this.currentChunks.stream()
-                .filter(chunk -> chunk.getX() == x && chunk.getZ() == z)
-                .findFirst()
-                .orElse(null);
+        return getChunk(new ChunkCache.ChunkPos(x, z));
     }
 
     public void removeChunk(int x, int z) {
-        this.currentChunks.removeIf(chunk -> {
-            if (chunk.getX() == x && chunk.getZ() == z) {
-                chunk.unload();
-                return true;
-            }
-            return false;
-        });
+        ReplayChunk replayChunk = this.currentChunks.remove(new ChunkCache.ChunkPos(x, z));
+        if (replayChunk != null) {
+            replayChunk.unload();
+        }
     }
 
     public void onMove(Location location) {
@@ -141,7 +144,8 @@ public class ReplayRunnerHandler {
     }
 
     private List<ReplayChunk> collectLoadedChunk() {
-        return this.currentChunks.stream()
+        return this.currentChunks.values()
+                .stream()
                 .filter(ReplayChunk::isLoaded)
                 .collect(Collectors.toList());
     }

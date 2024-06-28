@@ -4,10 +4,10 @@ import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.world.chunk.BaseChunk;
 import com.github.retrooper.packetevents.protocol.world.chunk.Column;
 import com.github.retrooper.packetevents.util.Vector3i;
-import com.google.common.cache.CacheBuilder;
 import me.koutachan.replay.replay.packet.in.*;
 import me.koutachan.replay.replay.packet.in.packetevents.LightData;
 import me.koutachan.replay.replay.user.ReplayUser;
+import me.koutachan.replay.utils.LightDataQueue;
 import me.koutachan.replay.utils.LightDataUtils;
 
 import java.util.HashMap;
@@ -17,12 +17,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ChunkCache {
-    private final Map<ChunkPos, IChunkWrapper> chunks = new HashMap<>();
+    private final Map<ChunkPos, IChunkWrapper> cacheChunks = new HashMap<>();
     private final ReplayUser user;
-    private final Map<ChunkPos, LightData> lightQueue = CacheBuilder.newBuilder() // This is not the best way to implement this, but it is better than creating Minecraft's light engine.
-            .maximumSize(10)
-            .<ChunkPos, LightData>build()
-            .asMap();
+    private final LightDataQueue lightQueue = new LightDataQueue();
 
     public ChunkCache(ReplayUser user) {
         this.user = user;
@@ -30,49 +27,40 @@ public class ChunkCache {
 
     public void onPacket(ReplayWrapper<?> packet) {
         if (packet instanceof ReplayChunkData) {
-            ReplayChunkData chunkData = (ReplayChunkData) packet;
-            if (chunkData.getServerVersion().isOlderThan(ServerVersion.V_1_18)) {
-                chunkData.setLightData(this.lightQueue.remove(chunkData.getChunkPos())); // allowed to be null
-            }
-            this.chunks.put(chunkData.getChunkPos(), new ChunkWrapper(this.user, chunkData));
+            ReplayChunkData chunk = this.lightQueue.newChunk((ReplayChunkData) packet);
+            this.cacheChunks.put(chunk.getChunkPos(), new ChunkWrapper(this.user, chunk));
         } else if (packet instanceof ReplayChunkBulkData) {
-            ReplayChunkBulkData chunkDataBulk = (ReplayChunkBulkData) packet;
-            for (ReplayChunkData chunkData : chunkDataBulk.getChunks()) {
-                this.chunks.put(chunkData.getChunkPos(), new ChunkWrapper(this.user, chunkData));
+            for (ReplayChunkData chunk : ((ReplayChunkBulkData) packet).getChunks()) {
+                this.cacheChunks.put(chunk.getChunkPos(), new ChunkWrapper(this.user, chunk));
             }
         } else if (packet instanceof ReplayUpdateLightData) {
             ReplayUpdateLightData lightData = (ReplayUpdateLightData) packet;
-            IChunkWrapper wrapper = this.chunks.get(lightData.getChunkPos());
+            IChunkWrapper chunk = this.cacheChunks.get(lightData.getChunkPos());
+            if (chunk != null) {
+                chunk.setLightData(lightData.getLightData());
+            } else {
+                this.lightQueue.newLight(lightData);
+            }
+        } else if (packet instanceof ReplayUpdateBlock) {
+            ReplayUpdateBlock block = (ReplayUpdateBlock) packet;
+            IChunkWrapper wrapper = this.cacheChunks.get(block.getChunkPos());
             if (wrapper != null) {
-                wrapper.setLightData(lightData.getLightData());
-            } else if (lightData.getServerVersion().isOlderThan(ServerVersion.V_1_18)) {
-                LightData oldLight = this.lightQueue.put(lightData.getChunkPos(), lightData.getLightData());
-                if (oldLight != null && lightData.getServerVersion().isOlderThan(ServerVersion.V_1_17)) {
-                    LightDataUtils.appendLightData(lightData.getLightData(), oldLight);
-                }
+                wrapper.setBlock(block.getBlockPos(), block.getBlockId());
             }
         } else if (packet instanceof ReplayUpdateMultipleBlock) {
-            ReplayUpdateMultipleBlock blocks = (ReplayUpdateMultipleBlock) packet;
-            for (ReplayUpdateMultipleBlock.BlockClazz clazz : blocks.getBlocks()) {
-                IChunkWrapper wrapper = this.chunks.get(clazz.getChunkPos());
+            for (ReplayUpdateMultipleBlock.BlockClazz clazz : ((ReplayUpdateMultipleBlock) packet).getBlocks()) {
+                IChunkWrapper wrapper = this.cacheChunks.get(clazz.getChunkPos());
                 if (wrapper != null) {
                     wrapper.setBlock(clazz.getPos(), clazz.getBlockId());
                 }
             }
-        } else if (packet instanceof ReplayUpdateBlock) {
-            ReplayUpdateBlock block = (ReplayUpdateBlock) packet;
-            IChunkWrapper wrapper = this.chunks.get(block.getChunkPos());
-            if (wrapper != null) {
-                wrapper.setBlock(block.getBlockPos(), block.getBlockId());
-            }
         } else if (packet instanceof ReplayUnloadChunkData) {
-            ReplayUnloadChunkData chunkData = (ReplayUnloadChunkData) packet;
-            this.chunks.remove(new ChunkPos(chunkData.getX(), chunkData.getZ()));
+            this.cacheChunks.remove(((ReplayUnloadChunkData) packet).getChunkPos());
         }
     }
 
     public void clearCache() {
-        this.chunks.clear();
+        this.cacheChunks.clear();
     }
 
     public static class ChunkWrapper implements IChunkWrapper {
@@ -87,6 +75,11 @@ public class ChunkCache {
         @Override
         public Column getColumn() {
             return chunk.getColumn();
+        }
+
+        @Override
+        public LightData getLightData() {
+            return chunk.getLightData();
         }
 
         @Override
@@ -119,6 +112,8 @@ public class ChunkCache {
 
     public interface IChunkWrapper {
         Column getColumn();
+
+        LightData getLightData();
 
         void setLightData(LightData lightData);
 
@@ -170,7 +165,7 @@ public class ChunkCache {
     }
 
     public List<ReplayChunkData> toPacket() {
-        return chunks.values().stream()
+        return cacheChunks.values().stream()
                 .map(IChunkWrapper::toPacket)
                 .collect(Collectors.toList());
     }
