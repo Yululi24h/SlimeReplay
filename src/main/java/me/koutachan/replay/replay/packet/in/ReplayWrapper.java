@@ -32,6 +32,7 @@ public abstract class ReplayWrapper<T extends PacketWrapper<T>> extends PacketWr
 
     protected <U extends PacketWrapper<U>> U readWrapper(U wrapper) {
         wrapper.buffer = this.buffer;
+        wrapper.setServerVersion(getServerVersion());
         wrapper.read();
         return wrapper;
     }

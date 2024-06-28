@@ -5,6 +5,7 @@ import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
 import com.github.retrooper.packetevents.protocol.world.Location;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnPlayer;
 
 import java.util.List;
 
@@ -18,7 +19,13 @@ public class ReplaySpawnPlayer extends ReplayEntityAbstract {
     }
 
     public ReplaySpawnPlayer(PacketSendEvent event) {
-
+        WrapperPlayServerSpawnPlayer wrapper = new WrapperPlayServerSpawnPlayer(event);
+        this.classType = ClassType.PLAYER;
+        this.entityId = wrapper.getEntityId();
+        this.position = wrapper.getPosition();
+        this.yaw = wrapper.getYaw();
+        this.pitch = wrapper.getPitch();
+        this.entityData = wrapper.getEntityMetadata(); // Just calf
     }
 
     public ReplaySpawnPlayer(int entityId, Location location, List<EntityData> entityData) {
