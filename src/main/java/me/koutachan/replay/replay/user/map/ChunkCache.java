@@ -4,6 +4,7 @@ import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.world.chunk.BaseChunk;
 import com.github.retrooper.packetevents.protocol.world.chunk.Column;
 import com.github.retrooper.packetevents.util.Vector3i;
+import com.google.common.cache.CacheBuilder;
 import me.koutachan.replay.replay.packet.in.*;
 import me.koutachan.replay.replay.packet.in.packetevents.LightData;
 import me.koutachan.replay.replay.user.ReplayUser;
@@ -18,8 +19,10 @@ import java.util.stream.Collectors;
 public class ChunkCache {
     private final Map<ChunkPos, IChunkWrapper> chunks = new HashMap<>();
     private final ReplayUser user;
-
-    private ReplayUpdateLightData lastLightData;
+    private final Map<ChunkPos, LightData> lightQueue = CacheBuilder.newBuilder() // This is not the best way to implement this, but it is better than creating Minecraft's light engine.
+            .maximumSize(10)
+            .<ChunkPos, LightData>build()
+            .asMap();
 
     public ChunkCache(ReplayUser user) {
         this.user = user;
@@ -28,25 +31,25 @@ public class ChunkCache {
     public void onPacket(ReplayWrapper<?> packet) {
         if (packet instanceof ReplayChunkData) {
             ReplayChunkData chunkData = (ReplayChunkData) packet;
-            if (this.lastLightData != null) { // Minecraft will send light data ahead...
-                if (chunkData.getX() == this.lastLightData.getX() && chunkData.getZ() == this.lastLightData.getZ()) {
-                    chunkData.setLightData(this.lastLightData.getLightData());
-                }
-                this.lastLightData = null;
+            if (chunkData.getServerVersion().isOlderThan(ServerVersion.V_1_18)) {
+                chunkData.setLightData(this.lightQueue.remove(chunkData.getChunkPos())); // allowed to be null
             }
-            this.chunks.put(chunkData.toChunkPos(), new ChunkWrapper(this.user, chunkData));
+            this.chunks.put(chunkData.getChunkPos(), new ChunkWrapper(this.user, chunkData));
         } else if (packet instanceof ReplayChunkBulkData) {
             ReplayChunkBulkData chunkDataBulk = (ReplayChunkBulkData) packet;
             for (ReplayChunkData chunkData : chunkDataBulk.getChunks()) {
-                this.chunks.put(chunkData.toChunkPos(), new ChunkWrapper(this.user, chunkData));
+                this.chunks.put(chunkData.getChunkPos(), new ChunkWrapper(this.user, chunkData));
             }
         } else if (packet instanceof ReplayUpdateLightData) {
             ReplayUpdateLightData lightData = (ReplayUpdateLightData) packet;
             IChunkWrapper wrapper = this.chunks.get(lightData.getChunkPos());
             if (wrapper != null) {
                 wrapper.setLightData(lightData.getLightData());
-            } else {
-                this.lastLightData = lightData; // Minecraft will send light data ahead...
+            } else if (lightData.getServerVersion().isOlderThan(ServerVersion.V_1_18)) {
+                LightData oldLight = this.lightQueue.put(lightData.getChunkPos(), lightData.getLightData());
+                if (oldLight != null && lightData.getServerVersion().isOlderThan(ServerVersion.V_1_17)) {
+                    LightDataUtils.appendLightData(lightData.getLightData(), oldLight);
+                }
             }
         } else if (packet instanceof ReplayUpdateMultipleBlock) {
             ReplayUpdateMultipleBlock blocks = (ReplayUpdateMultipleBlock) packet;

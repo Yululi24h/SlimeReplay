@@ -23,7 +23,7 @@ public class ReplayChunkChain extends ReplayChainImpl<ReplayChunkData> {
 
     @Override
     public List<PacketWrapper<?>> send(ReplayRunnerHandler handler) {
-        this.oldChunk = handler.getChunk(this.packet.toChunkPos());
+        this.oldChunk = handler.getChunk(this.packet.getChunkPos());
         handler.handleChunk(this.packet);
         return null;
     }

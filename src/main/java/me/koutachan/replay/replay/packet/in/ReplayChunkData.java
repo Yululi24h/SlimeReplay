@@ -102,7 +102,7 @@ public class ReplayChunkData extends ReplayWrapper<ReplayChunkData> {
         return column.getZ();
     }
 
-    public ChunkCache.ChunkPos toChunkPos() {
+    public ChunkCache.ChunkPos getChunkPos() {
         return new ChunkCache.ChunkPos(getX(), getZ());
     }
 
