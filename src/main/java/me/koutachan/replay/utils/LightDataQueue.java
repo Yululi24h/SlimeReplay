@@ -4,7 +4,7 @@ import com.google.common.cache.CacheBuilder;
 import me.koutachan.replay.replay.packet.in.ReplayChunkData;
 import me.koutachan.replay.replay.packet.in.ReplayUpdateLightData;
 import me.koutachan.replay.replay.packet.in.packetevents.LightData;
-import me.koutachan.replay.replay.user.map.ChunkCache;
+import me.koutachan.replay.replay.user.cache.ChunkCache;
 import me.koutachan.replay.replay.user.replay.chain.ReplayChunk;
 
 import java.util.Map;

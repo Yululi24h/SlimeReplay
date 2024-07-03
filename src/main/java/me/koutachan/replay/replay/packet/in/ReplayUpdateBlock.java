@@ -5,7 +5,7 @@ import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.util.Vector3i;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerBlockChange;
-import me.koutachan.replay.replay.user.map.ChunkCache;
+import me.koutachan.replay.replay.user.cache.ChunkCache;
 
 import java.util.ArrayList;
 import java.util.List;

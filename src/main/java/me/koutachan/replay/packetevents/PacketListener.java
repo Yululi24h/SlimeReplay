@@ -2,6 +2,7 @@ package me.koutachan.replay.packetevents;
 
 import com.github.retrooper.packetevents.event.*;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerInfo;
 import me.koutachan.replay.replay.packet.in.*;
 import me.koutachan.replay.replay.user.ReplayUser;
 import me.koutachan.replay.replay.user.ReplayUserContainer;
@@ -48,6 +49,12 @@ public class PacketListener extends PacketListenerAbstract {
     @Override
     public void onPacketSend(PacketSendEvent event) {
         super.onPacketSend(event);
+        if (event.getPacketType() == PacketType.Play.Server.PLAYER_INFO) {
+            WrapperPlayServerPlayerInfo info = new WrapperPlayServerPlayerInfo(event);
+            System.out.println("Received Player Info!");
+            System.out.println(info.getAction());
+        }
+
         ReplayUser user = ReplayUserContainer.getUser(event.getUser());
         if (user != null) {
             ReplayWrapper<?> packet = null;
@@ -76,6 +83,7 @@ public class PacketListener extends PacketListenerAbstract {
                     packet = new ReplayEntityVelocity(event);
                     break;
                 }
+
                 case UNLOAD_CHUNK: {
                     packet = new ReplayUnloadChunkData(event);
                     break;
@@ -95,6 +103,13 @@ public class PacketListener extends PacketListenerAbstract {
                 }
                 case SPAWN_EXPERIENCE_ORB: { //TODO:
                     //packet = new ReplayPacketImpl(new WrapperPlayServerSpawnExperienceOrb(event));
+                    break;
+                }
+                case PLAYER_INFO: {
+                    WrapperPlayServerPlayerInfo playerInfo = new WrapperPlayServerPlayerInfo(event);
+                    if (playerInfo.getAction() != WrapperPlayServerPlayerInfo.Action.UPDATE_LATENCY) {
+                        packet = new ReplayPlayerInfo(playerInfo); // Fixed.
+                    }
                     break;
                 }
                 case ENTITY_EQUIPMENT: {

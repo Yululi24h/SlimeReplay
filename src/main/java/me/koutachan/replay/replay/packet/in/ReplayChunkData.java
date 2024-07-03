@@ -25,7 +25,7 @@ import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUnloadChunk;
 import me.koutachan.replay.replay.packet.in.packetevents.LightData;
 import me.koutachan.replay.replay.packet.in.packetevents.WrapperPlayServerChunkData;
-import me.koutachan.replay.replay.user.map.ChunkCache;
+import me.koutachan.replay.replay.user.cache.ChunkCache;
 
 import java.util.ArrayList;
 import java.util.List;

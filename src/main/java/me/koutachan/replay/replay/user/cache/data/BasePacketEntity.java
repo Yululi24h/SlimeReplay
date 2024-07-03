@@ -1,4 +1,4 @@
-package me.koutachan.replay.replay.user.map.data;
+package me.koutachan.replay.replay.user.cache.data;
 
 import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
 import com.github.retrooper.packetevents.protocol.player.Equipment;

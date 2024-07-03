@@ -3,12 +3,13 @@ package me.koutachan.replay.replay.user.replay.chain;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.world.chunk.BaseChunk;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDestroyEntities;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUnloadChunk;
 import me.koutachan.replay.replay.packet.in.ReplayChunkData;
 import me.koutachan.replay.replay.packet.in.packetevents.LightData;
 import me.koutachan.replay.replay.packet.in.packetevents.WrapperPlayServerUpdateLight;
 import me.koutachan.replay.replay.user.ReplayUser;
-import me.koutachan.replay.replay.user.map.ChunkCache;
+import me.koutachan.replay.replay.user.cache.ChunkCache;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,6 +89,9 @@ public class ReplayChunk {
         if (chunkData.getLightData() != null && chunkData.getServerVersion().isOlderThan(ServerVersion.V_1_18)) {
             packetWrappers.add(new WrapperPlayServerUpdateLight(getX(), getZ(), getLightData()));
         }
+        for (ReplayEntity replayEntity : currentChunkEntities) {
+            replayEntity.send();
+        }
         return packetWrappers;
     }
 
@@ -102,6 +106,13 @@ public class ReplayChunk {
         if (!this.loaded)
             return;
         this.user.sendSilent(new WrapperPlayServerUnloadChunk(getX(), getZ()));
+        this.user.sendSilent(new WrapperPlayServerDestroyEntities(collectEntityIds()));
         this.loaded = false;
+    }
+
+    private int[] collectEntityIds() {
+        return this.currentChunkEntities.stream()
+                .mapToInt(ReplayEntity::getEntityId)
+                .toArray();
     }
 }

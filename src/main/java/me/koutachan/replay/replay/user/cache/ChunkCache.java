@@ -1,4 +1,4 @@
-package me.koutachan.replay.replay.user.map;
+package me.koutachan.replay.replay.user.cache;
 
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.world.chunk.BaseChunk;

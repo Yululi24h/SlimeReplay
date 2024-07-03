@@ -1,6 +1,5 @@
 package me.koutachan.replay.replay.user.record;
 
-import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import me.koutachan.replay.replay.packet.ReplayPacket;
 import me.koutachan.replay.replay.packet.ReplayPacketContainer;
 import me.koutachan.replay.replay.packet.in.ReplayStartData;
@@ -20,7 +19,7 @@ public class RecordHookImpl implements RecordHook {
                         this.user.getChunk().toPacket(),
                         this.user.getEntities().toPacket(),
                         this.user.getDimension(),
-                        SpigotConversionUtil.fromBukkitLocation(this.user.getPlayer().getLocation())
+                        this.user.getEntities().getSelf().getLocation()
                 ), 0L)
         );
     }

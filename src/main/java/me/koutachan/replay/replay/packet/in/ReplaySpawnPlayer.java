@@ -5,13 +5,17 @@ import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
 import com.github.retrooper.packetevents.protocol.world.Location;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnPlayer;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class ReplaySpawnPlayer extends ReplayEntityAbstract {
     private float yaw;
     private float pitch;
+    private UUID uuid;
     private List<EntityData> entityData;
 
     public ReplaySpawnPlayer(ServerVersion version, Object byteBuf) {
@@ -40,6 +44,7 @@ public class ReplaySpawnPlayer extends ReplayEntityAbstract {
         super.read();
         this.yaw = readFloat();
         this.pitch = readFloat();
+        this.uuid = readUUID();
         this.entityData = readEntityMetadata();
     }
 
@@ -48,6 +53,7 @@ public class ReplaySpawnPlayer extends ReplayEntityAbstract {
         super.write();
         writeFloat(this.yaw);
         writeFloat(this.pitch);
+        writeUUID(this.uuid);
         writeEntityMetadata(this.entityData);
     }
 
@@ -70,7 +76,19 @@ public class ReplaySpawnPlayer extends ReplayEntityAbstract {
 
     @Override
     public List<PacketWrapper<?>> getPackets() {
-        return null;
+        List<PacketWrapper<?>> packets = new ArrayList<>();
+        packets.add(new WrapperPlayServerSpawnPlayer(
+                this.entityId,
+                this.uuid,
+                this.position,
+                this.yaw,
+                this.pitch,
+                this.entityData
+        ));
+        if (this.serverVersion.isNewerThanOrEquals(ServerVersion.V_1_15)) {
+            packets.add(new WrapperPlayServerEntityMetadata(this.entityId, this.entityData));
+        }
+        return packets;
     }
 
     @Override

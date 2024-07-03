@@ -3,12 +3,10 @@ package me.koutachan.replay.replay.user.replay.chain.impl;
 import com.github.retrooper.packetevents.protocol.player.GameMode;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import me.koutachan.replay.replay.packet.in.ReplayChunkData;
+import me.koutachan.replay.replay.packet.in.ReplayEntityAbstract;
 import me.koutachan.replay.replay.packet.in.ReplayStartData;
 import me.koutachan.replay.replay.packet.in.ReplayUpdateLightData;
-import me.koutachan.replay.replay.user.replay.chain.ReplayChain;
-import me.koutachan.replay.replay.user.replay.chain.ReplayChainType;
-import me.koutachan.replay.replay.user.replay.chain.ReplayChunk;
-import me.koutachan.replay.replay.user.replay.chain.ReplayRunnerHandler;
+import me.koutachan.replay.replay.user.replay.chain.*;
 import org.bukkit.Bukkit;
 
 import java.util.List;
@@ -39,6 +37,10 @@ public class ReplayStartDataChain extends ReplayChainImpl<ReplayStartData> {
                 chunk.setLightData(lightData.getLightData());
             }
         }
+        for (ReplayEntityAbstract replayEntity : this.packet.getEntityData()) {
+            handler.handleEntity(replayEntity);
+        }
+
         return null;
     }
 

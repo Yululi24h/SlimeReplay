@@ -5,7 +5,7 @@ import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import me.koutachan.replay.replay.packet.in.packetevents.LightData;
 import me.koutachan.replay.replay.packet.in.packetevents.WrapperPlayServerUpdateLight;
-import me.koutachan.replay.replay.user.map.ChunkCache;
+import me.koutachan.replay.replay.user.cache.ChunkCache;
 
 import java.util.List;
 

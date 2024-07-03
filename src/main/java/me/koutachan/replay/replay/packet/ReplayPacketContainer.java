@@ -23,7 +23,6 @@ public class ReplayPacketContainer {
         this.packets = packets;
         this.version = version;
         this.versionFlag = versionFlag;
-
     }
 
     public void write(OutputStream stream) throws IOException {

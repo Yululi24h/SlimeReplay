@@ -1,22 +1,20 @@
-package me.koutachan.replay.replay.user.map;
+package me.koutachan.replay.replay.user.cache;
 
 import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes;
 import com.github.retrooper.packetevents.util.Vector3d;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import me.koutachan.replay.replay.packet.in.*;
 import me.koutachan.replay.replay.user.ReplayUser;
-import me.koutachan.replay.replay.user.map.data.BasePacketEntity;
-import me.koutachan.replay.replay.user.map.data.PacketEntitySelf;
+import me.koutachan.replay.replay.user.cache.data.BasePacketEntity;
+import me.koutachan.replay.replay.user.cache.data.PacketEntitySelf;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class EntitiesCache {
     private PacketEntitySelf self;
     private final Map<Integer, BasePacketEntity> entities = new HashMap<>();
+    private final Map<UUID, ReplayPlayerInfo> playerInfo = new HashMap<>();
     private final ReplayUser user;
 
     public EntitiesCache(ReplayUser user) {
@@ -31,6 +29,7 @@ public class EntitiesCache {
                 0,
                 Vector3d.zero()
         );
+        this.entities.put(this.user.getEntityId(), this.self);
     }
 
     public void onPacket(ReplayWrapper<?> packet) {
@@ -88,13 +87,21 @@ public class EntitiesCache {
             for (int entityId : destroyEntities.getEntityIds()) {
                 this.entities.remove(entityId);
             }
+        } else if (packet instanceof ReplayPlayerInfo) {
+            ReplayPlayerInfo playerInfo = (ReplayPlayerInfo) packet;
+
+
+            System.out.println("Player Info Received");
+            System.out.println(playerInfo.getAction());
+
         }
     }
 
+    public PacketEntitySelf getSelf() {
+        return self;
+    }
+
     public BasePacketEntity getEntity(int entityId) {
-        if (entityId == this.self.getEntityId()) {
-            return this.self;
-        }
         return this.entities.get(entityId);
     }
 

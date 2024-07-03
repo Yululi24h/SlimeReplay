@@ -9,13 +9,9 @@ import com.github.retrooper.packetevents.protocol.world.states.WrappedBlockState
 import com.github.retrooper.packetevents.util.Vector3i;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.server.*;
-import me.koutachan.replay.replay.packet.in.ReplayChunkData;
-import me.koutachan.replay.replay.packet.in.ReplayUpdateBlock;
-import me.koutachan.replay.replay.packet.in.ReplayUpdateLightData;
-import me.koutachan.replay.replay.packet.in.ReplayUpdateMultipleBlock;
+import me.koutachan.replay.replay.packet.in.*;
 import me.koutachan.replay.replay.user.ReplayUser;
-import me.koutachan.replay.replay.user.map.ChunkCache;
-import me.koutachan.replay.replay.user.map.data.PacketEntity;
+import me.koutachan.replay.replay.user.cache.ChunkCache;
 import me.koutachan.replay.replay.user.replay.chain.impl.ReplayStartDataChain;
 import me.koutachan.replay.utils.LightDataQueue;
 import net.kyori.adventure.text.Component;
@@ -33,7 +29,7 @@ public class ReplayRunnerHandler {
     private final Map<ChunkCache.ChunkPos, ReplayChunk> currentChunks = new ConcurrentHashMap<>();
     private final LightDataQueue lightQueue = new LightDataQueue();
 
-    private final List<PacketEntity> currentEntities = new ArrayList<>();
+    private final List<ReplayEntity> currentEntities = new ArrayList<>();
     private ReplayChain current;
 
     private Location playerPos;
@@ -57,7 +53,7 @@ public class ReplayRunnerHandler {
     }
 
     @Nullable
-    public PacketEntity getEntity(int entityId) {
+    public ReplayEntity getEntity(int entityId) {
         return this.currentEntities.stream()
                 .filter(entity -> entity.getEntityId() == entityId)
                 .findFirst()
@@ -66,6 +62,10 @@ public class ReplayRunnerHandler {
 
     public void handleChunkRadius(int chunkRadius) {
         this.chunkRadius = chunkRadius;
+    }
+
+    public void handleEntity(ReplayEntityAbstract replayEntity) {
+        this.currentEntities.add(new ReplayEntity(this, replayEntity));
     }
 
     public void handleChunk(ReplayChunkData chunkData) {

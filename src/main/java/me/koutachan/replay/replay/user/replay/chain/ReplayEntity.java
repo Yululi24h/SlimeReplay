@@ -6,7 +6,7 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDe
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
 import me.koutachan.replay.replay.packet.in.ReplayEntityAbstract;
 import me.koutachan.replay.replay.user.ReplayUser;
-import me.koutachan.replay.replay.user.map.ChunkCache;
+import me.koutachan.replay.replay.user.cache.ChunkCache;
 
 import java.util.List;
 
@@ -32,12 +32,15 @@ public class ReplayEntity {
         this.entityId = replayWrapper.getEntityId();
         this.spawnPacket.setEntityId(getIncrementedEntityId(this.entityId));
         move(currentPos);
+        handler.getUser().sendMessage("Moving chunk");
     }
 
     public void send() {
-        if (this.loaded)
+        handler.getUser().sendMessage("Trying called" + (this.replayChunk == null));
+        if (this.loaded || this.replayChunk == null)
             return;
         this.spawnPacket.setLocation(this.currentPos);
+        handler.getUser().sendMessage("Send: " + this.spawnPacket.getClass().getName());
         this.replayUser.sendSilent(this.spawnPacket.getPackets());
         this.loaded = true;
     }
@@ -76,14 +79,18 @@ public class ReplayEntity {
                     return; // This entity is not moving chunk, so no processing is required
                 }
             }
-            if (this.replayChunk != null) {
-                this.replayChunk.addEntity(this);
+            this.currentPos = location;
+            if (this.replayChunk == null) {
+                unload(UnloadReason.CHUNK);
+                return;
+            }
+            this.replayChunk.addEntity(this);
+            if (replayChunk.isLoaded()) {
                 send();
             } else {
                 unload(UnloadReason.CHUNK);
             }
         }
-        this.currentPos = location;
     }
 
     public void setCurrentPos(Location currentPos) {

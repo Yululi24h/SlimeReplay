@@ -1,4 +1,4 @@
-package me.koutachan.replay.replay.user.map.data;
+package me.koutachan.replay.replay.user.cache.data;
 
 import com.github.retrooper.packetevents.protocol.entity.type.EntityType;
 import com.github.retrooper.packetevents.protocol.world.Location;
@@ -26,5 +26,9 @@ public class PacketEntitySelf extends PacketEntity {
                 this.location,
                 this.entityData
         );
+    }
+
+    public Location getLocation() {
+        return this.location;
     }
 }
