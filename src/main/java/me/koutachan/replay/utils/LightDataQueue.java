@@ -4,15 +4,14 @@ import com.google.common.cache.CacheBuilder;
 import me.koutachan.replay.replay.packet.in.ReplayChunkData;
 import me.koutachan.replay.replay.packet.in.ReplayUpdateLightData;
 import me.koutachan.replay.replay.packet.in.packetevents.LightData;
-import me.koutachan.replay.replay.user.cache.ChunkCache;
 import me.koutachan.replay.replay.user.replay.chain.ReplayChunk;
 
 import java.util.Map;
 
 public class LightDataQueue {
-    private final Map<ChunkCache.ChunkPos, LightData> lightQueue = CacheBuilder.newBuilder() // This is not the best way to implement this, but it is better than creating Minecraft's light engine.
+    private final Map<ChunkPos, LightData> lightQueue = CacheBuilder.newBuilder() // This is not the best way to implement this, but it is better than creating Minecraft's light engine.
             .maximumSize(30)
-            .<ChunkCache.ChunkPos, LightData>build()
+            .<ChunkPos, LightData>build()
             .asMap();
 
     public ReplayChunk newChunk(ReplayChunk chunk) {
@@ -32,7 +31,7 @@ public class LightDataQueue {
         this.lightQueue.put(lightData.getChunkPos(), lightData.getLightData());
     }
 
-    public Map<ChunkCache.ChunkPos, LightData> getLightQueue() {
+    public Map<ChunkPos, LightData> getLightQueue() {
         return lightQueue;
     }
 }

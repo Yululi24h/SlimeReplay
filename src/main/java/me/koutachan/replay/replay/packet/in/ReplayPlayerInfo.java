@@ -27,24 +27,20 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPl
 import net.kyori.adventure.text.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ReplayPlayerInfo extends ReplayWrapper<ReplayPlayerInfo> {
     private Action action;
-    private List<PlayerData> playerData;// = new ArrayList<>();
-
-    //private WrapperPlayServerPlayerInfo wrapper; // because I'm lazy at this times
+    private List<PlayerData> playerData;
 
     public ReplayPlayerInfo(ServerVersion version, Object byteBuf) {
         super(version, byteBuf);
     }
 
-    public ReplayPlayerInfo(WrapperPlayServerPlayerInfo playerInfo) {
-        this.action = Action.getByOrdinal(playerInfo.getAction().ordinal());
-        this.playerData = new ArrayList<>(playerInfo.getPlayerDataList().size());
-        for (WrapperPlayServerPlayerInfo.PlayerData playerData : playerInfo.getPlayerDataList()) {
-            this.playerData.add(new PlayerData(playerData.getUserProfile(), playerData.getGameMode(), playerData.getDisplayName()));
-        }
+    public ReplayPlayerInfo(Action action, List<PlayerData> playerData) {
+        this.action = action;
+        this.playerData = playerData;
     }
 
     @Override
@@ -119,7 +115,6 @@ public class ReplayPlayerInfo extends ReplayWrapper<ReplayPlayerInfo> {
                 }
             }
         }
-
     }
 
     public Action getAction() {
@@ -137,7 +132,7 @@ public class ReplayPlayerInfo extends ReplayWrapper<ReplayPlayerInfo> {
 
     @Override
     public List<PacketWrapper<?>> getPackets() {
-        return null;
+        return Collections.singletonList(toPacketEvent());
     }
 
     @Override
@@ -145,17 +140,43 @@ public class ReplayPlayerInfo extends ReplayWrapper<ReplayPlayerInfo> {
         return null;
     }
 
+    public WrapperPlayServerPlayerInfo toPacketEvent() {
+        List<WrapperPlayServerPlayerInfo.PlayerData> playerDataList = new ArrayList<>(this.playerData.size());
+        for (PlayerData playerData : this.playerData) {
+            playerDataList.add(new WrapperPlayServerPlayerInfo.PlayerData(playerData.getDisplayName(), playerData.getProfile(), playerData.getGameMode(), 0));
+        }
+        return new WrapperPlayServerPlayerInfo(this.action.toPacketAction(), playerDataList);
+    }
+
+    public static ReplayPlayerInfo fromPacketEvent(WrapperPlayServerPlayerInfo wrapper) {
+        if (wrapper.getAction() == null || wrapper.getAction() == WrapperPlayServerPlayerInfo.Action.UPDATE_LATENCY)
+            return null;
+        List<PlayerData> playerDataList = new ArrayList<>(wrapper.getPlayerDataList().size());
+        for (WrapperPlayServerPlayerInfo.PlayerData playerData : wrapper.getPlayerDataList()) {
+            playerDataList.add(new PlayerData(playerData.getUserProfile(), playerData.getGameMode(), playerData.getDisplayName()));
+        }
+        return new ReplayPlayerInfo(Action.getByPacketAction(wrapper.getAction()), playerDataList);
+    }
+
     public enum Action {
         ADD_PLAYER,
         UPDATE_GAME_MODE,
-        UPDATE_LATENCY,
+        UPDATE_LATENCY, // TODO: REMOVE UPDATE_LATENCY BUT CURRENT NOT.
         UPDATE_DISPLAY_NAME,
         REMOVE_PLAYER;
 
         public final static Action[] values = values();
 
+        public WrapperPlayServerPlayerInfo.Action toPacketAction() {
+            return WrapperPlayServerPlayerInfo.Action.VALUES[ordinal()];
+        }
+
         public static Action getByOrdinal(int ordinal) {
             return values[ordinal];
+        }
+
+        public static Action getByPacketAction(WrapperPlayServerPlayerInfo.Action action) {
+            return getByOrdinal(action.ordinal());
         }
     }
 

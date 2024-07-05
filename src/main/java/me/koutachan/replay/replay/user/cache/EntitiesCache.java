@@ -22,7 +22,7 @@ public class EntitiesCache {
         this.self = new PacketEntitySelf(
                 this.user,
                 this.user.getEntityId(),
-                this.user.getUser().getUUID(),
+                this.user.getUUID(),
                 EntityTypes.PLAYER,
                 SpigotConversionUtil.fromBukkitLocation(this.user.getPlayer().getLocation()),
                 0F,
@@ -33,57 +33,48 @@ public class EntitiesCache {
     }
 
     public void onPacket(ReplayWrapper<?> packet) {
-        if (packet instanceof ReplayEntityPos) {
-            ReplayEntityPos entityPos = (ReplayEntityPos) packet;
+        if (packet instanceof ReplayEntityPos entityPos) {
             BasePacketEntity entity = getEntity(entityPos.getEntityId());
             if (entity != null) {
                 entity.onMove(entityPos.getX(), entityPos.getY(), entityPos.getZ());
             }
-        } else if (packet instanceof ReplayEntityVelocity) {
-            ReplayEntityVelocity entityVelocity = (ReplayEntityVelocity) packet;
+        } else if (packet instanceof ReplayEntityVelocity entityVelocity) {
             BasePacketEntity entity = getEntity(entityVelocity.getEntityId());
             if (entity != null) {
                 entity.onVelocity();
             }
-        } else if (packet instanceof ReplayEntityRotation) {
-            ReplayEntityRotation entityRotation = (ReplayEntityRotation) packet;
+        } else if (packet instanceof ReplayEntityRotation entityRotation) {
             BasePacketEntity entity = getEntity(entityRotation.getEntityId());
             if (entity != null) {
                 entity.onRotation(entityRotation.getYaw(), entityRotation.getPitch());
             }
-        } else if (packet instanceof ReplayEntityTeleport) {
-            ReplayEntityTeleport entityTeleport = (ReplayEntityTeleport) packet;
+        } else if (packet instanceof ReplayEntityTeleport entityTeleport) {
             BasePacketEntity entity = getEntity(entityTeleport.getEntityId());
             if (entity != null) {
                 entity.onPosition(entityTeleport.getLocation());
             }
-        } else if (packet instanceof ReplayEntityPosAndRotation) {
-            ReplayEntityPosAndRotation entityPosAndRotation = (ReplayEntityPosAndRotation) packet;
+        } else if (packet instanceof ReplayEntityPosAndRotation entityPosAndRotation) {
             BasePacketEntity entity = getEntity(entityPosAndRotation.getEntityId());
             if (entity != null) {
                 entity.onMove(entityPosAndRotation.getX(), entityPosAndRotation.getY(), entityPosAndRotation.getZ());
                 entity.onRotation(entityPosAndRotation.getYaw(), entityPosAndRotation.getPitch());
             }
-        } else if (packet instanceof ReplayEntityHeadYaw) {
-            ReplayEntityHeadYaw entityHeadYaw = (ReplayEntityHeadYaw) packet;
+        } else if (packet instanceof ReplayEntityHeadYaw entityHeadYaw) {
             BasePacketEntity entity = getEntity(entityHeadYaw.getEntityId());
             if (entity != null) {
                 entity.onHeadYaw(entityHeadYaw.getHeadYaw());
             }
-        } else if (packet instanceof ReplayUpdateEntityData) {
-            ReplayUpdateEntityData entityData = (ReplayUpdateEntityData) packet;
+        } else if (packet instanceof ReplayUpdateEntityData entityData) {
             BasePacketEntity entity = getEntity(entityData.getEntityId());
             if (entity != null) {
                 entity.onEntityMetaUpdate(entityData.getEntityData());
             }
-        } else if (packet instanceof ReplayEntityEquipment) {
-            ReplayEntityEquipment entityEquipment = (ReplayEntityEquipment) packet;
+        } else if (packet instanceof ReplayEntityEquipment entityEquipment) {
             BasePacketEntity entity = getEntity(entityEquipment.getEntityId());
             if (entity != null) {
                 entity.onEquipmentUpdate(entityEquipment.getEquipments());
             }
-        } else if (packet instanceof ReplayDestroyEntities) {
-            ReplayDestroyEntities destroyEntities = (ReplayDestroyEntities) packet;
+        } else if (packet instanceof ReplayDestroyEntities destroyEntities) {
             for (int entityId : destroyEntities.getEntityIds()) {
                 this.entities.remove(entityId);
             }

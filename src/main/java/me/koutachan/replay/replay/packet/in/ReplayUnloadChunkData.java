@@ -4,7 +4,7 @@ import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUnloadChunk;
-import me.koutachan.replay.replay.user.cache.ChunkCache;
+import me.koutachan.replay.utils.ChunkPos;
 
 import java.util.List;
 
@@ -47,8 +47,8 @@ public class ReplayUnloadChunkData extends ReplayWrapper<ReplayUnloadChunkData> 
         return z;
     }
 
-    public ChunkCache.ChunkPos getChunkPos() {
-        return new ChunkCache.ChunkPos(this.x, this.z);
+    public ChunkPos getChunkPos() {
+        return new ChunkPos(this.x, this.z);
     }
 
     @Override

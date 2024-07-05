@@ -32,8 +32,9 @@ public class ReplaySpawnPlayer extends ReplayEntityAbstract {
         this.entityData = wrapper.getEntityMetadata(); // Just calf
     }
 
-    public ReplaySpawnPlayer(int entityId, Location location, List<EntityData> entityData) {
+    public ReplaySpawnPlayer(int entityId, UUID uuid, Location location, List<EntityData> entityData) {
         super(ClassType.PLAYER, entityId, location.getPosition());
+        this.uuid = uuid;
         this.yaw = location.getYaw();
         this.pitch = location.getPitch();
         this.entityData = entityData;

@@ -9,7 +9,7 @@ import me.koutachan.replay.replay.packet.in.ReplayChunkData;
 import me.koutachan.replay.replay.packet.in.packetevents.LightData;
 import me.koutachan.replay.replay.packet.in.packetevents.WrapperPlayServerUpdateLight;
 import me.koutachan.replay.replay.user.ReplayUser;
-import me.koutachan.replay.replay.user.cache.ChunkCache;
+import me.koutachan.replay.utils.ChunkPos;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,8 +56,8 @@ public class ReplayChunk {
         return chunkData.getZ();
     }
 
-    public ChunkCache.ChunkPos getChunkPos() {
-        return new ChunkCache.ChunkPos(getX(), getZ());
+    public ChunkPos getChunkPos() {
+        return new ChunkPos(getX(), getZ());
     }
 
     public LightData getLightData() {

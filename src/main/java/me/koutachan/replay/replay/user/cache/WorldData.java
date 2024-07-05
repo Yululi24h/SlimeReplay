@@ -15,8 +15,7 @@ public class WorldData {
     }
 
     public void onPacket(ReplayWrapper<?> packet) {
-        if (packet instanceof ReplayPlayerRespawnData) {
-            ReplayPlayerRespawnData data = (ReplayPlayerRespawnData) packet;
+        if (packet instanceof ReplayPlayerRespawnData data) {
             if (data.isWorldChanged(this.dimension)) {
                 this.user.getChunk().clearCache();
             }

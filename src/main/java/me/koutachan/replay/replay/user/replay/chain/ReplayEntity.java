@@ -6,7 +6,7 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDe
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
 import me.koutachan.replay.replay.packet.in.ReplayEntityAbstract;
 import me.koutachan.replay.replay.user.ReplayUser;
-import me.koutachan.replay.replay.user.cache.ChunkCache;
+import me.koutachan.replay.utils.ChunkPos;
 
 import java.util.List;
 
@@ -68,7 +68,7 @@ public class ReplayEntity {
 
     public void move(Location location) {
         if (this.currentPos == null || !this.currentPos.getPosition().equals(location.getPosition())) {
-            final ChunkCache.ChunkPos pos = this.handler.getChunkPos(location);
+            final ChunkPos pos = this.handler.getChunkPos(location);
             if (this.replayChunk == null) {
                 this.replayChunk = this.handler.getChunk(pos);
             } else {
@@ -76,7 +76,7 @@ public class ReplayEntity {
                     this.replayChunk.removeEntity(this);
                     this.replayChunk = this.handler.getChunk(pos);
                 } else {
-                    return; // This entity is not moving chunk, so no processing is required
+                    return; // This entity is not moving chunk, so no processing is required // Todo: update current pos.
                 }
             }
             this.currentPos = location;

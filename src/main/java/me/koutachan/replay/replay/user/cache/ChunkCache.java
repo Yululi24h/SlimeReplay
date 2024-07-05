@@ -7,13 +7,13 @@ import com.github.retrooper.packetevents.util.Vector3i;
 import me.koutachan.replay.replay.packet.in.*;
 import me.koutachan.replay.replay.packet.in.packetevents.LightData;
 import me.koutachan.replay.replay.user.ReplayUser;
+import me.koutachan.replay.utils.ChunkPos;
 import me.koutachan.replay.utils.LightDataQueue;
 import me.koutachan.replay.utils.LightDataUtils;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ChunkCache {
@@ -33,16 +33,14 @@ public class ChunkCache {
             for (ReplayChunkData chunk : ((ReplayChunkBulkData) packet).getChunks()) {
                 this.cacheChunks.put(chunk.getChunkPos(), new ChunkWrapper(this.user, chunk));
             }
-        } else if (packet instanceof ReplayUpdateLightData) {
-            ReplayUpdateLightData lightData = (ReplayUpdateLightData) packet;
+        } else if (packet instanceof ReplayUpdateLightData lightData) {
             IChunkWrapper chunk = this.cacheChunks.get(lightData.getChunkPos());
             if (chunk != null) {
                 chunk.setLightData(lightData.getLightData());
             } else {
                 this.lightQueue.newLight(lightData);
             }
-        } else if (packet instanceof ReplayUpdateBlock) {
-            ReplayUpdateBlock block = (ReplayUpdateBlock) packet;
+        } else if (packet instanceof ReplayUpdateBlock block) {
             IChunkWrapper wrapper = this.cacheChunks.get(block.getChunkPos());
             if (wrapper != null) {
                 wrapper.setBlock(block.getBlockPos(), block.getBlockId());
@@ -122,43 +120,7 @@ public class ChunkCache {
         ReplayChunkData toPacket();
     }
 
-    public static class ChunkPos {
-        private final int x, z;
 
-        public ChunkPos(int x, int z) {
-            this.x = x;
-            this.z = z;
-        }
-
-        public int getX() {
-            return x;
-        }
-
-        public int getZ() {
-            return z;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof ChunkPos)) return false;
-            ChunkPos chunkPos = (ChunkPos) o;
-            return x == chunkPos.x && z == chunkPos.z;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(x, z);
-        }
-
-        @Override
-        public String toString() {
-            return "ChunkPos{" +
-                    "x=" + x +
-                    ", z=" + z +
-                    '}';
-        }
-    }
 
     public void sentPacket(ReplayUser user) {
 

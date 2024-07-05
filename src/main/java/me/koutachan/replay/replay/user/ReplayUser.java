@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class ReplayUser {
@@ -137,6 +138,10 @@ public class ReplayUser {
 
     public int getEntityId() {
         return user.getEntityId();
+    }
+
+    public UUID getUUID() {
+        return user.getUUID();
     }
 
     public void shutdown() {

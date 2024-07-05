@@ -4,7 +4,7 @@ import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.util.Vector3i;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerMultiBlockChange;
-import me.koutachan.replay.replay.user.cache.ChunkCache;
+import me.koutachan.replay.utils.ChunkPos;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,8 +99,8 @@ public class ReplayUpdateMultipleBlock extends ReplayWrapper<ReplayUpdateMultipl
             this.blockId = blockId;
         }
 
-        public ChunkCache.ChunkPos getChunkPos() {
-            return new ChunkCache.ChunkPos(pos.getX() >> 4, pos.getZ() >> 4);
+        public ChunkPos getChunkPos() {
+            return new ChunkPos(pos.getX() >> 4, pos.getZ() >> 4);
         }
 
         public Vector3i getPos() {

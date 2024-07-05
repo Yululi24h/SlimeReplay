@@ -106,10 +106,7 @@ public class PacketListener extends PacketListenerAbstract {
                     break;
                 }
                 case PLAYER_INFO: {
-                    WrapperPlayServerPlayerInfo playerInfo = new WrapperPlayServerPlayerInfo(event);
-                    if (playerInfo.getAction() != WrapperPlayServerPlayerInfo.Action.UPDATE_LATENCY) {
-                        packet = new ReplayPlayerInfo(playerInfo); // Fixed.
-                    }
+                    packet = ReplayPlayerInfo.fromPacketEvent(new WrapperPlayServerPlayerInfo(event));
                     break;
                 }
                 case ENTITY_EQUIPMENT: {

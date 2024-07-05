@@ -23,6 +23,7 @@ public class PacketEntitySelf extends PacketEntity {
     public ReplayEntityAbstract toPacket() {
         return new ReplaySpawnPlayer(
                 this.entityId,
+                this.uuid,
                 this.location,
                 this.entityData
         );

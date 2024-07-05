@@ -5,7 +5,7 @@ import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import me.koutachan.replay.replay.packet.in.packetevents.LightData;
 import me.koutachan.replay.replay.packet.in.packetevents.WrapperPlayServerUpdateLight;
-import me.koutachan.replay.replay.user.cache.ChunkCache;
+import me.koutachan.replay.utils.ChunkPos;
 
 import java.util.List;
 
@@ -54,8 +54,8 @@ public class ReplayUpdateLightData extends ReplayWrapper<ReplayUpdateLightData> 
         return z;
     }
 
-    public ChunkCache.ChunkPos getChunkPos() {
-        return new ChunkCache.ChunkPos(this.x, this.z);
+    public ChunkPos getChunkPos() {
+        return new ChunkPos(this.x, this.z);
     }
 
     public LightData getLightData() {
